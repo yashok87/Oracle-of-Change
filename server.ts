@@ -48,15 +48,14 @@ async function startServer() {
         return res.status(response.status).json({ error: errorMessage });
       }
 
+      const text = await response.text();
       const contentType = response.headers.get("content-type");
       if (!contentType || !contentType.includes("application/json")) {
-        const text = await response.text();
         console.error("[Server] BigModel API expected JSON but received:", text.substring(0, 100));
         return res.status(500).json({ error: "Vision Proxy returned invalid format (not JSON)" });
       }
       
       let data;
-      const text = await response.text();
       try {
         data = JSON.parse(text);
       } catch (jsonErr: any) {
@@ -109,15 +108,14 @@ async function startServer() {
         return res.status(response.status).json({ error: errorMessage });
       }
 
+      const text = await response.text();
       const contentType = response.headers.get("content-type");
       if (!contentType || !contentType.includes("application/json")) {
-        const text = await response.text();
         console.error("[Server] Pollinations API expected JSON but received:", text.substring(0, 100));
         return res.status(500).json({ error: "Backend Proxy returned invalid format (not JSON)" });
       }
 
       let data;
-      const text = await response.text();
       try {
         data = JSON.parse(text);
       } catch (jsonErr: any) {
@@ -189,9 +187,20 @@ async function startServer() {
     app.use(vite.middlewares);
   } else {
     const distPath = path.join(process.cwd(), 'dist');
-    app.use(express.static(distPath));
-    app.get('*all', (req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
+    console.log(`[Server] Production mode: serving static files from ${distPath}`);
+    
+    app.use(express.static(distPath, {
+      index: false // We'll handle index.html manually to ensure it's the fallback
+    }));
+
+    app.get('*', (req, res) => {
+      const indexPath = path.join(distPath, 'index.html');
+      res.sendFile(indexPath, (err) => {
+        if (err) {
+          console.error(`[Server] Error sending index.html:`, err);
+          res.status(500).send("Server Error: index.html not found. Did you run 'npm run build'?");
+        }
+      });
     });
   }
 
