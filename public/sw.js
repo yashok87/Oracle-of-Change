@@ -1,8 +1,8 @@
-const CACHE_NAME = 'oracle-v3';
+const CACHE_NAME = 'oracle-v2';
 const ASSETS_TO_CACHE = [
-  '/',
-  '/index.html',
-  '/manifest.json',
+  './',
+  './index.html',
+  './manifest.json',
   'https://api.dicebear.com/9.x/shapes/png?seed=Oracle&size=192&backgroundColor=000000',
   'https://api.dicebear.com/9.x/shapes/png?seed=Oracle&size=512&backgroundColor=000000',
   'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap'
@@ -35,48 +35,46 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const url = event.request.url;
   
-  // Only handle http/https requests
-  if (!url || !url.startsWith('http')) {
-    return;
-  }
-  
-  // CRITICAL: Explicitly exclude API calls from Service Worker interception
-  // This ensures the browser handles them directly, avoiding cache/proxy issues.
-  if (url.includes('/api/') || url.includes('generativelanguage.googleapis.com') || url.includes('pollinations.ai')) {
+  // Exclude AI API calls and backend proxy from Service Worker interception
+  if (
+    url.includes('generativelanguage.googleapis.com') || 
+    url.includes('pollinations.ai') ||
+    url.includes('bigmodel.cn') ||
+    url.includes('corsproxy.io') ||
+    url.includes('googleSearch') ||
+    url.includes('generateContent') ||
+    url.includes('streamGenerateContent') ||
+    event.request.method !== 'GET'
+  ) {
+    console.log('[SW] Ignoring request:', url);
     return;
   }
 
   event.respondWith(
     caches.match(event.request).then((response) => {
-      // If found in cache, return it
-      if (response) return response;
-
-      // Otherwise fetch from network
-      return fetch(event.request).then((fetchResponse) => {
-        // Check if we received a valid response
-        if (!fetchResponse || fetchResponse.status !== 200 || fetchResponse.type !== 'basic' || event.request.method !== 'GET') {
+      // For navigation requests (index.html), always try network first
+      if (event.request.mode === 'navigate') {
+        return fetch(event.request).then((fetchResponse) => {
+          const responseClone = fetchResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseClone);
+          });
           return fetchResponse;
-        }
-
-        // Clone the response to store in cache
-        const responseToCache = fetchResponse.clone();
-
-        caches.open(CACHE_NAME).then((cache) => {
-          // Double check the URL scheme before put, just in case
-          if (event.request.url.startsWith('http')) {
-            cache.put(event.request, responseToCache).catch(err => {
-              console.warn('[SW] Cache put failed:', err.message, event.request.url);
-            });
-          }
+        }).catch(() => {
+          return response || caches.match('./index.html');
         });
+      }
 
+      // For other assets, use cache-first but update cache in background
+      return response || fetch(event.request).then((fetchResponse) => {
+        if (fetchResponse.status === 200 && event.request.method === 'GET') {
+          const responseClone = fetchResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseClone);
+          });
+        }
         return fetchResponse;
       });
-    }).catch((err) => {
-      console.error('[SW] Fetch failed:', err);
-      if (event.request.mode === 'navigate') {
-        return caches.match('/index.html');
-      }
     })
   );
 });

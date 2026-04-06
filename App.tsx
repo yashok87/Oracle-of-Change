@@ -381,16 +381,7 @@ export const App: React.FC = () => {
   const suggestions = SUGGESTIONS_POOLS[uiLanguage];
 
   useEffect(() => {
-    const checkServerHealth = async () => {
-      try {
-        const res = await fetch('/api/health');
-        const data = await res.json();
-        console.log("[Oracle] Server Health Check:", data);
-      } catch (e) {
-        console.error("[Oracle] Server Health Check Failed:", e);
-      }
-    };
-    checkServerHealth();
+    // Server health check removed for static site mode
   }, []);
 
   // Logic Handlers
@@ -819,7 +810,7 @@ export const App: React.FC = () => {
     // Only proxy external URLs that are likely to have CORS issues
     if (url.includes('ufileos.com') || url.includes('bigmodel.cn') || url.includes('pollinations.ai')) {
       try {
-        const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(url)}`;
+        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
         const response = await fetch(proxyUrl);
         if (!response.ok) throw new Error(`Proxy fetch failed (${response.status})`);
         const blob = await response.blob();

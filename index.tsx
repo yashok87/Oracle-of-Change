@@ -11,6 +11,24 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js')
       .then(registration => {
         console.log('Oracle SW registered:', registration.scope);
+        
+        // Check for updates periodically
+        setInterval(() => {
+          registration.update();
+        }, 1000 * 60 * 60); // Every hour
+
+        registration.onupdatefound = () => {
+          const installingWorker = registration.installing;
+          if (installingWorker) {
+            installingWorker.onstatechange = () => {
+              if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                // New content is available; please refresh.
+                console.log('New content available, refreshing...');
+                window.location.reload();
+              }
+            };
+          }
+        };
       })
       .catch(error => {
         console.log('Oracle SW registration failed:', error);

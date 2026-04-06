@@ -136,77 +136,85 @@ async function generateOracleText(prompt: string, systemInstruction: string, use
 
 async function generatePollinationsText(prompt: string, systemInstruction: string, useJson: boolean = false): Promise<string> {
   const seed = Math.floor(Math.random() * 1000000);
+  const apiKey = (process.env.POLL_KEY || "").trim();
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  if (apiKey) headers["Authorization"] = `Bearer ${apiKey}`;
+
+  let attempts = 0;
+  const maxAttempts = 3;
   
-  try {
-    // We use the proxy to handle the API key and avoid CORS
-    const response = await fetch("/api/pollinations", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        prompt,
-        systemInstruction,
-        seed,
-        jsonMode: useJson,
-        model: "openai" // As per user's example
-      })
-    });
-
-    if (!response.ok) {
-      const errText = await response.text();
-      console.warn(`[Oracle] Pollinations proxy failure (${response.status}):`, errText);
-      
-      let message = `${response.status}`;
-      try {
-        if (errText.trim().startsWith('{')) {
-          const errJson = JSON.parse(errText);
-          if (errJson.error) {
-            message = typeof errJson.error === 'string' ? errJson.error : (errJson.error.message || JSON.stringify(errJson.error));
-          } else if (errJson.message) {
-            message = typeof errJson.message === 'string' ? errJson.message : JSON.stringify(errJson.message);
-          } else {
-            message = errText;
-          }
-        } else {
-          message = `Status ${response.status}: ${errText.substring(0, 100)}...`;
-        }
-      } catch (e: any) {
-        message = `Status ${response.status}: ${errText.substring(0, 100)}...`;
-      }
-      throw new Error(`Backend Proxy unreachable: ${message}`);
-    }
-
-    const contentType = response.headers.get("content-type");
-    if (!contentType || !contentType.includes("application/json")) {
-      const text = await response.text();
-      console.error("[Oracle] Expected JSON but received:", text.substring(0, 100));
-      throw new Error("Backend Proxy returned invalid format (not JSON)");
-    }
-
-    const text = await response.text();
-    let data;
+  while (attempts < maxAttempts) {
     try {
-      data = JSON.parse(text);
-    } catch (e) {
-      console.error("[Oracle] Pollinations proxy returned non-JSON:", text.substring(0, 100));
-      throw new Error("Backend Proxy returned invalid format (not JSON)");
+      const response = await fetch("https://gen.pollinations.ai/v1/chat/completions", {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          model: "openai",
+          messages: [
+            { role: "system", content: systemInstruction || "You are a helpful assistant." },
+            { role: "user", content: prompt }
+          ],
+          seed,
+          response_format: useJson ? { type: "json_object" } : undefined,
+          temperature: 0.3
+        })
+      });
+
+      if (!response.ok) {
+        const errText = await response.text();
+        console.warn(`[Oracle] Pollinations failure (Attempt ${attempts + 1}):`, response.status, errText);
+        
+        if (response.status >= 500 && attempts < maxAttempts - 1) {
+          attempts++;
+          await new Promise(resolve => setTimeout(resolve, 2000 * attempts));
+          continue;
+        }
+
+        let message = `${response.status}`;
+        try {
+          if (errText.trim().startsWith('{')) {
+            const errJson = JSON.parse(errText);
+            if (errJson.error) {
+              message = typeof errJson.error === 'string' ? errJson.error : (errJson.error.message || JSON.stringify(errJson.error));
+            } else if (errJson.message) {
+              message = errJson.message;
+            }
+          }
+        } catch (e) {}
+        throw new Error(`Pollinations unreachable: ${message}`);
+      }
+
+      const data = await response.json();
+      if (data.choices && data.choices[0] && data.choices[0].message) {
+        return data.choices[0].message.content;
+      }
+      throw new Error("Malformed Pollinations response");
+    } catch (err: any) {
+      attempts++;
+      if (attempts < maxAttempts) {
+        await new Promise(resolve => setTimeout(resolve, 2000 * attempts));
+        continue;
+      }
+      throw err;
     }
-    
-    if (data.choices && data.choices[0] && data.choices[0].message) {
-      return data.choices[0].message.content;
-    }
-    
-    throw new Error("Malformed Pollinations response");
-  } catch (err) {
-    console.error("[Oracle] Pollinations text generation failed:", err);
-    throw err;
   }
+  throw new Error("Max retries reached for Pollinations");
 }
 
 async function callOracleVision(divinePrompt: string): Promise<string> {
+  const apiKey = process.env.BIGMODEL_API_KEY;
+  if (!apiKey) throw new Error("BIGMODEL_API_KEY is missing.");
+
   try {
-    const response = await fetch('/api/vision', {
+    // We use a public CORS proxy for BigModel to avoid CORS issues in static mode
+    const targetUrl = 'https://open.bigmodel.cn/api/paas/v4/images/generations';
+    const url = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
+    const response = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
       body: JSON.stringify({ 
         "model": "cogview-3-flash", 
         "prompt": divinePrompt, 
@@ -216,38 +224,10 @@ async function callOracleVision(divinePrompt: string): Promise<string> {
 
     if (!response.ok) {
       const errText = await response.text();
-      console.warn(`[Oracle] Vision proxy failed (${response.status}):`, errText);
-      
-      let message = `${response.status}`;
-      try {
-        if (errText.trim().startsWith('{')) {
-          const errJson = JSON.parse(errText);
-          if (errJson.error) message = errJson.error;
-        } else {
-          message = `Status ${response.status}: ${errText.substring(0, 50)}...`;
-        }
-      } catch (e: any) {
-        message = `Status ${response.status}: ${errText.substring(0, 50)}...`;
-      }
-      throw new Error(`Backend Proxy unreachable: ${message}`);
+      throw new Error(`Vision API failed: ${response.status} ${errText}`);
     }
 
-    const contentType = response.headers.get("content-type");
-    if (!contentType || !contentType.includes("application/json")) {
-      const text = await response.text();
-      console.error("[Oracle] Vision proxy expected JSON but received:", text.substring(0, 100));
-      throw new Error("Vision Proxy returned invalid format (not JSON)");
-    }
-
-    const text = await response.text();
-    let result;
-    try {
-      result = JSON.parse(text);
-    } catch (e) {
-      console.error("[Oracle] Vision proxy returned non-JSON:", text.substring(0, 100));
-      throw new Error("Vision Proxy returned invalid format (not JSON)");
-    }
-    
+    const result = await response.json();
     if (result.data?.[0]?.url) return result.data[0].url;
     throw new Error('Malformed vision response.');
   } catch (err) {
