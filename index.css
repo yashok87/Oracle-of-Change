@@ -13,6 +13,12 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
+button, 
+a, 
+[role="button"] {
+  cursor: pointer;
+}
+
 .bg-grain {
   position: fixed;
   top: 0;

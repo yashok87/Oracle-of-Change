@@ -495,7 +495,7 @@ export const App: React.FC = () => {
 
   const HistorySidebar = (
     <div className={`fixed inset-0 z-[1000] flex justify-end transition-all ${showHistory ? 'visible opacity-100' : 'invisible opacity-0'}`}>
-      <div className={`fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${showHistory ? 'opacity-100' : 'opacity-0'}`} onClick={() => setShowHistory(false)} />
+      <div className={`fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 cursor-pointer ${showHistory ? 'opacity-100' : 'opacity-0'}`} onClick={() => setShowHistory(false)} />
       <div className={`relative z-[1010] w-full max-sm:max-w-full max-w-sm h-full p-6 md:p-12 shadow-2xl overflow-y-auto flex flex-col transition-transform duration-500 transform ${showHistory ? 'translate-x-0' : 'translate-x-full'} ${isRenoir ? 'bg-[#1e0a0a] text-amber-100 border-l border-amber-900/10' : 'bg-white text-black border-l border-black/5'}`}>
          <div className="flex justify-between items-center mb-10">
             <h2 className="text-xl md:text-2xl font-black uppercase tracking-tighter">{t.history}</h2>
@@ -696,7 +696,7 @@ export const App: React.FC = () => {
   };
 
   const ProfilingModal = (
-    <div className="fixed inset-0 z-[1100] bg-black/80 backdrop-blur-3xl flex items-center justify-center p-6" onClick={() => setShowProfilingModal(false)}>
+    <div className="fixed inset-0 z-[1100] bg-black/80 backdrop-blur-3xl flex items-center justify-center p-6 cursor-pointer" onClick={() => setShowProfilingModal(false)}>
       <div className={`w-full max-w-lg p-10 md:p-14 rounded-[50px] border shadow-2xl transition-all duration-500 animate-in zoom-in-95 ${isRenoir ? 'bg-[#1e0a0a] border-amber-900/40 text-amber-100' : 'bg-white border-black/10 text-black'}`} onClick={e => e.stopPropagation()}>
          <div className="flex justify-between items-center mb-12">
             <span className="text-[10px] font-black uppercase tracking-[0.6em] opacity-40">{t.learningStyle}</span>
@@ -1225,7 +1225,7 @@ export const App: React.FC = () => {
                  </button>
                  {showSaveMenu && (
                    <>
-                     <div className="fixed inset-0 z-[590]" onClick={() => setShowSaveMenu(false)} />
+                     <div className="fixed inset-0 z-[590] cursor-pointer" onClick={() => setShowSaveMenu(false)} />
                      <div className={`absolute bottom-full left-0 w-full mb-2 p-2 rounded-3xl border shadow-2xl z-[600] flex flex-col gap-1 backdrop-blur-2xl animate-in slide-in-from-bottom-2 ${isRenoir ? 'bg-amber-950/90 border-amber-900/40' : 'bg-white/90 border-black/10'}`}>
                         <button onClick={saveArtifactAsImage} className="w-full p-4 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-current/10 text-left flex justify-between items-center group">{t.saveCard} <Icons.Download /></button>
                         <button onClick={savePictureOnly} className="w-full p-4 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-current/10 text-left flex justify-between items-center group">{t.saveImage} <Icons.Download /></button>
@@ -1278,7 +1278,7 @@ export const App: React.FC = () => {
         </div>
 
         {showPerspectivesModal && (
-          <div className="fixed inset-0 z-[1000] bg-black/80 backdrop-blur-3xl overflow-y-auto font-sans flex items-start justify-center p-4 md:p-12" onClick={() => { setShowPerspectivesModal(false); stopAudio(); setIsMuted(true); }}>
+          <div className="fixed inset-0 z-[1000] bg-black/80 backdrop-blur-3xl overflow-y-auto font-sans flex items-start justify-center p-4 md:p-12 cursor-pointer" onClick={() => { setShowPerspectivesModal(false); stopAudio(); setIsMuted(true); }}>
             <div className="w-full max-w-4xl min-h-full flex flex-col items-center py-12" onClick={e => e.stopPropagation()}>
                <div className="w-full flex justify-between items-end mb-24 border-b-2 border-white/20 pb-12">
                   <div className="flex flex-col">
