@@ -366,8 +366,6 @@ export const App: React.FC = () => {
   const exportRef = useRef<HTMLDivElement>(null);
   const resultImageRef = useRef<HTMLImageElement>(null);
   const analysisHeaderRef = useRef<HTMLSpanElement>(null);
-  const imageTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const isImageActuallyLoadingRef = useRef(false);
   
   const isRenoir = theme === 'IMPRESSIONIST';
   const t = TRANSLATIONS[uiLanguage] || TRANSLATIONS.EN;
@@ -521,11 +519,28 @@ export const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    console.log("[App] Oracle of Chance v1.3.5 - Production Build");
     const saved = localStorage.getItem('oracle_history');
     if (saved) try { setHistory(JSON.parse(saved)); } catch (e) {}
 
     const savedProfile = localStorage.getItem('oracle_learning_profile');
     if (savedProfile) try { setLearningProfile(JSON.parse(savedProfile)); } catch (e) {}
+
+    // CRITICAL: Unregister ALL service workers and clear caches
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(registrations => {
+        for (const registration of registrations) {
+          registration.unregister();
+          console.log('[App] Service Worker unregistered');
+        }
+      });
+    }
+    
+    if ('caches' in window) {
+      caches.keys().then(names => {
+        for (const name of names) caches.delete(name);
+      });
+    }
   }, []);
 
   useEffect(() => {
@@ -545,25 +560,6 @@ export const App: React.FC = () => {
       }
     }
   }, [history]);
-
-  useEffect(() => {
-    if (state.status === 'REVEALED' && state.response?.imageUrl && isImageLoading) {
-      if (imageTimeoutRef.current) clearTimeout(imageTimeoutRef.current);
-      
-      if (!state.response.isFallback) {
-        isImageActuallyLoadingRef.current = true;
-        imageTimeoutRef.current = setTimeout(() => {
-          if (isImageActuallyLoadingRef.current) {
-            console.log("[Oracle] Pollinations slow, falling back to CogView...");
-            handleImageRegen(true);
-          }
-        }, 7500); // 7.5 seconds timeout for Pollinations
-      }
-    }
-    return () => {
-      if (imageTimeoutRef.current) clearTimeout(imageTimeoutRef.current);
-    };
-  }, [state.response?.imageUrl, state.status]);
 
   useEffect(() => { 
     if (state.status === 'REVEALED' && state.response) { 
@@ -735,14 +731,11 @@ export const App: React.FC = () => {
     } catch (e) {} finally { setIsTranslating(false); }
   };
 
-  const handleImageRegen = async (force = false) => {
+  const handleImageRegen = async (forceBigModel = false, force = false) => {
     if (!state.response) return;
     setIsVisionActuallyReady(false);
     setIsImageLoading(true);
     setImageHasError(false);
-    isImageActuallyLoadingRef.current = true;
-    
-    if (imageTimeoutRef.current) clearTimeout(imageTimeoutRef.current);
     
     try {
       const result = await regenerateOracleImage(
@@ -766,13 +759,13 @@ export const App: React.FC = () => {
     } catch (e: any) { 
       console.error("[Oracle] Image regeneration failed:", e);
       setImageHasError(true);
-      isImageActuallyLoadingRef.current = false;
       setState(prev => ({
         ...prev,
         response: prev.response ? { ...prev.response, imageError: e.message } : null
       }));
     } finally { 
-      // We don't set isImageLoading to false here if we are waiting for the <img> onLoad
+      setIsImageLoading(false); 
+      setIsVisionActuallyReady(true);
     }
   };
 
@@ -992,7 +985,13 @@ export const App: React.FC = () => {
               <div className={`w-full aspect-square border overflow-hidden relative ${isRenoir ? 'border-amber-900/20 rounded-[60px]' : 'border-black/5'}`}>
                 {(isImageLoading || !isVisionActuallyReady) && <VisionLoadingIcon />}
                 
-                {/* Vision Image */}
+                {/* Scanline animation overlay */}
+                {isVisionActuallyReady && !imageHasError && (
+                  <div className="scanline" style={{ 
+                    background: isRenoir ? 'linear-gradient(to right, transparent, rgba(245, 158, 11, 0.3), transparent)' : undefined,
+                    boxShadow: isRenoir ? '0 0 15px rgba(245, 158, 11, 0.5)' : undefined
+                  }} />
+                )}
                 {r.imageUrl ? (
                   <img 
                     ref={resultImageRef}
@@ -1004,8 +1003,6 @@ export const App: React.FC = () => {
                       setIsVisionActuallyReady(true); 
                       setIsImageLoading(false); 
                       setImageHasError(false);
-                      isImageActuallyLoadingRef.current = false;
-                      if (imageTimeoutRef.current) clearTimeout(imageTimeoutRef.current);
                     }}
                     onError={(e) => { 
                       console.error("[Oracle] Image failed to load in img tag:", localDisplayUrl || r.imageUrl);
@@ -1016,8 +1013,6 @@ export const App: React.FC = () => {
                         setImageHasError(true); 
                         setIsVisionActuallyReady(true); 
                         setIsImageLoading(false); 
-                        isImageActuallyLoadingRef.current = false;
-                        if (imageTimeoutRef.current) clearTimeout(imageTimeoutRef.current);
                         setState(prev => ({
                           ...prev,
                           response: prev.response ? { ...prev.response, imageError: "Vision Synchronization Failed: CORS or Network Error." } : null
@@ -1039,10 +1034,16 @@ export const App: React.FC = () => {
                         </div>
                         <div className="flex flex-wrap justify-center gap-3">
                           <button 
-                            onClick={(e) => { e.stopPropagation(); handleImageRegen(false); }}
-                            className="px-8 py-3 bg-current/10 hover:bg-current/20 text-[10px] uppercase font-black tracking-widest transition-all rounded-full hover:scale-105 active:scale-95"
+                            onClick={(e) => { e.stopPropagation(); handleImageRegen(true); }}
+                            className="px-6 py-3 border-[1px] border-red-500/40 hover:border-red-500/80 text-red-500 rounded-full text-[10px] uppercase font-black tracking-widest transition-all hover:scale-105 active:scale-95"
                           >
-                            Synchronize Vision
+                            Retry with BigModel
+                          </button>
+                          <button 
+                            onClick={(e) => { e.stopPropagation(); handleImageRegen(false); }}
+                            className="px-6 py-3 bg-black/5 hover:bg-black/10 text-[10px] uppercase font-black tracking-widest transition-all rounded-full hover:scale-105 active:scale-95"
+                          >
+                            Retry Pollinations
                           </button>
                         </div>
                       </div>

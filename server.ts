@@ -6,7 +6,7 @@ import { createServer as createViteServer } from "vite";
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = Number(process.env.PORT) || 3000;
 
   app.use(cors());
   app.use(express.json({ limit: '50mb' }));
@@ -77,13 +77,12 @@ async function startServer() {
     const headers: Record<string, string> = { "Content-Type": "application/json" };
     if (apiKey) headers["Authorization"] = `Bearer ${apiKey}`;
 
-    try {
-      // Using the newer v1/chat/completions endpoint
-      const response = await fetch("https://gen.pollinations.ai/v1/chat/completions", {
+    const callPollinations = async (targetModel: string) => {
+      return await fetch("https://gen.pollinations.ai/v1/chat/completions", {
         method: "POST",
         headers,
         body: JSON.stringify({
-          model: model || "openai",
+          model: targetModel,
           messages: [
             { role: "system", content: systemInstruction || "You are a helpful assistant." },
             { role: "user", content: prompt }
@@ -93,6 +92,17 @@ async function startServer() {
           temperature: 0.3
         })
       });
+    };
+
+    try {
+      let response = await callPollinations(model || "openai");
+
+      // If 401, it might be that the 'openai' model requires a key. 
+      // Fallback to 'mistral' which is usually free.
+      if (response.status === 401 && (model === "openai" || !model)) {
+        console.warn("[Server] Pollinations returned 401 for 'openai' model. Falling back to 'mistral'...");
+        response = await callPollinations("mistral");
+      }
 
       if (!response.ok) {
         const errText = await response.text();
@@ -116,15 +126,14 @@ async function startServer() {
         return res.status(500).json({ error: "Backend Proxy returned invalid format (not JSON)" });
       }
 
-      let data;
       const text = await response.text();
       try {
-        data = JSON.parse(text);
+        const data = JSON.parse(text);
+        res.json(data);
       } catch (jsonErr: any) {
         console.error("[Server] Pollinations API JSON parse failed:", jsonErr.message, text.substring(0, 100));
         return res.status(500).json({ error: "Upstream API returned malformed JSON" });
       }
-      res.json(data);
     } catch (error: any) {
       console.error("[Server] Pollinations Proxy Exception:", error);
       res.status(500).json({ error: error.message });

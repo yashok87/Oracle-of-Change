@@ -136,46 +136,42 @@ async function generateOracleText(prompt: string, systemInstruction: string, use
 
 async function generatePollinationsText(prompt: string, systemInstruction: string, useJson: boolean = false): Promise<string> {
   const seed = Math.floor(Math.random() * 1000000);
-  const apiKey = (import.meta.env.VITE_POLL_KEY || "").trim();
   
   try {
-    const response = await fetch("https://gen.pollinations.ai/v1/chat/completions", {
+    // Use the server-side proxy to avoid CORS and handle API keys securely
+    const response = await fetch("/api/pollinations", {
       method: "POST",
       headers: { 
-        "Content-Type": "application/json",
-        ...(apiKey ? { "Authorization": `Bearer ${apiKey}` } : {})
+        "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "openai",
-        messages: [
-          { role: "system", content: systemInstruction },
-          { role: "user", content: prompt }
-        ],
+        prompt,
+        systemInstruction,
         seed,
-        response_format: useJson ? { type: "json_object" } : undefined,
-        temperature: 0.3
+        jsonMode: useJson,
+        model: "openai"
       })
     });
 
-    if (!response.ok) throw new Error(`Pollinations failed: ${response.status}`);
+    if (!response.ok) {
+      const errData = await response.json().catch(() => ({}));
+      throw new Error(errData.error || `Pollinations failed: ${response.status}`);
+    }
+    
     const data = await response.json();
     return data.choices[0].message.content;
   } catch (err) {
-    console.error("[Oracle] Direct text generation failed:", err);
+    console.error("[Oracle] Text generation failed:", err);
     throw err;
   }
 }
 
 async function callOracleVision(divinePrompt: string): Promise<string> {
-  const apiKey = import.meta.env.VITE_BIGMODEL_API_KEY;
-  if (!apiKey) throw new Error("VITE_BIGMODEL_API_KEY is missing.");
-
   try {
-    const response = await fetch('https://open.bigmodel.cn/api/paas/v4/images/generations', {
+    const response = await fetch('/api/vision', {
       method: 'POST',
       headers: { 
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({ 
         "model": "cogview-3-flash", 
@@ -184,11 +180,15 @@ async function callOracleVision(divinePrompt: string): Promise<string> {
       })
     });
 
-    if (!response.ok) throw new Error(`Vision API failed: ${response.status}`);
+    if (!response.ok) {
+      const errData = await response.json().catch(() => ({}));
+      throw new Error(errData.error || `Vision API failed: ${response.status}`);
+    }
+    
     const result = await response.json();
     return result.data[0].url;
   } catch (err) {
-    console.error("[Oracle] Direct vision call failed:", err);
+    console.error("[Oracle] Vision call failed:", err);
     throw err;
   }
 }
