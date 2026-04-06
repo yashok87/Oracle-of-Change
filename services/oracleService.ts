@@ -100,22 +100,7 @@ const COUNCIL_REGISTRY: Record<string, Record<string, { ideological: string[], m
 };
 
 function isComparisonQuery(query: string): boolean {
-  // Enhanced regex to catch "A or B", "A vs B", etc.
-  return /\b(vs|or|versus|compare|сравнение|против|лучше|или|выбрать|чем|выбор между|что лучше|что выбрать)\b/i.test(query);
-}
-
-function isBinaryQuery(query: string): boolean {
-  const binaryKeywords = /^(is|are|do|does|should|can|will|would|could|may|might|shall|must|am|was|were|has|have|had)\b/i;
-  const lowercase = query.trim().toLowerCase();
-  
-  // If it starts with an auxiliary verb, it's likely binary
-  if (binaryKeywords.test(lowercase)) return true;
-  
-  // If it ends with a question mark and doesn't start with a wh-word, it might be binary
-  const whWords = /^(who|what|where|when|why|how|which)\b/i;
-  if (lowercase.endsWith('?') && !whWords.test(lowercase)) return true;
-  
-  return false;
+  return /\b(vs|or|versus|compare|сравнение|против|лучше|или|выбрать)\b/i.test(query);
 }
 
 function isExplicitSelectionRequest(query: string): boolean {
@@ -138,30 +123,60 @@ async function generatePollinationsText(prompt: string, systemInstruction: strin
   const seed = Math.floor(Math.random() * 1000000);
   
   try {
-    // Use the server-side proxy to avoid CORS and handle API keys securely
+    // We use the proxy to handle the API key and avoid CORS
     const response = await fetch("/api/pollinations", {
       method: "POST",
-      headers: { 
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         prompt,
         systemInstruction,
         seed,
         jsonMode: useJson,
-        model: "openai"
+        model: "openai" // As per user's example
       })
     });
 
     if (!response.ok) {
-      const errData = await response.json().catch(() => ({}));
-      throw new Error(errData.error || `Pollinations failed: ${response.status}`);
+      const errText = await response.text();
+      console.warn(`[Oracle] Pollinations proxy failure (${response.status}):`, errText);
+      
+      let message = `${response.status}`;
+      try {
+        if (errText.trim().startsWith('{')) {
+          const errJson = JSON.parse(errText);
+          if (errJson.error) message = errJson.error;
+        } else {
+          message = `Status ${response.status}: ${errText.substring(0, 50)}...`;
+        }
+      } catch (e: any) {
+        message = `Status ${response.status}: ${errText.substring(0, 50)}...`;
+      }
+      throw new Error(`Backend Proxy unreachable: ${message}`);
+    }
+
+    const contentType = response.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+      const text = await response.text();
+      console.error("[Oracle] Expected JSON but received:", text.substring(0, 100));
+      throw new Error(`Backend Proxy returned invalid format (not JSON). Received: ${text.substring(0, 100)}`);
+    }
+
+    const text = await response.text();
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (e: any) {
+      console.error("[Oracle] Pollinations proxy returned non-JSON:", text.substring(0, 100));
+      throw new Error(`Backend Proxy returned invalid JSON: ${e.message}. Content: ${text.substring(0, 100)}`);
     }
     
-    const data = await response.json();
-    return data.choices[0].message.content;
+    if (data.choices && data.choices[0] && data.choices[0].message) {
+      return data.choices[0].message.content;
+    }
+    
+    throw new Error("Malformed Pollinations response");
   } catch (err) {
-    console.error("[Oracle] Text generation failed:", err);
+    console.error("[Oracle] Pollinations text generation failed:", err);
     throw err;
   }
 }
@@ -170,9 +185,7 @@ async function callOracleVision(divinePrompt: string): Promise<string> {
   try {
     const response = await fetch('/api/vision', {
       method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
         "model": "cogview-3-flash", 
         "prompt": divinePrompt, 
@@ -181,12 +194,41 @@ async function callOracleVision(divinePrompt: string): Promise<string> {
     });
 
     if (!response.ok) {
-      const errData = await response.json().catch(() => ({}));
-      throw new Error(errData.error || `Vision API failed: ${response.status}`);
+      const errText = await response.text();
+      console.warn(`[Oracle] Vision proxy failed (${response.status}):`, errText);
+      
+      let message = `${response.status}`;
+      try {
+        if (errText.trim().startsWith('{')) {
+          const errJson = JSON.parse(errText);
+          if (errJson.error) message = errJson.error;
+        } else {
+          message = `Status ${response.status}: ${errText.substring(0, 50)}...`;
+        }
+      } catch (e: any) {
+        message = `Status ${response.status}: ${errText.substring(0, 50)}...`;
+      }
+      throw new Error(`Backend Proxy unreachable: ${message}`);
+    }
+
+    const contentType = response.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+      const text = await response.text();
+      console.error("[Oracle] Vision proxy expected JSON but received:", text.substring(0, 100));
+      throw new Error("Vision Proxy returned invalid format (not JSON)");
+    }
+
+    const text = await response.text();
+    let result;
+    try {
+      result = JSON.parse(text);
+    } catch (e) {
+      console.error("[Oracle] Vision proxy returned non-JSON:", text.substring(0, 100));
+      throw new Error("Vision Proxy returned invalid format (not JSON)");
     }
     
-    const result = await response.json();
-    return result.data[0].url;
+    if (result.data?.[0]?.url) return result.data[0].url;
+    throw new Error('Malformed vision response.');
   } catch (err) {
     console.error("[Oracle] Vision call failed:", err);
     throw err;
@@ -225,11 +267,9 @@ ${personaInstruction}
 
 1. COMPARISON: 
    - ROLE: Judge between two distinct choices (Option A vs Option B).
-   - TRIGGER: Activated when user asks to compare two things, or uses "or", "vs", etc. (e.g., "tea or coffee").
-   - VOTE: Convene a 10-way vote among the council. Each of the 10 members MUST vote for either A or B.
-   - OUTPUT: Must include a 'comparison' object with: 'optionA', 'optionB'. 
-   - PERCENTAGES: The 'percentageA' and 'percentageB' MUST reflect the exact count of the 10 votes (e.g., 6 votes for A = 60%, 4 votes for B = 40%).
-   - VERDICT: Declare the winner clearly based on the majority vote. Do NOT use [[YES]], [[NO]], or [[MAYBE]].
+   - VOTE: Convene a 10-way vote among the council.
+   - OUTPUT: Must include a 'comparison' object with: 'optionA', 'optionB', 'percentageA', 'percentageB' (summing to 100).
+   - VERDICT: Declare the winner clearly.
 
 2. RECOMMENDATION (DIRECT SELECTION ENGINE):
    - ROLE: You are a Direct Selection Engine.
@@ -242,16 +282,15 @@ ${personaInstruction}
      Price/Access: [e.g., "Included with Prime", "Digital Purchase", or "$3.99 Rental"]
      Rationale: 1 concise sentence on why it fits.
    - LINK: Provide a direct link if possible (Amazon, IMDb, etc.) in 'recommendationLink' field.
-   - VERDICT: Provide the recommendation. Do NOT use [[YES]], [[NO]], or [[MAYBE]].
 
 3. DECISION (DECREE):
-   - ROLE: Binary engine for life choices (e.g., "Should I quit my job?").
-   - OUTPUT: IF the question is binary (implies a Yes/No/Maybe answer), start the 'verdict' with [[YES]], [[NO]], or [[MAYBE]]. Otherwise, provide a definitive decree without these markers.
+   - ROLE: Binary engine for life choices.
+   - OUTPUT: Start the 'verdict' with [[YES]], [[NO]], or [[MAYBE]].
+   - EXPLANATION: Provide a mystical yet logical explanation.
 
 4. KNOWLEDGE (SYMPOSIUM):
    - ROLE: Explain the ontological essence and significance of a subject.
    - TRIGGER: Default mode for concepts, terms, historical events, or general inquiries.
-   - OUTPUT: IF the question is binary (e.g., "Is a frog green?"), start the 'verdict' with [[YES]], [[NO]], or [[MAYBE]]. Otherwise, explain the subject without these markers.
    - NO RECOMMENDATIONS: Do NOT provide film, book, or product recommendations here. Just provide the "gist" of the subject's essence.
    - ARTISTIC REVELATION: If the query is just the name of a work of art/media without explicit recommendation request, explain its cultural significance and philosophical themes.
 
@@ -260,23 +299,6 @@ ${personaInstruction}
    - ONLY use RECOMMENDATION mode if the user explicitly asks for a recommendation.
 
 6. SUBJECT FIDELITY: Focus EXCLUSIVELY on the User Input. 
-
-## COUNCIL OF PHILOSOPHERS (10 MEMBERS):
-You MUST provide a 'perspectives' object with EXACTLY these 10 keys, each representing a council member:
-- psychoanalysis
-- gestalt
-- russian_philosophy
-- german_philosophy
-- existential
-- theological
-- buddhist
-- post_modern
-- ancient_greeks
-- ancient_romans
-
-For each member, provide:
-- "verdict": A short analysis (1-2 sentences) from their specific ideological lens.
-- "vote": In COMPARISON mode, this MUST be "A" or "B". In other modes, it should be "RESONANCE".
 
 ## OUTPUT JSON SCHEMA:
 {
@@ -287,18 +309,7 @@ For each member, provide:
   "detailedAnalysis": "2 long paragraphs of revelation.",
   "reasoning": "1-sentence logic",
   "recommendationLink": "Optional URL for recommendations",
-  "perspectives": {
-    "psychoanalysis": { "verdict": "...", "vote": "A|B|RESONANCE" },
-    "gestalt": { "verdict": "...", "vote": "A|B|RESONANCE" },
-    "russian_philosophy": { "verdict": "...", "vote": "A|B|RESONANCE" },
-    "german_philosophy": { "verdict": "...", "vote": "A|B|RESONANCE" },
-    "existential": { "verdict": "...", "vote": "A|B|RESONANCE" },
-    "theological": { "verdict": "...", "vote": "A|B|RESONANCE" },
-    "buddhist": { "verdict": "...", "vote": "A|B|RESONANCE" },
-    "post_modern": { "verdict": "...", "vote": "A|B|RESONANCE" },
-    "ancient_greeks": { "verdict": "...", "vote": "A|B|RESONANCE" },
-    "ancient_romans": { "verdict": "...", "vote": "A|B|RESONANCE" }
-  },
+  "perspectives": { ... },
   "comparison": {
     "optionA": "Name of first option",
     "optionB": "Name of second option",
@@ -328,11 +339,6 @@ Respond ONLY with JSON. No meta-commentary.`;
     if (finalizedType === 'RECOMMENDATION' && !isExplicit) {
         finalizedType = 'KNOWLEDGE';
     }
-    
-    // Force COMPARISON if it's a comparison query (e.g., "tea or coffee")
-    if (isComp) {
-        finalizedType = 'COMPARISON';
-    }
 
     const oracleResponse: OracleResponse = {
       ...data,
@@ -346,82 +352,19 @@ Respond ONLY with JSON. No meta-commentary.`;
       category: ensureString(data.category || "ONTOLOGY")
     };
 
-    // Clean up binary markers (YES/NO/MAYBE) if the query is not binary, or if it's a comparison/recommendation
-    const isBinary = isBinaryQuery(query);
-    if (!isBinary || isComp || isExplicit) {
-        oracleResponse.verdict = oracleResponse.verdict.replace(/\[\[(YES|NO|MAYBE)\]\]\s*/gi, '');
-    }
-
-    // Synchronize votes and calculate percentages if it's a comparison
-    if (isComp && oracleResponse.comparison) {
-      let votesA = 0;
-      let votesB = 0;
-      
-      for (const key of PERSPECTIVE_KEYS) {
-        const pKey = key as keyof OracleResponse['perspectives'];
-        const p = oracleResponse.perspectives[pKey];
-        
-        if (!p) {
-          // If AI missed a key, fill it with a random vote to maintain 10 votes
-          const randomVote = Math.random() > 0.5 ? "A" : "B";
-          oracleResponse.perspectives[pKey] = {
-            philosopherName: selectedPerspectives[key].philosopherName,
-            philosopherThemes: selectedPerspectives[key].philosopherThemes,
-            vote: randomVote,
-            verdict: "The philosopher remains silent, yet their presence is felt."
-          };
-          if (randomVote === "A") votesA++; else votesB++;
-        } else {
-          // Ensure philosopher details are attached
-          p.philosopherName = selectedPerspectives[key].philosopherName;
-          p.philosopherThemes = selectedPerspectives[key].philosopherThemes;
-          
-          // Force vote to A or B if it's invalid
-          if (p.vote !== "A" && p.vote !== "B") {
-            p.vote = Math.random() > 0.5 ? "A" : "B";
-          }
-          
-          if (p.vote === "A") votesA++; else votesB++;
-        }
+    for (const key of PERSPECTIVE_KEYS) {
+      if (!oracleResponse.perspectives[key as keyof OracleResponse['perspectives']]) {
+        oracleResponse.perspectives[key as keyof OracleResponse['perspectives']] = {
+          philosopherName: selectedPerspectives[key].philosopherName,
+          philosopherThemes: selectedPerspectives[key].philosopherThemes,
+          vote: isComp ? (Math.random() > 0.5 ? "A" : "B") : "RESONANCE",
+          verdict: "Awaiting deeper synchronization."
+        };
+      } else {
+        const p = oracleResponse.perspectives[key as keyof OracleResponse['perspectives']];
+        p.philosopherName = selectedPerspectives[key].philosopherName;
+        p.philosopherThemes = selectedPerspectives[key].philosopherThemes;
       }
-      
-      // Override percentages based on actual votes
-      oracleResponse.comparison.percentageA = (votesA / 10) * 100;
-      oracleResponse.comparison.percentageB = (votesB / 10) * 100;
-      
-      // Clean up any extra keys the AI might have added
-      const cleanedPerspectives: any = {};
-      for (const key of PERSPECTIVE_KEYS) {
-        cleanedPerspectives[key] = oracleResponse.perspectives[key as keyof OracleResponse['perspectives']];
-      }
-      oracleResponse.perspectives = cleanedPerspectives;
-
-    } else {
-      for (const key of PERSPECTIVE_KEYS) {
-        const pKey = key as keyof OracleResponse['perspectives'];
-        if (!oracleResponse.perspectives[pKey]) {
-          oracleResponse.perspectives[pKey] = {
-            philosopherName: selectedPerspectives[key].philosopherName,
-            philosopherThemes: selectedPerspectives[key].philosopherThemes,
-            vote: "RESONANCE",
-            verdict: "Awaiting deeper synchronization."
-          };
-        } else {
-          const p = oracleResponse.perspectives[pKey];
-          p.philosopherName = selectedPerspectives[key].philosopherName;
-          p.philosopherThemes = selectedPerspectives[key].philosopherThemes;
-          if (p.vote !== 'A' && p.vote !== 'B') {
-            p.vote = "RESONANCE";
-          }
-        }
-      }
-      
-      // Clean up extra keys even in non-comparison mode
-      const cleanedPerspectives: any = {};
-      for (const key of PERSPECTIVE_KEYS) {
-        cleanedPerspectives[key] = oracleResponse.perspectives[key as keyof OracleResponse['perspectives']];
-      }
-      oracleResponse.perspectives = cleanedPerspectives;
     }
 
     const searchTopic = oracleResponse.verdict.replace(/\[\[|\]\]/g, '');
@@ -490,17 +433,25 @@ export async function regenerateOracleImage(response: OracleResponse, theme: 'SU
   const seed = Math.floor(Math.random() * 1000000);
   const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(divinePrompt)}?width=1024&height=1024&nologo=true&seed=${seed}`;
   
-  // If force is true, we skip Pollinations and go straight to CogView (silent fallback)
-  if (force) {
+  // We'll return Pollinations by default, but we can try CogView as backup if needed.
+  // Since Pollinations is just a URL, it's hard to know if it "fails" here.
+  // However, we can implement a check if we were using an API.
+  // For now, we'll return Pollinations but keep CogView logic available.
+  
+  try {
+    // If we wanted to check if Pollinations is up, we could do a HEAD request.
+    // But usually we just return the URL.
+    return { url: pollinationsUrl, label: 'Pollinations-Vision', isFallback: false };
+  } catch (e) {
+    console.warn("[Oracle] Pollinations failed, falling back to CogView", e);
     try {
       const cogViewUrl = await callOracleVision(divinePrompt);
       return { url: cogViewUrl, label: 'CogView-3-Flash', isFallback: true };
-    } catch (e) {
+    } catch (cogErr) {
+      console.error("[Oracle] CogView fallback also failed", cogErr);
       return { url: pollinationsUrl, label: 'Pollinations-Vision', isFallback: false };
     }
   }
-  
-  return { url: pollinationsUrl, label: 'Pollinations-Vision', isFallback: false };
 }
 
 export async function translateOracleResponse(response: OracleResponse, targetLanguage: 'EN' | 'RU'): Promise<OracleResponse> {

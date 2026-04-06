@@ -6,7 +6,7 @@ import { createServer as createViteServer } from "vite";
 
 async function startServer() {
   const app = express();
-  const PORT = Number(process.env.PORT) || 3000;
+  const PORT = 3000;
 
   app.use(cors());
   app.use(express.json({ limit: '50mb' }));
@@ -74,15 +74,19 @@ async function startServer() {
   app.post("/api/pollinations", async (req, res) => {
     const { prompt, seed, model, jsonMode, systemInstruction } = req.body;
     const apiKey = (process.env.POLL_KEY || "").trim();
-    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    const headers: Record<string, string> = { 
+      "Content-Type": "application/json",
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+    };
     if (apiKey) headers["Authorization"] = `Bearer ${apiKey}`;
 
-    const callPollinations = async (targetModel: string) => {
-      return await fetch("https://gen.pollinations.ai/v1/chat/completions", {
+    try {
+      // Using the newer v1/chat/completions endpoint
+      const response = await fetch("https://gen.pollinations.ai/v1/chat/completions", {
         method: "POST",
         headers,
         body: JSON.stringify({
-          model: targetModel,
+          model: model || "openai",
           messages: [
             { role: "system", content: systemInstruction || "You are a helpful assistant." },
             { role: "user", content: prompt }
@@ -92,17 +96,6 @@ async function startServer() {
           temperature: 0.3
         })
       });
-    };
-
-    try {
-      let response = await callPollinations(model || "openai");
-
-      // If 401, it might be that the 'openai' model requires a key. 
-      // Fallback to 'mistral' which is usually free.
-      if (response.status === 401 && (model === "openai" || !model)) {
-        console.warn("[Server] Pollinations returned 401 for 'openai' model. Falling back to 'mistral'...");
-        response = await callPollinations("mistral");
-      }
 
       if (!response.ok) {
         const errText = await response.text();
@@ -123,17 +116,23 @@ async function startServer() {
       if (!contentType || !contentType.includes("application/json")) {
         const text = await response.text();
         console.error("[Server] Pollinations API expected JSON but received:", text.substring(0, 100));
-        return res.status(500).json({ error: "Backend Proxy returned invalid format (not JSON)" });
+        console.error("[Server] Full response headers:", JSON.stringify(Object.fromEntries(response.headers.entries())));
+        return res.status(500).json({ 
+          error: "Backend Proxy returned invalid format (not JSON)", 
+          received: text.substring(0, 200),
+          contentType: contentType
+        });
       }
 
+      let data;
       const text = await response.text();
       try {
-        const data = JSON.parse(text);
-        res.json(data);
+        data = JSON.parse(text);
       } catch (jsonErr: any) {
         console.error("[Server] Pollinations API JSON parse failed:", jsonErr.message, text.substring(0, 100));
         return res.status(500).json({ error: "Upstream API returned malformed JSON" });
       }
+      res.json(data);
     } catch (error: any) {
       console.error("[Server] Pollinations Proxy Exception:", error);
       res.status(500).json({ error: error.message });
@@ -184,6 +183,8 @@ async function startServer() {
   } else {
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
+    
+    // SPA fallback
     app.get('*all', (req, res) => {
       res.sendFile(path.join(distPath, 'index.html'));
     });
