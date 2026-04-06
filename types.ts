@@ -45,6 +45,7 @@ export interface OracleResponse {
   base64Image?: string; 
   imageUrl?: string;
   imageStyleLabel?: string;
+  imageModel?: string;
   language?: 'EN' | 'RU';
   isFallback?: boolean;
   isDaily?: boolean;

@@ -74,10 +74,7 @@ async function startServer() {
   app.post("/api/pollinations", async (req, res) => {
     const { prompt, seed, model, jsonMode, systemInstruction } = req.body;
     const apiKey = (process.env.POLL_KEY || "").trim();
-    const headers: Record<string, string> = { 
-      "Content-Type": "application/json",
-      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-    };
+    const headers: Record<string, string> = { "Content-Type": "application/json" };
     if (apiKey) headers["Authorization"] = `Bearer ${apiKey}`;
 
     try {
@@ -116,12 +113,7 @@ async function startServer() {
       if (!contentType || !contentType.includes("application/json")) {
         const text = await response.text();
         console.error("[Server] Pollinations API expected JSON but received:", text.substring(0, 100));
-        console.error("[Server] Full response headers:", JSON.stringify(Object.fromEntries(response.headers.entries())));
-        return res.status(500).json({ 
-          error: "Backend Proxy returned invalid format (not JSON)", 
-          received: text.substring(0, 200),
-          contentType: contentType
-        });
+        return res.status(500).json({ error: "Backend Proxy returned invalid format (not JSON)" });
       }
 
       let data;
@@ -146,30 +138,45 @@ async function startServer() {
 
     console.log(`[Server] Proxying image: ${imageUrl}`);
 
-    try {
-      const response = await fetch(imageUrl, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-          'Accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8'
-        },
-        timeout: 15000
-      });
+    let attempts = 0;
+    const maxAttempts = 2;
+    
+    while (attempts < maxAttempts) {
+      try {
+        const response = await fetch(imageUrl, {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+            'Accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8'
+          },
+          timeout: 60000
+        });
 
-      if (!response.ok) {
-        console.error(`[Server] Image fetch failed: ${response.status} ${response.statusText}`);
-        return res.status(response.status).send(`Failed to fetch image: ${response.statusText}`);
+        if (!response.ok) {
+          console.error(`[Server] Image fetch attempt ${attempts + 1} failed: ${response.status} ${response.statusText}`);
+          if (attempts === maxAttempts - 1) {
+            return res.status(response.status).send(`Failed to fetch image: ${response.statusText}`);
+          }
+          attempts++;
+          continue;
+        }
+
+        const contentType = response.headers.get("content-type");
+        if (contentType) res.setHeader("Content-Type", contentType);
+        
+        res.setHeader("Access-Control-Allow-Origin", "*");
+        res.setHeader("Cache-Control", "public, max-age=86400");
+
+        response.body.pipe(res);
+        return;
+      } catch (error: any) {
+        attempts++;
+        console.error(`[Server] Image Proxy Attempt ${attempts} Error:`, error.message);
+        if (attempts >= maxAttempts) {
+          return res.status(500).send(error.message);
+        }
+        // Wait a bit before retrying
+        await new Promise(resolve => setTimeout(resolve, 1000));
       }
-
-      const contentType = response.headers.get("content-type");
-      if (contentType) res.setHeader("Content-Type", contentType);
-      
-      res.setHeader("Access-Control-Allow-Origin", "*");
-      res.setHeader("Cache-Control", "public, max-age=86400");
-
-      response.body.pipe(res);
-    } catch (error: any) {
-      console.error("[Server] Image Proxy Error:", error);
-      res.status(500).send(error.message);
     }
   });
 
@@ -183,8 +190,6 @@ async function startServer() {
   } else {
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
-    
-    // SPA fallback
     app.get('*all', (req, res) => {
       res.sendFile(path.join(distPath, 'index.html'));
     });

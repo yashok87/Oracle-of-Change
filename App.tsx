@@ -37,6 +37,12 @@ const perspectivesList = [
   { id: 'rom', label: 'Ancient Romans', frameworkType: 'ANCIENT_ROMANS' as FrameworkType },
 ];
 
+const IMAGE_MODELS = [
+  { id: 'flux', label: 'Flux (Default)' },
+  { id: 'zimage', label: 'Z-Image (Artistic)' },
+  { id: 'klein', label: 'Klein (Vibrant)' }
+];
+
 const SUGGESTIONS_POOLS = {
   EN: [
     "What should I watch tonight?", "A niche world cinema movie", "A non-fiction book to expand my mind", "A meal to cure existential dread", "A travel destination for a solo soul", "Minimalism vs Baroque lifestyle", "Should I forgive my old self?", "A documentary about hidden realities", "The ethics of artificial love", "A playlist for a rainy dialectic", "A video game with soul", "How to stop running from silence?", "An experimental film for a Sunday", "Russian vs French literature", "Should I move to the countryside?", "The meaning of constant movement", "A cocktail for a post-modern gala", "Architecture for a future home", "Zen path vs Western ambition", "Is chaos a ladder or a hole?", "A gift for a philosopher", "A radical career change?", "Cinema from the Global South", "A poem for a broken clock", "Philosophy of digital identity", "A hobby that isn't productive", "Modern art vs Classicism", "The beauty of unfinished work", "A ritual for the new moon", "Should I speak or be silent?", "A book about forgotten gods", "The last dream of a machine", "A recipe for a revolution", "Shadow work vs Light work", "Post-human fashion trends", "The sound of one clapping hand", "A hike through the uncanny valley", "Why do we build monuments?", "A letter to my 100-year-old self", "The metaphysics of jazz", "Cybernetics and the soul", "A research paper to flip my worldview", "A rare 90s techno track", "A brutalist building to visit", "Obscure mythological figures", "A painting to meditate on", "The smell of forgotten libraries", "Quantum physics for the lonely", "A tool for creative destruction"
@@ -347,6 +353,7 @@ export const App: React.FC = () => {
   const [showSaveMenu, setShowSaveMenu] = useState(false);
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [learningProfile, setLearningProfile] = useState<LearningProfile | null>(null);
+  const [selectedImageModel, setSelectedImageModel] = useState<string>('flux');
   
   // Profiling State
   const [showProfilingModal, setShowProfilingModal] = useState(false);
@@ -557,7 +564,7 @@ export const App: React.FC = () => {
             console.log("[Oracle] Pollinations slow, falling back to CogView...");
             handleImageRegen(true);
           }
-        }, 7500); // 7.5 seconds timeout for Pollinations
+        }, 20000); // 20 seconds timeout for Pollinations
       }
     }
     return () => {
@@ -584,6 +591,12 @@ export const App: React.FC = () => {
     }
   }, [activeFramework]);
 
+  useEffect(() => {
+    if (state.status === 'REVEALED' && state.response) {
+      handleImageRegen();
+    }
+  }, [selectedImageModel]);
+
   const runQuery = async (queryText: string, isDaily = false, overrideChaos?: number) => {
     if (!queryText) return;
     const finalChaos = overrideChaos !== undefined ? overrideChaos : (isManual ? state.chaosScore : Math.floor(Math.random() * 80) + 10);
@@ -596,7 +609,7 @@ export const App: React.FC = () => {
     setState(s => ({ ...s, status: 'THINKING', query: queryText, chaosScore: finalChaos, logicScore: finalLogic }));
     
     try {
-      const response = await consultOracle(queryText, finalChaos, theme, uiLanguage, learningProfile);
+      const response = await consultOracle(queryText, finalChaos, theme, uiLanguage, learningProfile, selectedImageModel);
       const taggedResponse = { ...response, isDaily };
       
       setState(s => ({ ...s, status: 'REVEALED', response: taggedResponse, chaosScore: finalChaos, logicScore: finalLogic }));
@@ -750,7 +763,8 @@ export const App: React.FC = () => {
         theme, 
         state.chaosScore, 
         state.query, 
-        force
+        force,
+        selectedImageModel
       );
       setState(prev => ({
         ...prev,
@@ -974,7 +988,7 @@ export const App: React.FC = () => {
         
         <div className={`fixed top-0 left-0 right-0 z-[1000] border-t-[1px] flex flex-col items-center py-0.5 bg-current/[0.05] backdrop-blur-md ${isRenoir ? 'border-amber-600' : 'border-red-600'}`}>
           <div className={`text-[4px] md:text-[5px] font-black uppercase tracking-[0.2em] leading-none ${isRenoir ? 'text-amber-500/60' : 'text-red-600/60'}`}>
-            {t.backupWarning} | {r.textModelUsed} | {r.imageStyleLabel} | CHAOS: {state.chaosScore}% | NEURAL: SYNCED
+            {t.backupWarning} | {r.textModelUsed} | {r.imageStyleLabel} ({r.imageModel}) | CHAOS: {state.chaosScore}% | NEURAL: SYNCED
           </div>
         </div>
 
@@ -1051,7 +1065,17 @@ export const App: React.FC = () => {
                 )}
 
                 <div className={`absolute bottom-0 left-0 right-0 p-4 pt-6 backdrop-blur-2xl border-t transition-all duration-500 flex justify-between items-center group-hover:opacity-100 opacity-90 ${isRenoir ? 'bg-amber-950/80 text-amber-100/40 group-hover:text-amber-400 border-white/10' : 'bg-white/90 text-black/40 group-hover:text-red-600 border-black/5'}`}>
-                   <span className="text-[8px] md:text-[9px] font-black uppercase tracking-[0.4em] truncate max-w-[50%]">{genre}</span>
+                   <div className="flex flex-col items-start gap-1">
+                     <span className="text-[8px] md:text-[9px] font-black uppercase tracking-[0.4em] truncate max-w-[150px]">{genre}</span>
+                     <select 
+                        data-html2canvas-ignore
+                        value={selectedImageModel} 
+                        onChange={(e) => setSelectedImageModel(e.target.value)}
+                        className="text-[7px] md:text-[8px] font-black uppercase bg-transparent outline-none cursor-pointer hover:underline decoration-current underline-offset-2"
+                     >
+                        {IMAGE_MODELS.map(m => <option key={m.id} value={m.id} className="text-black">{m.label}</option>)}
+                     </select>
+                   </div>
                    <span className="text-[8px] md:text-[9px] font-black uppercase tracking-[0.4em] truncate max-w-[50%] text-right">{modeLabel}</span>
                 </div>
               </div>
