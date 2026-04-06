@@ -5,8 +5,14 @@ import path from "path";
 import { createServer as createViteServer } from "vite";
 
 async function startServer() {
+  console.log("[Server] Starting server initialization...");
   const app = express();
   const PORT = 3000;
+
+  app.use((req, res, next) => {
+    console.log(`[Server] Incoming request: ${req.method} ${req.url}`);
+    next();
+  });
 
   app.use(cors());
   app.use(express.json({ limit: '50mb' }));
@@ -180,6 +186,7 @@ async function startServer() {
 
   // Health check endpoint for Render/Troubleshooting
   app.get("/api/health", (req, res) => {
+    console.log(`[Server] Health check route hit! Query: ${JSON.stringify(req.query)}`);
     const healthInfo = {
       status: "ok",
       timestamp: new Date().toISOString(),
@@ -187,7 +194,7 @@ async function startServer() {
       uptime: process.uptime(),
       memory: process.memoryUsage()
     };
-    console.log(`[Server] Health check requested: ${JSON.stringify(healthInfo)}`);
+    console.log(`[Server] Returning health info: ${JSON.stringify(healthInfo)}`);
     res.json(healthInfo);
   });
 
@@ -207,6 +214,7 @@ async function startServer() {
     }));
 
     app.get('*', (req, res) => {
+      console.log(`[Server] Catch-all route hit for: ${req.url}`);
       const indexPath = path.join(distPath, 'index.html');
       res.sendFile(indexPath, (err) => {
         if (err) {
@@ -218,7 +226,9 @@ async function startServer() {
   }
 
   app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`[Server] Server is actively listening on http://0.0.0.0:${PORT}`);
+    console.log(`[Server] Current working directory: ${process.cwd()}`);
+    console.log(`[Server] NODE_ENV is: ${process.env.NODE_ENV}`);
   });
 }
 
