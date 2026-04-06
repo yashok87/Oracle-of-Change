@@ -178,6 +178,19 @@ async function startServer() {
     }
   });
 
+  // Health check endpoint for Render/Troubleshooting
+  app.get("/api/health", (req, res) => {
+    const healthInfo = {
+      status: "ok",
+      timestamp: new Date().toISOString(),
+      env: process.env.NODE_ENV || 'development',
+      uptime: process.uptime(),
+      memory: process.memoryUsage()
+    };
+    console.log(`[Server] Health check requested: ${JSON.stringify(healthInfo)}`);
+    res.json(healthInfo);
+  });
+
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({

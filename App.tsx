@@ -380,6 +380,19 @@ export const App: React.FC = () => {
   const t = TRANSLATIONS[uiLanguage] || TRANSLATIONS.EN;
   const suggestions = SUGGESTIONS_POOLS[uiLanguage];
 
+  useEffect(() => {
+    const checkServerHealth = async () => {
+      try {
+        const res = await fetch('/api/health');
+        const data = await res.json();
+        console.log("[Oracle] Server Health Check:", data);
+      } catch (e) {
+        console.error("[Oracle] Server Health Check Failed:", e);
+      }
+    };
+    checkServerHealth();
+  }, []);
+
   // Logic Handlers
   const stopAudio = () => {
     stopSpeaking();
