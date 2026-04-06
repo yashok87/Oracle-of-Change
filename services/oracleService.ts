@@ -159,12 +159,18 @@ async function generatePollinationsText(prompt: string, systemInstruction: strin
       try {
         if (errText.trim().startsWith('{')) {
           const errJson = JSON.parse(errText);
-          if (errJson.error) message = errJson.error;
+          if (errJson.error) {
+            message = typeof errJson.error === 'string' ? errJson.error : (errJson.error.message || JSON.stringify(errJson.error));
+          } else if (errJson.message) {
+            message = typeof errJson.message === 'string' ? errJson.message : JSON.stringify(errJson.message);
+          } else {
+            message = errText;
+          }
         } else {
-          message = `Status ${response.status}: ${errText.substring(0, 50)}...`;
+          message = `Status ${response.status}: ${errText.substring(0, 100)}...`;
         }
       } catch (e: any) {
-        message = `Status ${response.status}: ${errText.substring(0, 50)}...`;
+        message = `Status ${response.status}: ${errText.substring(0, 100)}...`;
       }
       throw new Error(`Backend Proxy unreachable: ${message}`);
     }

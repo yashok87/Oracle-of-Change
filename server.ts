@@ -82,56 +82,81 @@ async function startServer() {
     const headers: Record<string, string> = { "Content-Type": "application/json" };
     if (apiKey) headers["Authorization"] = `Bearer ${apiKey}`;
 
-    try {
-      // Using the newer v1/chat/completions endpoint
-      const response = await fetch("https://gen.pollinations.ai/v1/chat/completions", {
-        method: "POST",
-        headers,
-        body: JSON.stringify({
-          model: model || "openai",
-          messages: [
-            { role: "system", content: systemInstruction || "You are a helpful assistant." },
-            { role: "user", content: prompt }
-          ],
-          seed,
-          response_format: jsonMode ? { type: "json_object" } : undefined,
-          temperature: 0.3
-        })
-      });
-
-      if (!response.ok) {
-        const errText = await response.text();
-        console.error("[Server] Pollinations API Error:", response.status, errText);
-        let errorMessage = errText;
-        try {
-          if (errText.trim().startsWith('{')) {
-            const errJson = JSON.parse(errText);
-            if (errJson.error) errorMessage = errJson.error;
-          }
-        } catch (e) {
-          // Not JSON, use raw text
-        }
-        return res.status(response.status).json({ error: errorMessage });
-      }
-
-      const text = await response.text();
-      const contentType = response.headers.get("content-type");
-      if (!contentType || !contentType.includes("application/json")) {
-        console.error("[Server] Pollinations API expected JSON but received:", text.substring(0, 100));
-        return res.status(500).json({ error: "Backend Proxy returned invalid format (not JSON)" });
-      }
-
-      let data;
+    let attempts = 0;
+    const maxAttempts = 3;
+    
+    while (attempts < maxAttempts) {
       try {
-        data = JSON.parse(text);
-      } catch (jsonErr: any) {
-        console.error("[Server] Pollinations API JSON parse failed:", jsonErr.message, text.substring(0, 100));
-        return res.status(500).json({ error: "Upstream API returned malformed JSON" });
+        // Using the newer v1/chat/completions endpoint
+        const response = await fetch("https://gen.pollinations.ai/v1/chat/completions", {
+          method: "POST",
+          headers,
+          body: JSON.stringify({
+            model: model || "openai",
+            messages: [
+              { role: "system", content: systemInstruction || "You are a helpful assistant." },
+              { role: "user", content: prompt }
+            ],
+            seed,
+            response_format: jsonMode ? { type: "json_object" } : undefined,
+            temperature: 0.3
+          }),
+          timeout: 60000 // 60s timeout
+        });
+
+        if (!response.ok) {
+          const errText = await response.text();
+          console.error(`[Server] Pollinations API Error (Attempt ${attempts + 1}):`, response.status, errText);
+          
+          // If it's a 500/502/503/504, we might want to retry
+          if (response.status >= 500 && attempts < maxAttempts - 1) {
+            attempts++;
+            await new Promise(resolve => setTimeout(resolve, 2000 * attempts));
+            continue;
+          }
+
+          let errorMessage = errText;
+          try {
+            if (errText.trim().startsWith('{')) {
+              const errJson = JSON.parse(errText);
+              if (errJson.error) {
+                errorMessage = typeof errJson.error === 'string' ? errJson.error : (errJson.error.message || JSON.stringify(errJson.error));
+              } else if (errJson.message) {
+                errorMessage = errJson.message;
+              }
+            }
+          } catch (e) {
+            // Not JSON, use raw text
+          }
+          return res.status(response.status).json({ error: errorMessage });
+        }
+
+        const text = await response.text();
+        const contentType = response.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+          console.error("[Server] Pollinations API expected JSON but received:", text.substring(0, 100));
+          return res.status(500).json({ error: "Backend Proxy returned invalid format (not JSON)" });
+        }
+
+        let data;
+        try {
+          data = JSON.parse(text);
+        } catch (jsonErr: any) {
+          console.error("[Server] Pollinations API JSON parse failed:", jsonErr.message, text.substring(0, 100));
+          return res.status(500).json({ error: "Upstream API returned malformed JSON" });
+        }
+        return res.json(data);
+      } catch (error: any) {
+        attempts++;
+        console.error(`[Server] Pollinations Proxy Exception (Attempt ${attempts}):`, error.message);
+        
+        if (attempts < maxAttempts) {
+          await new Promise(resolve => setTimeout(resolve, 2000 * attempts));
+          continue;
+        }
+        
+        return res.status(500).json({ error: error.message });
       }
-      res.json(data);
-    } catch (error: any) {
-      console.error("[Server] Pollinations Proxy Exception:", error);
-      res.status(500).json({ error: error.message });
     }
   });
 
