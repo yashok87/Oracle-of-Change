@@ -347,7 +347,6 @@ export const App: React.FC = () => {
   const [isImageLoading, setIsImageLoading] = useState(false);
   const [imageHasError, setImageHasError] = useState(false);
   const [isVisionActuallyReady, setIsVisionActuallyReady] = useState(false);
-  const [isSlowLoading, setIsSlowLoading] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [isManual, setIsManual] = useState(false);
   const [imgCrossOrigin, setImgCrossOrigin] = useState<"anonymous" | undefined>("anonymous");
@@ -569,23 +568,13 @@ export const App: React.FC = () => {
             console.log("[Oracle] Pollinations slow, falling back to CogView...");
             handleImageRegen(true);
           }
-        }, 12000); // 12 seconds timeout for Pollinations
+        }, 20000); // 20 seconds timeout for Pollinations
       }
     }
     return () => {
       if (imageTimeoutRef.current) clearTimeout(imageTimeoutRef.current);
     };
   }, [state.response?.imageUrl, state.status]);
-
-  useEffect(() => {
-    let slowTimer: NodeJS.Timeout;
-    if (isImageLoading) {
-      slowTimer = setTimeout(() => setIsSlowLoading(true), 8000);
-    } else {
-      setIsSlowLoading(false);
-    }
-    return () => clearTimeout(slowTimer);
-  }, [isImageLoading]);
 
   useEffect(() => { 
     if (state.status === 'REVEALED' && state.response) { 
@@ -953,7 +942,7 @@ export const App: React.FC = () => {
   })();
 
   const VisionLoadingIcon = () => (
-    <div className="absolute inset-0 flex flex-col items-center justify-center z-20 transition-opacity duration-300 bg-current/5 backdrop-blur-sm">
+    <div className="absolute inset-0 flex flex-col items-center justify-center z-20 pointer-events-none transition-opacity duration-300 bg-current/5 backdrop-blur-sm">
        {isRenoir ? (
          <div className="flex flex-col items-center">
             <div className="w-14 h-14 border-4 border-amber-500 rounded-full animate-pulse bg-transparent mb-6 shadow-[0_0_30px_rgba(245,158,11,0.4)]" />
@@ -964,14 +953,6 @@ export const App: React.FC = () => {
             <div className="w-12 h-12 border-2 border-red-600 animate-oracle-spin-pulse mb-6" />
             <span className="text-[10px] font-black uppercase tracking-[0.8em] text-red-600/60 animate-pulse">Visualizing...</span>
          </div>
-       )}
-       {isSlowLoading && (
-         <button 
-           onClick={(e) => { e.stopPropagation(); handleImageRegen(true); }}
-           className={`mt-8 px-6 py-2 border-2 text-[9px] font-black uppercase tracking-widest rounded-full transition-all hover:scale-105 active:scale-95 animate-in fade-in slide-in-from-bottom-2 duration-500 ${isRenoir ? 'bg-amber-900 border-amber-500 text-white' : 'bg-red-600 border-red-600 text-white'}`}
-         >
-           Synchronize Vision (Backup)
-         </button>
        )}
     </div>
   );
@@ -1076,7 +1057,7 @@ export const App: React.FC = () => {
                         </div>
                         <div className="flex flex-wrap justify-center gap-3">
                           <button 
-                            onClick={(e) => { e.stopPropagation(); handleImageRegen(true); }}
+                            onClick={(e) => { e.stopPropagation(); handleImageRegen(false); }}
                             className="px-8 py-3 bg-current/10 hover:bg-current/20 text-[10px] uppercase font-black tracking-widest transition-all rounded-full hover:scale-105 active:scale-95"
                           >
                             Synchronize Vision
