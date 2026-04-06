@@ -213,7 +213,7 @@ async function startServer() {
       index: false // We'll handle index.html manually to ensure it's the fallback
     }));
 
-    app.get('*', (req, res) => {
+    app.get('*all', (req, res) => {
       console.log(`[Server] Catch-all route hit for: ${req.url}`);
       const indexPath = path.join(distPath, 'index.html');
       res.sendFile(indexPath, (err) => {
