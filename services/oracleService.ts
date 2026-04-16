@@ -120,7 +120,7 @@ function isBinaryQuery(query: string): boolean {
 
 function isExplicitSelectionRequest(query: string): boolean {
   const lowercase = query.toLowerCase();
-  const explicitKeywords = /\b(watch|buy|get|stream|recommend|suggest|what should i|choice for|to wear|to eat|wear|eat|play|view|look at)\b/i;
+  const explicitKeywords = /\b(watch|buy|get|stream|recommend|suggest|what should i|choice for|to wear|to eat|wear|eat|play|view|look at|movie|film|cinema|show)\b/i;
   return explicitKeywords.test(lowercase);
 }
 
