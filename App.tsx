@@ -819,7 +819,8 @@ export const App: React.FC = () => {
       particleCount: 150,
       spread: 70,
       origin: { y: 0.6 },
-      zIndex: 2000
+      zIndex: 2000,
+      colors: ['#ef4444', '#3b82f6', '#60a5fa', '#2563eb', '#facc15', '#8b5cf6']
     });
   };
 
