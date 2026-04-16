@@ -350,7 +350,6 @@ export const App: React.FC = () => {
   const [isVisionActuallyReady, setIsVisionActuallyReady] = useState(false);
   const [isSlowLoading, setIsSlowLoading] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
-  const [showCalibrationPopup, setShowCalibrationPopup] = useState(false);
   const [isManual, setIsManual] = useState(false);
   const [imgCrossOrigin, setImgCrossOrigin] = useState<"anonymous" | undefined>("anonymous");
   const [showSaveMenu, setShowSaveMenu] = useState(false);
@@ -991,67 +990,6 @@ export const App: React.FC = () => {
     </div>
   );
 
-  const CalibrationPopup = (
-    <div className="fixed inset-0 z-[1100] bg-black/80 backdrop-blur-3xl flex items-center justify-center p-6 cursor-pointer" onClick={() => setShowCalibrationPopup(false)}>
-      <div className={`w-full max-w-sm p-10 rounded-[50px] border shadow-2xl transition-all duration-500 animate-in zoom-in-95 ${isRenoir ? 'bg-[#1e0a0a] border-amber-900/40 text-amber-100' : 'bg-white border-black/10 text-black'}`} onClick={e => e.stopPropagation()}>
-         <div className="flex justify-between items-center mb-10">
-            <span className="text-[10px] font-black uppercase tracking-[0.6em] opacity-40">{t.manualCalibration}</span>
-            <button onClick={() => setShowCalibrationPopup(false)} className="opacity-40 hover:opacity-100 transition-opacity"><Icons.Close /></button>
-         </div>
-
-         <div className="space-y-8">
-            <div className="flex flex-col items-center gap-6">
-               <div className="flex items-center gap-4 w-full">
-                  <button 
-                    onClick={() => setIsManual(false)} 
-                    className={`flex-1 py-3 rounded-full text-[10px] font-black uppercase tracking-widest border-2 transition-all ${!isManual ? (isRenoir ? 'bg-amber-500 border-amber-500 text-[#1e0a0a]' : 'bg-black border-black text-white') : 'border-current/10 opacity-40'}`}
-                  >
-                    Auto
-                  </button>
-                  <button 
-                    onClick={() => setIsManual(true)} 
-                    className={`flex-1 py-3 rounded-full text-[10px] font-black uppercase tracking-widest border-2 transition-all ${isManual ? (isRenoir ? 'bg-amber-500 border-amber-500 text-[#1e0a0a]' : 'bg-black border-black text-white') : 'border-current/10 opacity-40'}`}
-                  >
-                    Manual
-                  </button>
-               </div>
-
-               {isManual && (
-                 <div className="w-full space-y-4 animate-in slide-in-from-top-4">
-                    <div className="flex justify-between items-end text-[9px] font-black uppercase tracking-[0.2em]">
-                       <span className="opacity-40">{t.logic}</span>
-                       <span className={`text-[16px] font-black leading-none ${isRenoir ? 'text-amber-500' : 'text-red-600'}`}>{state.chaosScore}%</span>
-                       <span className="text-red-600 opacity-60">{t.chaos}</span>
-                    </div>
-                    <div className="relative h-6 flex items-center">
-                       <div className={`absolute left-0 right-0 h-[1px] ${isRenoir ? 'bg-amber-900/40' : 'bg-black/10'}`} />
-                       <input 
-                         type="range" 
-                         min="0" 
-                         max="100" 
-                         value={state.chaosScore} 
-                         onChange={e => { const c = parseInt(e.target.value); setState(s => ({ ...s, chaosScore: c, logicScore: 100 - c })); }} 
-                         className="calibration-slider w-full h-full bg-transparent appearance-none cursor-pointer relative z-10" 
-                       />
-                    </div>
-                 </div>
-               )}
-            </div>
-
-            <button 
-              onClick={() => {
-                runQuery(state.query, false, isManual ? state.chaosScore : Math.floor(Math.random() * 80) + 10);
-                setShowCalibrationPopup(false);
-              }}
-              className={`w-full py-5 rounded-3xl font-black uppercase tracking-[0.3em] text-[10px] shadow-xl transition-all active:scale-95 ${isRenoir ? 'bg-amber-900 text-white' : 'bg-black text-white'}`}
-            >
-              {t.askAgain}
-            </button>
-         </div>
-      </div>
-    </div>
-  );
-
   if (state.status === 'ERROR') return (
     <div className={`h-screen flex flex-col items-center justify-center p-8 text-center ${isRenoir ? 'bg-[#0f0505] text-amber-100 font-serif' : 'bg-white text-black font-sans'}`}>
        <h1 
@@ -1062,7 +1000,6 @@ export const App: React.FC = () => {
        </h1>
        <p className="text-xs opacity-60 mb-8 max-w-xs mx-auto">{state.error || "The void is currently unreadable."}</p>
        <button onClick={() => setState(s => ({ ...s, status: 'IDLE' }))} className="px-8 py-3 border-current font-black uppercase text-[10px] rounded-full">Recalibrate</button>
-        {showCalibrationPopup && CalibrationPopup}
     </div>
   );
 
@@ -1080,14 +1017,13 @@ export const App: React.FC = () => {
     else if (r.type === 'PERSONAL') verdictTypeLabel = t.mantra;
     else if (r.type === 'PREDICTION') verdictTypeLabel = t.forecast;
     else if (r.type === 'DECISION') verdictTypeLabel = t.decree;
-    else if (r.type === 'RECOMMENDATION') verdictTypeLabel = "The Selection";
+    else if (r.type === 'RECOMMENDATION') verdictTypeLabel = t.recommendation;
 
     let tallyLabel = t.councilTally;
     if (r.type === 'KNOWLEDGE') tallyLabel = t.councilConsensus;
     else if (r.type === 'PERSONAL') tallyLabel = t.existentialResonance;
     else if (r.type === 'PREDICTION') tallyLabel = t.probabilityOccurrence;
     else if (r.type === 'DECISION') tallyLabel = t.councilResolve;
-    else if (r.type === 'RECOMMENDATION') tallyLabel = "Council Consensus";
 
     return (
       <div className={`min-h-screen pt-24 pb-24 px-6 md:px-8 overflow-y-auto ${isRenoir ? 'bg-[#0f0505] text-amber-100 font-serif' : 'bg-white text-black font-sans'}`}>
@@ -1268,7 +1204,7 @@ export const App: React.FC = () => {
                <div className="flex flex-col items-center justify-center text-center py-6 mb-6 bg-current/[0.03] rounded-3xl border border-current/5 px-8">
                   <span className="text-[9px] font-black uppercase tracking-[0.6em] opacity-30 mb-3">{verdictTypeLabel}</span>
                   <span className={`text-base md:text-lg font-normal tracking-normal leading-relaxed ${isRenoir ? 'text-amber-500' : 'text-red-600'}`}>
-                     {renderHyperlinkedText(activeAnalysisData?.verdict || "The Oracle is formulating a response...", !!isRenoir, true)}
+                     {renderHyperlinkedText(activeAnalysisData?.verdict || "Decree in progress...", !!isRenoir, true)}
                   </span>
                </div>
 
@@ -1344,10 +1280,7 @@ export const App: React.FC = () => {
             </div>
 
             <div data-html2canvas-ignore className="flex justify-center -mt-6 gap-4">
-              <button 
-                onClick={() => setShowCalibrationPopup(true)} 
-                className={`flex items-center gap-1.5 px-4 py-1 text-[10px] font-black uppercase tracking-widest transition-all hover:scale-105 active:scale-95 group ${isRenoir ? 'text-amber-500' : 'text-red-600'}`}
-              >
+              <button onClick={() => runQuery(state.query, false, Math.floor(Math.random() * 80) + 10)} className={`flex items-center gap-1.5 px-4 py-1 text-[10px] font-black uppercase tracking-widest transition-all hover:scale-105 active:scale-95 group ${isRenoir ? 'text-amber-500' : 'text-red-600'}`}>
                 <Icons.Refresh />
                 <span className="underline underline-offset-4 decoration-2 group-hover:decoration-current">{t.askAgain}</span>
               </button>
@@ -1438,7 +1371,6 @@ export const App: React.FC = () => {
             </div>
           </div>
         )}
-        {showCalibrationPopup && CalibrationPopup}
       </div>
     );
   }
@@ -1449,7 +1381,6 @@ export const App: React.FC = () => {
       {GlobalUI}
       {HistorySidebar}
       {showProfilingModal && ProfilingModal}
-      {showCalibrationPopup && CalibrationPopup}
 
       <div className="z-10 w-full max-w-2xl flex flex-col items-center justify-center space-y-4 md:space-y-6 h-full">
         <div className="space-y-1 text-center">
