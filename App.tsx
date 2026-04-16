@@ -1062,6 +1062,7 @@ export const App: React.FC = () => {
        </h1>
        <p className="text-xs opacity-60 mb-8 max-w-xs mx-auto">{state.error || "The void is currently unreadable."}</p>
        <button onClick={() => setState(s => ({ ...s, status: 'IDLE' }))} className="px-8 py-3 border-current font-black uppercase text-[10px] rounded-full">Recalibrate</button>
+        {showCalibrationPopup && CalibrationPopup}
     </div>
   );
 
@@ -1079,13 +1080,14 @@ export const App: React.FC = () => {
     else if (r.type === 'PERSONAL') verdictTypeLabel = t.mantra;
     else if (r.type === 'PREDICTION') verdictTypeLabel = t.forecast;
     else if (r.type === 'DECISION') verdictTypeLabel = t.decree;
-    else if (r.type === 'RECOMMENDATION') verdictTypeLabel = t.recommendation;
+    else if (r.type === 'RECOMMENDATION') verdictTypeLabel = "The Selection";
 
     let tallyLabel = t.councilTally;
     if (r.type === 'KNOWLEDGE') tallyLabel = t.councilConsensus;
     else if (r.type === 'PERSONAL') tallyLabel = t.existentialResonance;
     else if (r.type === 'PREDICTION') tallyLabel = t.probabilityOccurrence;
     else if (r.type === 'DECISION') tallyLabel = t.councilResolve;
+    else if (r.type === 'RECOMMENDATION') tallyLabel = "Council Consensus";
 
     return (
       <div className={`min-h-screen pt-24 pb-24 px-6 md:px-8 overflow-y-auto ${isRenoir ? 'bg-[#0f0505] text-amber-100 font-serif' : 'bg-white text-black font-sans'}`}>
@@ -1266,7 +1268,7 @@ export const App: React.FC = () => {
                <div className="flex flex-col items-center justify-center text-center py-6 mb-6 bg-current/[0.03] rounded-3xl border border-current/5 px-8">
                   <span className="text-[9px] font-black uppercase tracking-[0.6em] opacity-30 mb-3">{verdictTypeLabel}</span>
                   <span className={`text-base md:text-lg font-normal tracking-normal leading-relaxed ${isRenoir ? 'text-amber-500' : 'text-red-600'}`}>
-                     {renderHyperlinkedText(activeAnalysisData?.verdict || "Decree in progress...", !!isRenoir, true)}
+                     {renderHyperlinkedText(activeAnalysisData?.verdict || "The Oracle is formulating a response...", !!isRenoir, true)}
                   </span>
                </div>
 
@@ -1436,6 +1438,7 @@ export const App: React.FC = () => {
             </div>
           </div>
         )}
+        {showCalibrationPopup && CalibrationPopup}
       </div>
     );
   }

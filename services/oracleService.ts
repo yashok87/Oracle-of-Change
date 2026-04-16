@@ -120,8 +120,17 @@ function isBinaryQuery(query: string): boolean {
 
 function isExplicitSelectionRequest(query: string): boolean {
   const lowercase = query.toLowerCase();
-  const explicitKeywords = /\b(watch|buy|get|stream|recommend|suggest|what should i|choice for|to wear|to eat|wear|eat|play|view|look at|movie|film|cinema|show)\b/i;
-  return explicitKeywords.test(lowercase);
+  const explicitPhrases = [
+    "what should i", "choose for me", "give me a", "recommendation for", 
+    "movie for tonight", "film for tonight", "best movie", "best film",
+    "movie recommendation", "film recommendation", "watch tonight"
+  ];
+  const selectKeywords = ["watch", "recommend", "suggest", "choice", "movie", "film", "cinema", "show", "eat", "wear", "play"];
+  
+  if (explicitPhrases.some(p => lowercase.includes(p))) return true;
+  
+  const regex = new RegExp(`\\b(${selectKeywords.join('|')})\\b`, 'i');
+  return regex.test(lowercase);
 }
 
 function isMaterialQuery(query: string): boolean {
@@ -276,16 +285,15 @@ ${personaInstruction}
 
 2. RECOMMENDATION (DIRECT SELECTION ENGINE):
    - ROLE: You are a Direct Selection Engine.
-   - TRIGGER: ONLY activated when user explicitly asks "what should I [watch/buy/get/wear/eat]", or uses intent verbs like "recommend", "suggest", "watch [item]", "choice for".
+   - TRIGGER: Activated when user asks "what should I [watch/buy/get/wear/eat]", or uses selection intent (movie, film, best, for tonight).
    - SELECTION LOGIC:
      * IF Chaos Influence <= 20% (Logic >= 80%): Clichés/Mainstream items are PERMITTED.
      * IF Chaos Influence > 20%: Strictly forbid clichés. Identify 1 specific niche/obscure title.
-   - OUTPUT FORMAT:
-     [[Actual Name of Item]] (Actual Year) - Actual Genre
-     Price/Access: [e.g., "Included with Prime", "Digital Purchase", or "$3.99 Rental"]
-     Rationale: 1 concise sentence on why it fits.
-   - LINK: Provide a direct link if possible (Amazon, IMDb, etc.) in 'recommendationLink' field.
-   - VERDICT: Provide the recommendation. Do NOT use [[YES]], [[NO]], or [[MAYBE]].
+   - OUTPUT FORMAT (STRICT):
+     "verdict": "[[Actual Name of Item]] (Year). [2-3 sentences explaining why this fits, and explicitly stating its genre and essence.]"
+     "detailedAnalysis": "Analyze the philosophical resonance of this specific choice. 2 paragraphs."
+   - VERDICT REQUIREMENT: You MUST put the name of the item in brackets [[Like This]]. This field is our primary revelation; DO NOT leave it empty or generic.
+   - VERDICT: Provide a definitive recommendation. Do NOT use [[YES]], [[NO]], or [[MAYBE]].
 
 3. DECISION (DECREE):
    - ROLE: Binary engine for life choices (e.g., "Should I quit my job?").
@@ -366,15 +374,15 @@ Respond ONLY with JSON. No meta-commentary.`;
       throw new Error(`Failed to parse Oracle revelation: ${parseErr.message}`);
     }
     
-    // Safety check for routing
+    // Improved routing logic
     let finalizedType = data.type;
-    if (finalizedType === 'RECOMMENDATION' && !isExplicit) {
-        finalizedType = 'KNOWLEDGE';
-    }
     
-    // Force COMPARISON if it's a comparison query (e.g., "tea or coffee")
     if (isComp) {
         finalizedType = 'COMPARISON';
+    } else if (isExplicit) {
+        finalizedType = 'RECOMMENDATION';
+    } else if (finalizedType === 'RECOMMENDATION' && !isExplicit) {
+        finalizedType = 'KNOWLEDGE';
     }
 
     const oracleResponse: OracleResponse = {
@@ -384,7 +392,7 @@ Respond ONLY with JSON. No meta-commentary.`;
       sources: [],
       textModelUsed: 'Pollinations-OpenAI',
       detailedAnalysis: ensureString(data.detailedAnalysis || data.analysis || data.revelation || "The void remains silent on the specifics, yet the essence is clear."),
-      verdict: ensureString(data.verdict || data.decree || data.winner || "The choice is made."),
+      verdict: ensureString(data.verdict || data.decree || data.winner || data.recommendation || data.selection || data.choice || "The selection is finalized.").trim(),
       title: ensureString(data.title || data.header || "A Whispered Decree"),
       category: ensureString(data.category || "ONTOLOGY")
     };
@@ -468,6 +476,11 @@ Respond ONLY with JSON. No meta-commentary.`;
     }
 
     const searchTopic = oracleResponse.verdict.replace(/\[\[|\]\]/g, '');
+    if (oracleResponse.type === 'RECOMMENDATION' && searchTopic && searchTopic !== "The selection is finalized.") {
+        oracleResponse.recommendationLink = `https://www.google.com/search?q=${encodeURIComponent(searchTopic)}`;
+        oracleResponse.studyMoreUrl = oracleResponse.recommendationLink;
+        oracleResponse.studyMoreLabel = "Study Selection";
+    }
     oracleResponse.sources = [
       { title: "Universal Query: " + oracleResponse.title, uri: `https://www.google.com/search?q=${encodeURIComponent(oracleResponse.title)}` },
       { title: "Sourcing Deep Metadata", uri: `https://www.google.com/search?q=${encodeURIComponent(searchTopic + ' official source reviews')}` }
