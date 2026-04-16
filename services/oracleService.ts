@@ -1,6 +1,5 @@
 import { OracleResponse, OracleSource, Perspective, LearningProfile } from "../types";
 import { GoogleGenAI, Modality, Type } from "@google/genai";
-import OpenAI from "openai";
 
 const PERSPECTIVE_KEYS = ["psychoanalysis", "gestalt", "russian_philosophy", "german_philosophy", "existential", "theological", "buddhist", "post_modern", "ancient_greeks", "ancient_romans"];
 

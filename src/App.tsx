@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import html2canvas from 'html2canvas';
+import confetti from 'canvas-confetti';
 import { OracleState, OracleResponse, HistoryItem, Perspective, LearningProfile } from './types';
 import { consultOracle, regenerateOracleImage, translateOracleResponse, speakText, fetchPerspectiveAnalysis, stopSpeaking } from './services/oracleService';
 import { RatioIndicator } from './components/RatioIndicator';
@@ -354,6 +355,70 @@ export const App: React.FC = () => {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [learningProfile, setLearningProfile] = useState<LearningProfile | null>(null);
   const [selectedImageModel, setSelectedImageModel] = useState<string>('flux');
+  
+  const triggerConfetti = () => {
+    const duration = 6 * 1000;
+    const animationEnd = Date.now() + duration;
+    
+    // Apply page distortion and blur
+    const originalFilter = document.body.style.filter;
+    const originalTransition = document.body.style.transition;
+    const originalTransform = document.body.style.transform;
+    
+    document.body.style.transition = 'filter 2s ease, transform 3s ease';
+    document.body.style.filter = 'blur(1.5px) saturate(1.2) contrast(0.95)';
+    document.body.style.transform = 'scale(1.01) rotate(0.1deg)';
+
+    const canvas = document.createElement('canvas');
+    canvas.style.position = 'fixed';
+    canvas.style.top = '0';
+    canvas.style.left = '0';
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    canvas.style.pointerEvents = 'none';
+    canvas.style.zIndex = '2000';
+    canvas.style.filter = 'blur(0.8px)';
+    document.body.appendChild(canvas);
+
+    const myConfetti = confetti.create(canvas, {
+      resize: true,
+      useWorker: true
+    });
+
+    const interval: any = setInterval(() => {
+      const timeLeft = animationEnd - Date.now();
+
+      if (timeLeft <= 0) {
+        clearInterval(interval);
+        // Gradually restore page
+        document.body.style.filter = originalFilter;
+        document.body.style.transform = originalTransform;
+        
+        setTimeout(() => {
+          document.body.style.transition = originalTransition;
+          if (document.body.contains(canvas)) {
+            document.body.removeChild(canvas);
+          }
+        }, 3000);
+        return;
+      }
+
+      const particleCount = 15;
+      
+      // Fall from top across the width
+      myConfetti({
+        particleCount,
+        startVelocity: 0,
+        ticks: 200,
+        gravity: 0.6,
+        origin: { x: Math.random(), y: -0.1 },
+        colors: isRenoir ? ['#f59e0b', '#7c2d12', '#fbbf24', '#fef3c7'] : ['#dc2626', '#2563eb', '#000000', '#ffffff'],
+        scalar: Math.random() * 0.5 + 0.5,
+        drift: Math.random() * 2 - 1,
+        spread: 40
+      });
+    }, 100);
+  };
   
   // Profiling State
   const [showProfilingModal, setShowProfilingModal] = useState(false);
@@ -1343,7 +1408,10 @@ export const App: React.FC = () => {
 
       <div className="z-10 w-full max-w-2xl flex flex-col items-center justify-center space-y-4 md:space-y-6 h-full">
         <div className="space-y-1 text-center">
-          <h1 className="text-2xl md:text-4xl font-black uppercase tracking-tighter leading-[0.8] whitespace-pre-wrap select-none drop-shadow-2xl">
+          <h1 
+            onClick={triggerConfetti}
+            className="text-2xl md:text-4xl font-black uppercase tracking-tighter leading-[0.8] whitespace-pre-wrap select-none drop-shadow-2xl cursor-pointer hover:scale-105 transition-transform active:scale-95"
+          >
             {(t as any)?.title || "The Oracle"}
           </h1>
         </div>
