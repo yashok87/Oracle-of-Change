@@ -815,12 +815,15 @@ export const App: React.FC = () => {
   };
 
   const triggerConfetti = () => {
+    const paletteA = ['#ef4444', '#3b82f6', '#60a5fa', '#2563eb', '#facc15', '#8b5cf6'];
+    const paletteB = ['#f59e0b', '#d97706', '#78350f', '#451a03', '#fef3c7', '#fbbf24'];
+    
     confetti({
       particleCount: 150,
       spread: 70,
       origin: { y: 0.6 },
       zIndex: 2000,
-      colors: ['#ef4444', '#3b82f6', '#60a5fa', '#2563eb', '#facc15', '#8b5cf6']
+      colors: isRenoir ? paletteB : paletteA
     });
   };
 
