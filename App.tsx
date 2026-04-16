@@ -348,6 +348,7 @@ export const App: React.FC = () => {
   const [isImageLoading, setIsImageLoading] = useState(false);
   const [imageHasError, setImageHasError] = useState(false);
   const [isVisionActuallyReady, setIsVisionActuallyReady] = useState(false);
+  const [isSlowLoading, setIsSlowLoading] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [isManual, setIsManual] = useState(false);
   const [imgCrossOrigin, setImgCrossOrigin] = useState<"anonymous" | undefined>("anonymous");
@@ -355,64 +356,6 @@ export const App: React.FC = () => {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [learningProfile, setLearningProfile] = useState<LearningProfile | null>(null);
   const [selectedImageModel, setSelectedImageModel] = useState<string>('flux');
-  
-  const triggerConfetti = () => {
-    const duration = 6 * 1000;
-    const animationEnd = Date.now() + duration;
-    
-    const canvas = document.createElement('canvas');
-    canvas.style.position = 'fixed';
-    canvas.style.top = '0';
-    canvas.style.left = '0';
-    canvas.style.width = '100%';
-    canvas.style.height = '100%';
-    canvas.style.pointerEvents = 'none';
-    canvas.style.zIndex = '2000';
-    canvas.style.filter = 'blur(1.2px)';
-    document.body.appendChild(canvas);
-
-    const myConfetti = confetti.create(canvas, {
-      resize: true,
-      useWorker: true
-    });
-
-    const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
-
-    const interval: any = setInterval(() => {
-      const timeLeft = animationEnd - Date.now();
-
-      if (timeLeft <= 0) {
-        clearInterval(interval);
-        setTimeout(() => {
-          if (document.body.contains(canvas)) {
-            document.body.removeChild(canvas);
-          }
-        }, 3000);
-        return;
-      }
-
-      const particleCount = 40 * (timeLeft / duration);
-      
-      myConfetti({
-        particleCount,
-        startVelocity: 30,
-        spread: 360,
-        ticks: 60,
-        origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
-        colors: isRenoir ? ['#f59e0b', '#7c2d12', '#fbbf24'] : ['#dc2626', '#2563eb', '#000000'],
-        scalar: 1.2
-      });
-      myConfetti({
-        particleCount,
-        startVelocity: 30,
-        spread: 360,
-        ticks: 60,
-        origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
-        colors: isRenoir ? ['#f59e0b', '#7c2d12', '#fbbf24'] : ['#dc2626', '#2563eb', '#000000'],
-        scalar: 1.2
-      });
-    }, 250);
-  };
   
   // Profiling State
   const [showProfilingModal, setShowProfilingModal] = useState(false);
@@ -627,13 +570,23 @@ export const App: React.FC = () => {
             console.log("[Oracle] Pollinations slow, falling back to CogView...");
             handleImageRegen(true);
           }
-        }, 20000); // 20 seconds timeout for Pollinations
+        }, 12000); // 12 seconds timeout for Pollinations
       }
     }
     return () => {
       if (imageTimeoutRef.current) clearTimeout(imageTimeoutRef.current);
     };
   }, [state.response?.imageUrl, state.status]);
+
+  useEffect(() => {
+    let slowTimer: NodeJS.Timeout;
+    if (isImageLoading) {
+      slowTimer = setTimeout(() => setIsSlowLoading(true), 8000);
+    } else {
+      setIsSlowLoading(false);
+    }
+    return () => clearTimeout(slowTimer);
+  }, [isImageLoading]);
 
   useEffect(() => { 
     if (state.status === 'REVEALED' && state.response) { 
@@ -861,6 +814,15 @@ export const App: React.FC = () => {
     runQuery(query);
   };
 
+  const triggerConfetti = () => {
+    confetti({
+      particleCount: 150,
+      spread: 70,
+      origin: { y: 0.6 },
+      zIndex: 2000
+    });
+  };
+
   const [localDisplayUrl, setLocalDisplayUrl] = useState<string | null>(null);
 
   const getCORSFriendlyImage = async (url: string): Promise<string> => {
@@ -1001,7 +963,7 @@ export const App: React.FC = () => {
   })();
 
   const VisionLoadingIcon = () => (
-    <div className="absolute inset-0 flex flex-col items-center justify-center z-20 pointer-events-none transition-opacity duration-300 bg-current/5 backdrop-blur-sm">
+    <div className="absolute inset-0 flex flex-col items-center justify-center z-20 transition-opacity duration-300 bg-current/5 backdrop-blur-sm">
        {isRenoir ? (
          <div className="flex flex-col items-center">
             <div className="w-14 h-14 border-4 border-amber-500 rounded-full animate-pulse bg-transparent mb-6 shadow-[0_0_30px_rgba(245,158,11,0.4)]" />
@@ -1013,12 +975,25 @@ export const App: React.FC = () => {
             <span className="text-[10px] font-black uppercase tracking-[0.8em] text-red-600/60 animate-pulse">Visualizing...</span>
          </div>
        )}
+       {isSlowLoading && (
+         <button 
+           onClick={(e) => { e.stopPropagation(); handleImageRegen(true); }}
+           className={`mt-8 px-6 py-2 border-2 text-[9px] font-black uppercase tracking-widest rounded-full transition-all hover:scale-105 active:scale-95 animate-in fade-in slide-in-from-bottom-2 duration-500 ${isRenoir ? 'bg-amber-900 border-amber-500 text-white' : 'bg-red-600 border-red-600 text-white'}`}
+         >
+           Synchronize Vision (Backup)
+         </button>
+       )}
     </div>
   );
 
   if (state.status === 'ERROR') return (
     <div className={`h-screen flex flex-col items-center justify-center p-8 text-center ${isRenoir ? 'bg-[#0f0505] text-amber-100 font-serif' : 'bg-white text-black font-sans'}`}>
-       <h1 className="text-2xl font-black uppercase mb-4 tracking-tighter">Paradox Encountered</h1>
+       <h1 
+         onClick={triggerConfetti}
+         className="text-2xl font-black uppercase mb-4 tracking-tighter cursor-pointer"
+       >
+         Paradox Encountered
+       </h1>
        <p className="text-xs opacity-60 mb-8 max-w-xs mx-auto">{state.error || "The void is currently unreadable."}</p>
        <button onClick={() => setState(s => ({ ...s, status: 'IDLE' }))} className="px-8 py-3 border-current font-black uppercase text-[10px] rounded-full">Recalibrate</button>
     </div>
@@ -1059,7 +1034,10 @@ export const App: React.FC = () => {
         {HistorySidebar}
 
         <div ref={captureRef} className="max-w-3xl mx-auto flex flex-col items-center space-y-12">
-          <h1 className="text-3xl md:text-5xl font-black uppercase tracking-tighter leading-[0.8] text-center">
+          <h1 
+            onClick={triggerConfetti}
+            className="text-3xl md:text-5xl font-black uppercase tracking-tighter leading-[0.8] text-center cursor-pointer"
+          >
             {(r?.title || "The Decree")?.replace(/\[\[|\]\]/g, '')}
           </h1>
 
@@ -1116,7 +1094,7 @@ export const App: React.FC = () => {
                         </div>
                         <div className="flex flex-wrap justify-center gap-3">
                           <button 
-                            onClick={(e) => { e.stopPropagation(); handleImageRegen(false); }}
+                            onClick={(e) => { e.stopPropagation(); handleImageRegen(true); }}
                             className="px-8 py-3 bg-current/10 hover:bg-current/20 text-[10px] uppercase font-black tracking-widest transition-all rounded-full hover:scale-105 active:scale-95"
                           >
                             Synchronize Vision
@@ -1404,7 +1382,7 @@ export const App: React.FC = () => {
         <div className="space-y-1 text-center">
           <h1 
             onClick={triggerConfetti}
-            className="text-2xl md:text-4xl font-black uppercase tracking-tighter leading-[0.8] whitespace-pre-wrap select-none drop-shadow-2xl cursor-pointer hover:scale-105 transition-transform active:scale-95"
+            className="text-2xl md:text-4xl font-black uppercase tracking-tighter leading-[0.8] whitespace-pre-wrap select-none drop-shadow-2xl cursor-pointer"
           >
             {(t as any)?.title || "The Oracle"}
           </h1>
