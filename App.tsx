@@ -138,8 +138,6 @@ const TRANSLATIONS = {
     startTest: "Begin Calibration",
     saveProfile: "Lock Pattern",
     modes: { RECOMMENDATION: "RECOMMENDATION", DECISION: "DECREE", KNOWLEDGE: "SYMPOSIUM", PREDICTION: "FORECAST", PERSONAL: "GAZE", COMPARISON: "COMPARISON" },
-    syncVision: "SYNCHRONIZE VISION",
-    syncVisionBackup: "SYNCHRONIZE VISION (BIGMODEL)",
     disclaimer: "This revelation is an algorithmic construct of chance. Final agency remains with the seeker.",
     frameworks: { DEFAULT: "Synthesized Core", PSYCHOANALYSIS: "Psychoanalysis", GESTALT: "Gestalt", RUSSIAN: "Russian Philosophy", GERMAN: "German Philosophy", EXISTENTIAL: "Existentialism", THEOLOGICAL: "Theology", BUDDHIST: "Zen Buddhism", POST_MODERN: "Post-Modernism", ANCIENT_GREEKS: "Ancient Greeks", ANCIENT_ROMANS: "Ancient Romans" }
   },
@@ -160,8 +158,6 @@ const TRANSLATIONS = {
     ontologicalCore: "Синтезированное Откровение",
     uncertaintyPrefix: "Спорный запрос",
     councilOfPhilosophers: "Совет Философов",
-    syncVision: "СИНХРОНИЗИРОВАТЬ ВИДЕНИЕ",
-    syncVisionBackup: "СИНХРОНИЗИРОВАТЬ (BIGMODEL)",
     learningStyle: "Стиль обучения",
     profileActive: "Профиль активен",
     cancelProfile: "Сбросить профиль",
@@ -774,11 +770,7 @@ export const App: React.FC = () => {
   const handleImageRegen = async (forceParam = false) => {
     if (!state.response) return;
     
-    // Determine if we should use bigmodel based on manual parameter or attempt count
-    // First press (regenAttempts 0): Pollinations (forceParam=false)
-    // Second press (regenAttempts 1): Bigmodel (forceParam=true)
-    const shouldForce = forceParam || (regenAttempts % 2 === 1);
-    
+    // In static mode, we only use Pollinations
     setIsVisionActuallyReady(false);
     setIsImageLoading(true);
     setImageHasError(false);
@@ -792,11 +784,9 @@ export const App: React.FC = () => {
         theme, 
         state.chaosScore, 
         state.query, 
-        shouldForce,
+        false, // force is disabled for static mode
         selectedImageModel
       );
-      
-      setRegenAttempts(prev => prev + 1);
       
       setState(prev => ({
         ...prev,
@@ -846,27 +836,10 @@ export const App: React.FC = () => {
   const getCORSFriendlyImage = async (url: string): Promise<string> => {
     if (!url) return "";
     
-    // Only proxy external URLs that are likely to have CORS issues
-    if (url.includes('ufileos.com') || url.includes('bigmodel.cn') || url.includes('pollinations.ai')) {
-      try {
-        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
-        const response = await fetch(proxyUrl);
-        if (!response.ok) throw new Error(`Proxy fetch failed (${response.status})`);
-        const blob = await response.blob();
-        
-        // Basic check for valid image blob
-        if (blob.size < 100) {
-          console.warn("[Oracle] Suspiciously small blob from proxy, might be an error message", blob.size);
-        }
-        
-        return URL.createObjectURL(blob);
-      } catch (e: any) {
-        console.warn("[Oracle] Proxy fallback failed, returning direct URL", e.message);
-        return url;
-      }
-    }
+    // In static mode, we call Pollinations directly as it supports CORS natively.
+    // Public proxies like allorigins are unreliable and slow.
     return url;
-  }
+  };
 
   useEffect(() => {
     let active = true;
@@ -1203,7 +1176,7 @@ export const App: React.FC = () => {
                             onClick={(e) => { e.stopPropagation(); handleImageRegen(); }}
                             className="px-8 py-3 bg-current/10 hover:bg-current/20 text-[10px] uppercase font-black tracking-widest transition-all rounded-full hover:scale-105 active:scale-95"
                           >
-                            {regenAttempts % 2 === 0 ? t.syncVision : t.syncVisionBackup}
+                            SYNCHRONIZE VISION
                           </button>
                         </div>
                       </div>

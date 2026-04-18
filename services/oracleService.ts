@@ -208,38 +208,10 @@ async function generatePollinationsText(prompt: string, systemInstruction: strin
 }
 
 async function callOracleVision(divinePrompt: string): Promise<string> {
-  const apiKey = process.env.BIGMODEL_API_KEY;
-  if (!apiKey) throw new Error("BIGMODEL_API_KEY is missing.");
-
-  try {
-    // We use a public CORS proxy for BigModel to avoid CORS issues in static mode
-    const targetUrl = 'https://open.bigmodel.cn/api/paas/v4/images/generations';
-    const url = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({ 
-        "model": "cogview-3-flash", 
-        "prompt": divinePrompt, 
-        "size": "1024x1024" 
-      })
-    });
-
-    if (!response.ok) {
-      const errText = await response.text();
-      throw new Error(`Vision API failed: ${response.status} ${errText}`);
-    }
-
-    const result = await response.json();
-    if (result.data?.[0]?.url) return result.data[0].url;
-    throw new Error('Malformed vision response.');
-  } catch (err) {
-    console.error("[Oracle] Vision call failed:", err);
-    throw err;
-  }
+  // NOTE: In static mode, we cannot securely call BigModel/CogView as it requires 
+  // a secret key that should not be exposed in the browser bundle.
+  // We will rely on Pollinations as our primary (and only) engine for static sites.
+  throw new Error("Direct Vision API calls are restricted in static mode. Synchronize logic will use Pollinations instead.");
 }
 
 export async function consultOracle(query: string, chaosScore: number, theme: 'SUPREMATIST' | 'IMPRESSIONIST', language: 'EN' | 'RU', learningProfile: LearningProfile | null = null, imageModel: string = 'flux'): Promise<OracleResponse> {
