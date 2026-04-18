@@ -1122,7 +1122,7 @@ export const App: React.FC = () => {
 
           <div className="w-full max-w-[400px]">
             <RatioIndicator logicScore={state.logicScore} chaosScore={state.chaosScore} category={r.category as any} theme={theme} language={uiLanguage} />
-            <div className={`relative group cursor-crosshair transition-all duration-700 ${isRenoir ? 'renoir-glow' : 'oracle-glow'}`}>
+            <div className={`relative group cursor-crosshair transition-all duration-700 ${isRenoir ? 'renoir-glow rounded-[60px]' : 'oracle-glow'}`}>
               <div className={`w-full aspect-square border overflow-hidden relative ${isRenoir ? 'border-amber-900/20 rounded-[60px]' : 'border-black/5'}`}>
                 {(isImageLoading || !isVisionActuallyReady) && <VisionLoadingIcon />}
                 
@@ -1154,7 +1154,7 @@ export const App: React.FC = () => {
                         if (imageTimeoutRef.current) clearTimeout(imageTimeoutRef.current);
                         setState(prev => ({
                           ...prev,
-                          response: prev.response ? { ...prev.response, imageError: "Vision Synchronization Failed: CORS or Network Error." } : null
+                          response: prev.response ? { ...prev.response, imageError: "the vision is exhausted, give it a little time" } : null
                         }));
                       }
                     }}
@@ -1169,7 +1169,7 @@ export const App: React.FC = () => {
                     {imageHasError && (
                       <div className="flex flex-col items-center space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
                         <div className="text-[12px] md:text-[14px] uppercase font-mono font-bold text-red-500 max-w-[300px] break-words bg-red-500/10 p-4 rounded-lg border border-red-500/30 shadow-lg shadow-red-500/5">
-                          {r.imageError || "Vision Synchronization Failed: CORS or Network Error"}
+                          {r.imageError || "the vision is exhausted, give it a little time"}
                         </div>
                         <div className="flex flex-wrap justify-center gap-3">
                           <button 
