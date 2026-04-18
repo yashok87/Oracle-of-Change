@@ -23,6 +23,4 @@ export interface LogicState {
   input: string;
   result: LogicResult | null;
   error?: string;
-  chaosLevel: number;
-  autoCalibration: boolean;
 }

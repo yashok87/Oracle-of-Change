@@ -14,9 +14,7 @@ import {
   Lightbulb,
   CheckCircle2,
   XCircle,
-  LayoutGrid,
-  ExternalLink,
-  ChevronDown
+  LayoutGrid
 } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -48,8 +46,6 @@ export function App() {
     status: 'IDLE',
     input: '',
     result: null,
-    chaosLevel: 25,
-    autoCalibration: true,
   });
   const [showChaosToggle, setShowChaosToggle] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -60,16 +56,9 @@ export function App() {
 
     setState((prev: LogicState) => ({ ...prev, status: 'PROCESSING' }));
 
-    // Auto calibration logic
-    let currentChaos = state.chaosLevel;
-    if (state.autoCalibration) {
-        currentChaos = Math.floor(Math.random() * 100);
-    }
-
     try {
-      const result = await processLogic(state.input, currentChaos);
+      const result = await processLogic(state.input);
       setState((prev: LogicState) => ({ ...prev, status: 'RESULT', result }));
-      setShowChaosToggle(false);
     } catch (err: any) {
       setState((prev: LogicState) => ({ ...prev, status: 'ERROR', error: err.message }));
     }
@@ -219,33 +208,9 @@ export function App() {
               {/* Main Output */}
               <div className="relative group">
                  <div className="relative bg-[#0F0F0F] border border-white/10 p-8 rounded-lg min-h-[200px] flex flex-col gap-6">
-                    <div className="flex justify-between items-center border-b border-white/5 pb-4">
-                       <div className="text-[10px] font-black uppercase tracking-[0.3em] flex items-center gap-2">
-                          <Activity className="w-3 h-3 text-emerald-500" />
-                          MANTRA_REVEALED
-                       </div>
-                       <div className="text-[9px] opacity-30 flex items-center gap-2 uppercase">
-                         GATE_ALPHA // {state.result.mode}
-                       </div>
-                    </div>
-
                     <div className="text-xl md:text-2xl font-mono text-white tracking-tight leading-relaxed whitespace-pre-wrap">
                        {state.result.output}
                     </div>
-
-                    {state.result.mode === 'RECOMMENDATION' && state.result.metadata?.recommendation?.title && (
-                       <div className="pt-6 border-t border-white/5 flex justify-end">
-                          <a 
-                            href={`https://www.google.com/search?q=${encodeURIComponent(state.result.metadata.recommendation.title + " movie info")}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-white transition-colors border border-white/10 px-3 py-1.5 rounded bg-white/5"
-                          >
-                            <ExternalLink className="w-3 h-3" />
-                            Study_Evidence: {state.result.metadata.recommendation.title}
-                          </a>
-                       </div>
-                    )}
                  </div>
               </div>
             </motion.div>
@@ -255,91 +220,24 @@ export function App() {
 
       {/* Footer Controls */}
       <footer className="fixed bottom-0 w-full p-6 bg-gradient-to-t from-[#0D0D0D] to-transparent pointer-events-none">
-        <div className="max-w-4xl mx-auto flex flex-col items-center gap-4 pointer-events-auto relative">
-           
-           <AnimatePresence>
-             {showChaosToggle && (
-               <motion.div 
-                 initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                 exit={{ opacity: 0, y: 5, scale: 0.95 }}
-                 className="absolute bottom-full mb-6 w-80 bg-[#141414] border border-white/20 rounded-lg p-6 shadow-[0_0_50px_rgba(0,0,0,0.5)] flex flex-col gap-5 z-50 left-1/2 -translate-x-1/2"
-               >
-                  <div className="flex justify-between items-center border-b border-white/5 pb-2">
-                    <span className="text-[10px] font-black uppercase tracking-widest opacity-60">Calibration_Parameters</span>
-                    <button 
-                      onClick={() => setShowChaosToggle(false)}
-                      className="text-white/20 hover:text-white transition-colors"
-                    >
-                      <XCircle className="w-4 h-4" />
-                    </button>
-                  </div>
-
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-end">
-                       <span className="text-[9px] font-black uppercase tracking-widest opacity-40">Entropy_Level</span>
-                       <span className="text-xs font-mono font-bold text-white">{state.chaosLevel}%</span>
-                    </div>
-                    <input 
-                      type="range" 
-                      min="0" 
-                      max="100" 
-                      value={state.chaosLevel}
-                      onChange={(e) => setState(prev => ({ ...prev, chaosLevel: parseInt(e.target.value) }))}
-                      className="w-full h-1.5 bg-white/10 rounded-full appearance-none cursor-pointer accent-white"
-                    />
-                    <div className="flex justify-between text-[8px] opacity-20 font-black uppercase">
-                       <span>Strict_Logic</span>
-                       <span>Absolute_Chaos</span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between pt-4 border-t border-white/5">
-                    <div 
-                      onClick={() => setState(prev => ({ ...prev, autoCalibration: !prev.autoCalibration }))}
-                      className="flex items-center gap-3 cursor-pointer group"
-                    >
-                      <div className={cn(
-                        "w-5 h-5 border rounded flex items-center justify-center transition-all",
-                        state.autoCalibration ? "bg-white border-white" : "border-white/20 group-hover:border-white/40"
-                      )}>
-                        {state.autoCalibration && <CheckCircle2 className="w-3.5 h-3.5 text-black" />}
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="text-[10px] font-black uppercase tracking-widest leading-none">Auto_Pilot</span>
-                        <span className="text-[8px] opacity-30 uppercase">Randomize_On_Roll</span>
-                      </div>
-                    </div>
-
-                    <button 
-                      onClick={() => handleSubmit()}
-                      className="px-4 py-2 bg-white text-black text-[10px] font-black uppercase tracking-widest rounded shadow-glow hover:bg-white/90 active:scale-95 transition-all"
-                    >
-                      Execute
-                    </button>
-                  </div>
-               </motion.div>
-             )}
-           </AnimatePresence>
-
+        <div className="max-w-4xl mx-auto flex flex-col items-center gap-4 pointer-events-auto">
            <div className="flex items-center gap-3">
               <button 
-                onClick={() => setShowChaosToggle(!showChaosToggle)}
+                onClick={() => handleSubmit()}
                 className={cn(
-                  "flex items-center gap-2 pr-6 pl-4 py-3 rounded-full font-black text-xs uppercase tracking-[0.2em] transition-all active:scale-95 group border-2",
+                  "flex items-center gap-2 pr-6 pl-6 py-3 rounded-full font-black text-xs uppercase tracking-[0.2em] transition-all active:scale-95 group border-2",
                   "bg-[#0D0D0D] border-white/10 hover:border-white/30 text-white/80 hover:text-white"
                 )}
               >
-                <div className="flex items-center gap-2">
-                   <Dices className={cn("w-4 h-4 transition-transform duration-700", showChaosToggle ? "rotate-180" : "")} />
-                   ROLL_THE_DICE_AGAIN
-                   <ChevronDown className={cn("w-3 h-3 opacity-30 transition-transform", showChaosToggle ? "rotate-180" : "")} />
-                </div>
+                <span className="flex items-center gap-2">
+                  <Activity className="w-4 h-4 group-hover:scale-110 transition-transform duration-500" />
+                  RE-PROCESS_LOGIC
+                </span>
               </button>
            </div>
            
            <div className="text-[8px] opacity-20 uppercase tracking-[0.4em] font-black">
-              LOGIC-GATE PROCESSOR // MANTRA_STABLE
+              LOGIC-GATE PROCESSOR // API_READY
            </div>
         </div>
       </footer>
