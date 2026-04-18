@@ -120,15 +120,19 @@ function isBinaryQuery(query: string): boolean {
 
 function isExplicitSelectionRequest(query: string): boolean {
   const lowercase = query.toLowerCase();
-  const explicitKeywords = /\b(watch|buy|get|stream|recommend|suggest|what should i|choice for|to wear|to eat|wear|eat|play|view|look at|movie|film|cinema|show|item|product|advice|tonight)\b/i;
+  const explicitKeywords = /\b(watch|buy|get|stream|recommend|suggest|what should i|choice for|to wear|to eat|wear|eat|play|view|look at|movie|film|cinema|show|item|product|advice|tonight|best|under|worth|budget|dollars|usd|price|cheap|expensive|top)\b/i;
   // Catch "movie for tonight", "film tonight"
   if (/\b(movie|film|cinema)\b.*\b(tonight|today|now)\b/i.test(lowercase)) return true;
+  // Catch budget patterns: "laptop under 300", "phone for 500", "300 dollars"
+  if (/\b(under|for|budget|price)\b\s*\$?\d+/i.test(lowercase)) return true;
+  if (/\$?\d+\s*(dollars|usd|gbp|pounds|euros)\b/i.test(lowercase)) return true;
   return explicitKeywords.test(lowercase);
 }
 
 function isMaterialQuery(query: string): boolean {
-  const materialKeywords = /\b(meal|dish|recipe|cook|eat|furniture|phone|gadget|electronics|laptop|computer|3000|dollars|usd|appliance|clothing|fashion|architecture|tools|lunch|dinner|breakfast|snack|chair|table|lamp|buy|purchase|shop|smartphone|monitor|tv|camera|car|vehicle|watch|pounds|gbp|usd|dollars|euros|price|cost|destination|travel|place|city|visit|song|track|album|artist|music|painting|art|paper|research|science|book|novel|movie|film|netflix|prime|game|steam|ps5|xbox|series|show|watch)\b/i;
-  return materialKeywords.test(query.toLowerCase());
+  const materialKeywords = /\b(meal|dish|recipe|cook|eat|furniture|phone|gadget|electronics|laptop|computer|dollars|usd|appliance|clothing|fashion|architecture|tools|lunch|dinner|breakfast|snack|chair|table|lamp|buy|purchase|shop|smartphone|monitor|tv|camera|car|vehicle|watch|pounds|gbp|euros|price|cost|destination|travel|place|city|visit|song|track|album|artist|music|painting|art|paper|research|science|book|novel|movie|film|netflix|prime|game|steam|ps5|xbox|series|show|watch|under|budget|worth)\b/i;
+  const priceCheck = /\$?\d+\s*(\$|dollars|usd|euros|pounds|gbp)?\b/i.test(query);
+  return materialKeywords.test(query.toLowerCase()) || priceCheck;
 }
 
 async function generateOracleText(prompt: string, systemInstruction: string, useJson: boolean = false): Promise<string> {
@@ -284,13 +288,16 @@ This application is a STATIC SITE. Do not suggest server-side integrations, data
 
 2. RECOMMENDATION (SHOPPING & MEDIA ADVISOR):
    - ROLE: You are a high-precision Shopping and Media Advisor.
-   - TRIGGER: Activated for "what should I...", "recommend...", "movie for tonight", "computer for 3000 dollars", etc.
+   - TRIGGER: Activated for "what should I...", "recommend...", "movie for tonight", budget queries like "laptop under 300 dollars", etc.
    - SELECTION LOGIC: You MUST recommend EXACTLY ONE specific best item. No lists. No multiple choices. ONE PICK.
-     * IF material/shoppping (e.g. "computer for 3000 dollars"): Act as a luxury tech advisor. Pick the specific model that maximizes the budget.
-     * IF media: Pick one specific work.
+     * THE SELECTION MUST BE INFLUENCED BY CHAOS SCORE:
+       - IF CHAOS IS LOW (<30%): Pick the most reliable, best-value mainstream item. The "Logical Choice".
+       - IF CHAOS IS HIGH (>70%): Pick something obscure, secondary-market, avant-garde, or niche. The "Chaotic Choice".
+       - IF budget is mentioned: Stay strictly within or slightly under the price limit.
+     * For "laptop under 300 dollars": Pick ONE specific model (Refurbished or Budget-tier) that is the absolute best for that specific number.
    - OUTPUT FORMAT:
-     - verdict: "[[Actual Name of Item]] (Actual Year) - Actual Genre"
-     - detailedAnalysis: Describe the item's soul and why it was chosen. Use its exact name frequently.
+     - verdict: "[[Actual Name of Item]] (Actual Year if applicable) - [Price/Status]"
+     - detailedAnalysis: Describe why this specific item fits the budget and the seeker's current chaos/logic alignment.
    - LINK: The 'recommendationLink' MUST be a specific search or landing page for that item.
    - VERDICT: Must include the title in double brackets: [[ITEM NAME]].
 
@@ -367,7 +374,7 @@ Respond ONLY with JSON. No meta-commentary.`;
     
     // Safety check for routing
     let finalizedType = data.type;
-    if (finalizedType === 'RECOMMENDATION' && !isExplicit) {
+    if (finalizedType === 'RECOMMENDATION' && !isExplicit && !isMaterial) {
         finalizedType = 'KNOWLEDGE';
     }
     
