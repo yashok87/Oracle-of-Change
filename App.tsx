@@ -138,6 +138,8 @@ const TRANSLATIONS = {
     startTest: "Begin Calibration",
     saveProfile: "Lock Pattern",
     modes: { RECOMMENDATION: "RECOMMENDATION", DECISION: "DECREE", KNOWLEDGE: "SYMPOSIUM", PREDICTION: "FORECAST", PERSONAL: "GAZE", COMPARISON: "COMPARISON" },
+    syncVision: "SYNCHRONIZE VISION",
+    syncVisionBackup: "SYNCHRONIZE VISION (BIGMODEL)",
     disclaimer: "This revelation is an algorithmic construct of chance. Final agency remains with the seeker.",
     frameworks: { DEFAULT: "Synthesized Core", PSYCHOANALYSIS: "Psychoanalysis", GESTALT: "Gestalt", RUSSIAN: "Russian Philosophy", GERMAN: "German Philosophy", EXISTENTIAL: "Existentialism", THEOLOGICAL: "Theology", BUDDHIST: "Zen Buddhism", POST_MODERN: "Post-Modernism", ANCIENT_GREEKS: "Ancient Greeks", ANCIENT_ROMANS: "Ancient Romans" }
   },
@@ -158,6 +160,8 @@ const TRANSLATIONS = {
     ontologicalCore: "Синтезированное Откровение",
     uncertaintyPrefix: "Спорный запрос",
     councilOfPhilosophers: "Совет Философов",
+    syncVision: "СИНХРОНИЗИРОВАТЬ ВИДЕНИЕ",
+    syncVisionBackup: "СИНХРОНИЗИРОВАТЬ (BIGMODEL)",
     learningStyle: "Стиль обучения",
     profileActive: "Профиль активен",
     cancelProfile: "Сбросить профиль",
@@ -363,6 +367,8 @@ export const App: React.FC = () => {
   const [profilingStep, setProfilingStep] = useState(0);
   const [profilingAnswers, setProfilingAnswers] = useState<Record<string, number>>({});
   const [activeQuestions, setActiveQuestions] = useState<ProfilingQuestion[]>([]);
+  
+  const [regenAttempts, setRegenAttempts] = useState(0);
   
   const [ghostIndex, setGhostIndex] = useState(0);
   const [isInputFocused, setIsInputFocused] = useState(false);
@@ -765,8 +771,14 @@ export const App: React.FC = () => {
     } catch (e) {} finally { setIsTranslating(false); }
   };
 
-  const handleImageRegen = async (force = false) => {
+  const handleImageRegen = async (forceParam = false) => {
     if (!state.response) return;
+    
+    // Determine if we should use bigmodel based on manual parameter or attempt count
+    // First press (regenAttempts 0): Pollinations (forceParam=false)
+    // Second press (regenAttempts 1): Bigmodel (forceParam=true)
+    const shouldForce = forceParam || (regenAttempts % 2 === 1);
+    
     setIsVisionActuallyReady(false);
     setIsImageLoading(true);
     setImageHasError(false);
@@ -780,9 +792,12 @@ export const App: React.FC = () => {
         theme, 
         state.chaosScore, 
         state.query, 
-        force,
+        shouldForce,
         selectedImageModel
       );
+      
+      setRegenAttempts(prev => prev + 1);
+      
       setState(prev => ({
         ...prev,
         attempts: (prev.attempts || 0) + 1,
@@ -802,8 +817,6 @@ export const App: React.FC = () => {
         ...prev,
         response: prev.response ? { ...prev.response, imageError: e.message } : null
       }));
-    } finally { 
-      // We don't set isImageLoading to false here if we are waiting for the <img> onLoad
     }
   };
 
@@ -1014,14 +1027,6 @@ export const App: React.FC = () => {
             <span className="text-[10px] font-black uppercase tracking-[0.8em] text-red-600/60 animate-pulse">Visualizing...</span>
          </div>
        )}
-       {isSlowLoading && (
-         <button 
-           onClick={(e) => { e.stopPropagation(); handleImageRegen(true); }}
-           className={`mt-8 px-6 py-2 border-2 text-[9px] font-black uppercase tracking-widest rounded-full transition-all hover:scale-105 active:scale-95 animate-in fade-in slide-in-from-bottom-2 duration-500 ${isRenoir ? 'bg-amber-900 border-amber-500 text-white' : 'bg-red-600 border-red-600 text-white'}`}
-         >
-           Synchronize Vision (Backup)
-         </button>
-       )}
     </div>
   );
 
@@ -1195,10 +1200,10 @@ export const App: React.FC = () => {
                         </div>
                         <div className="flex flex-wrap justify-center gap-3">
                           <button 
-                            onClick={(e) => { e.stopPropagation(); handleImageRegen(true); }}
+                            onClick={(e) => { e.stopPropagation(); handleImageRegen(); }}
                             className="px-8 py-3 bg-current/10 hover:bg-current/20 text-[10px] uppercase font-black tracking-widest transition-all rounded-full hover:scale-105 active:scale-95"
                           >
-                            Synchronize Vision
+                            {regenAttempts % 2 === 0 ? t.syncVision : t.syncVisionBackup}
                           </button>
                         </div>
                       </div>
