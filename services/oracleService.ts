@@ -438,6 +438,15 @@ Respond ONLY with JSON. No meta-commentary.`;
       oracleResponse.comparison.percentageA = (votesA / 10) * 100;
       oracleResponse.comparison.percentageB = (votesB / 10) * 100;
       
+      // ENSURE VERDICT REFLECTS THE ACTUAL WINNER
+      if (votesA > votesB) {
+        oracleResponse.verdict = `The Council has decreed: [[${oracleResponse.comparison.optionA}]] prevails.`;
+      } else if (votesB > votesA) {
+        oracleResponse.verdict = `The Council has decreed: [[${oracleResponse.comparison.optionB}]] prevails.`;
+      } else {
+        oracleResponse.verdict = `The scales are perfectly balanced between [[${oracleResponse.comparison.optionA}]] and [[${oracleResponse.comparison.optionB}]].`;
+      }
+      
       // Clean up any extra keys the AI might have added
       const cleanedPerspectives: any = {};
       for (const key of PERSPECTIVE_KEYS) {

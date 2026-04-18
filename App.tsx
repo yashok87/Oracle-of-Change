@@ -974,6 +974,11 @@ export const App: React.FC = () => {
     // For recommendations, we want to maintain the primary item in the verdict if the philosopher doesn't provide a clear one
     let displayVerdict = framework?.verdict || r.verdict;
     
+    // For comparisons, always maintain the global winner in the main verdict display
+    if (r.type === 'COMPARISON') {
+      displayVerdict = r.verdict;
+    }
+    
     // Generate a fresh link if the philosopher has a different verdict
     let displayLink = r.recommendationLink;
     if (framework?.verdict && r.type === 'RECOMMENDATION') {
