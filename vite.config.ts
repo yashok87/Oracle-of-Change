@@ -21,7 +21,10 @@ export default defineConfig({
     'process.env.BIGMODEL_API_KEY': JSON.stringify(process.env.BIGMODEL_API_KEY || '')
   },
   server: {
-    host: true
+    host: true,
+    hmr: {
+      overlay: false
+    }
   },
   build: {
     outDir: 'dist',

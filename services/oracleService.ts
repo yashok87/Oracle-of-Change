@@ -302,11 +302,13 @@ This application is a STATIC SITE. Do not suggest server-side integrations, data
    - VERDICT: Must include the title in double brackets: [[ITEM NAME]].
 
 3. DECISION (DECREE):
-   - ROLE: Binary engine for life choices.
-   - OUTPUT: IF search-friendly, provide [[YES]], [[NO]], or [[MAYBE]].
+   - ROLE: Decision Architect. Provide a precise summary followed by the full answer. IF search-friendly, provide [[YES]], [[NO]], or [[MAYBE]].
+   - FORMAT: Give a clear 1-sentence summary of the decision, then the detailed breakdown.
 
 4. KNOWLEDGE (SYMPOSIUM):
-   - ROLE: Explain subject's essence. No commercial recommendations.
+   - ROLE: Academic Teacher / Encyclopedia.
+   - TONE: Authoritative, scholarly, yet accessible. Act like an expert professor or a high-end encyclopedia (e.g., Britannica).
+   - CONTENT: Provide a comprehensive but concise summary of the term or subject (e.g., films like "Stalker", or academic terms). No commercial recommendations.
 
 5. SUBJECT FIDELITY: Act on the information given, even if minimal (like only a chaos score). If the query is short, derive meaning from the themes and the score.
 
@@ -332,6 +334,7 @@ For each member, provide:
   "title": "Poetic Title of the revelation",
   "type": "COMPARISON | RECOMMENDATION | DECISION | KNOWLEDGE | PREDICTION | PERSONAL",
   "category": "String category name",
+  "summary": "ONE SENTENCE: Precise summary of the decree or subject essence.",
   "verdict": "REPLACEMENT FOR PLACEHOLDERS: [[Item Name]] (Year) etc. or RED summary",
   "detailedAnalysis": "2 long paragraphs of revelation.",
   "reasoning": "1-sentence logic",
@@ -389,6 +392,7 @@ Respond ONLY with JSON. No meta-commentary.`;
       perspectives: data.perspectives || {},
       sources: [],
       textModelUsed: 'Pollinations-OpenAI',
+      summary: ensureString(data.summary || ""),
       detailedAnalysis: ensureString(data.detailedAnalysis || data.analysis || data.revelation || "The void remains silent on the specifics, yet the essence is clear."),
       verdict: ensureString(data.verdict || data.decree || data.winner || "The choice is made."),
       title: ensureString(data.title || data.header || "A Whispered Decree"),

@@ -959,6 +959,7 @@ export const App: React.FC = () => {
     if (!r) return null;
     if (activeFramework === 'DEFAULT') return { 
       verdict: r.verdict, 
+      summary: r.summary,
       verdictUrl: r.verdictUrl, 
       analysis: r.detailedAnalysis, 
       tally: r.tally, 
@@ -1291,6 +1292,14 @@ export const App: React.FC = () => {
                   <span className={`text-2xl md:text-4xl font-black uppercase tracking-tighter leading-tight ${isRenoir ? 'text-amber-500 font-serif' : 'text-red-600 font-sans'}`}>
                      {renderHyperlinkedText(activeAnalysisData?.verdict || "Awaiting the echo of fate...", !!isRenoir, true)}
                   </span>
+                  
+                  {activeAnalysisData?.summary && (
+                    <div className="mt-6 pt-6 border-t border-current/5 max-w-2xl">
+                      <p className={`text-sm md:text-base font-normal italic opacity-80 leading-relaxed ${isRenoir ? 'text-amber-200/60' : 'text-gray-600'}`}>
+                        {activeAnalysisData.summary}
+                      </p>
+                    </div>
+                  )}
                </div>
 
                {r.type === 'RECOMMENDATION' && activeAnalysisData?.recommendationLink && (

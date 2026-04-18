@@ -35,6 +35,7 @@ export interface OracleResponse {
   isDecision: boolean; 
   title: string; 
   verdict: string; // The high-visibility RED summary
+  summary?: string; // One sentence executive decree or essence
   verdictUrl?: string; // Hyperlink to Google for the artifact
   category: string;
   genre?: string;
