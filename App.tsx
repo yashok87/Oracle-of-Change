@@ -1226,7 +1226,7 @@ export const App: React.FC = () => {
 
           <div className="w-full flex flex-col items-center space-y-8">
             <div className={`w-full p-8 md:p-12 relative transition-all duration-500 shadow-2xl border ${isTranslating ? 'blur-md opacity-40' : ''} ${isRenoir ? 'bg-[#1e0a0a]/80 backdrop-blur-xl border-amber-900/20 rounded-[60px]' : 'bg-white/80 backdrop-blur-xl border-black/5 rounded-[60px]'}`}>
-               <div className="flex flex-col items-center mb-8 border-b border-current/10 pb-6">
+               <div className="flex flex-col items-center mb-8 border-b border-current/10 pb-6 uppercase font-black">
                  <div className="w-full flex justify-between items-center mb-2">
                    <h3 className="text-[11px] font-black uppercase opacity-40 tracking-[0.4em]">
                      {modeLabel}
@@ -1244,6 +1244,7 @@ export const App: React.FC = () => {
                  )}
                </div>
 
+               {/* Graphics/Charts */}
                {r.type === 'COMPARISON' && r.comparison && (
                  <div className="w-full space-y-8 mb-12 animate-in slide-in-from-bottom-4 duration-700">
                    <div className="grid grid-cols-2 gap-4">
@@ -1279,8 +1280,16 @@ export const App: React.FC = () => {
                  </div>
                )}
 
+               {/* MAIN VERDICT - PROMINENT AND POSITIONED BELOW THE GRAPHICS */}
+               <div className="w-full flex flex-col items-center justify-center text-center py-10 mb-10 bg-current/[0.03] rounded-[40px] border border-current/5 px-8 shadow-inner animate-in zoom-in duration-700">
+                  <span className={`text-[10px] font-black uppercase tracking-[0.7em] opacity-40 mb-5`}>{verdictTypeLabel}</span>
+                  <span className={`text-2xl md:text-4xl font-black uppercase tracking-tighter leading-tight ${isRenoir ? 'text-amber-500 font-serif' : 'text-red-600 font-sans'}`}>
+                     {renderHyperlinkedText(activeAnalysisData?.verdict || "Awaiting the echo of fate...", !!isRenoir, true)}
+                  </span>
+               </div>
+
                {r.type === 'RECOMMENDATION' && activeAnalysisData?.recommendationLink && (
-                 <div className="w-full flex justify-center mb-8 animate-in slide-in-from-bottom-4 duration-700">
+                 <div className="w-full flex justify-center mb-10 animate-in slide-in-from-bottom-4 duration-700">
                    <a 
                      href={activeAnalysisData.recommendationLink} 
                      target="_blank" 
@@ -1291,13 +1300,6 @@ export const App: React.FC = () => {
                    </a>
                  </div>
                )}
-               
-               <div className="flex flex-col items-center justify-center text-center py-6 mb-6 bg-current/[0.03] rounded-3xl border border-current/5 px-8">
-                  <span className="text-[9px] font-black uppercase tracking-[0.6em] opacity-30 mb-3">{verdictTypeLabel}</span>
-                  <span className={`text-base md:text-lg font-normal tracking-normal leading-relaxed ${isRenoir ? 'text-amber-500' : 'text-red-600'}`}>
-                     {renderHyperlinkedText(activeAnalysisData?.verdict || "Awaiting the echo of fate...", !!isRenoir, true)}
-                  </span>
-               </div>
 
                {activeAnalysisData?.tally && (
                   <div className="mb-10 text-center animate-in fade-in slide-in-from-top-2 duration-700">
