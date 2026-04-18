@@ -263,48 +263,59 @@ export function App() {
                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
                  animate={{ opacity: 1, y: 0, scale: 1 }}
                  exit={{ opacity: 0, y: 5, scale: 0.95 }}
-                 className="absolute bottom-full mb-4 w-72 bg-[#1A1A1A] border border-white/10 rounded-lg p-5 shadow-2xl flex flex-col gap-4"
+                 className="absolute bottom-full mb-6 w-80 bg-[#141414] border border-white/20 rounded-lg p-6 shadow-[0_0_50px_rgba(0,0,0,0.5)] flex flex-col gap-5 z-50 left-1/2 -translate-x-1/2"
                >
-                  <div className="flex justify-between items-center">
-                    <span className="text-[10px] font-black uppercase tracking-widest opacity-40">Chaos_Calibration</span>
-                    <button onClick={() => setShowChaosToggle(false)}><XCircle className="w-4 h-4 opacity-20 hover:opacity-100" /></button>
+                  <div className="flex justify-between items-center border-b border-white/5 pb-2">
+                    <span className="text-[10px] font-black uppercase tracking-widest opacity-60">Calibration_Parameters</span>
+                    <button 
+                      onClick={() => setShowChaosToggle(false)}
+                      className="text-white/20 hover:text-white transition-colors"
+                    >
+                      <XCircle className="w-4 h-4" />
+                    </button>
                   </div>
 
-                  <div className="space-y-3">
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-end">
+                       <span className="text-[9px] font-black uppercase tracking-widest opacity-40">Entropy_Level</span>
+                       <span className="text-xs font-mono font-bold text-white">{state.chaosLevel}%</span>
+                    </div>
                     <input 
                       type="range" 
                       min="0" 
                       max="100" 
                       value={state.chaosLevel}
                       onChange={(e) => setState(prev => ({ ...prev, chaosLevel: parseInt(e.target.value) }))}
-                      className="w-full h-1 bg-white/10 rounded-full appearance-none cursor-pointer accent-white"
+                      className="w-full h-1.5 bg-white/10 rounded-full appearance-none cursor-pointer accent-white"
                     />
-                    <div className="flex justify-between text-[8px] opacity-30 font-black uppercase">
-                       <span>Logic_Gate</span>
-                       <span>{state.chaosLevel}%</span>
-                       <span>Chaos_Gate</span>
+                    <div className="flex justify-between text-[8px] opacity-20 font-black uppercase">
+                       <span>Strict_Logic</span>
+                       <span>Absolute_Chaos</span>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between pt-2 border-t border-white/5">
-                    <label className="flex items-center gap-2 cursor-pointer group">
-                      <div className="relative w-4 h-4 border border-white/20 rounded-sm flex items-center justify-center group-hover:border-white/40 transition-colors">
-                        <input 
-                          type="checkbox" 
-                          checked={state.autoCalibration}
-                          onChange={(e) => setState(prev => ({ ...prev, autoCalibration: e.target.checked }))}
-                          className="absolute inset-0 opacity-0 cursor-pointer z-10"
-                        />
-                        {state.autoCalibration && <CheckCircle2 className="w-3 h-3 text-white" />}
+                  <div className="flex items-center justify-between pt-4 border-t border-white/5">
+                    <div 
+                      onClick={() => setState(prev => ({ ...prev, autoCalibration: !prev.autoCalibration }))}
+                      className="flex items-center gap-3 cursor-pointer group"
+                    >
+                      <div className={cn(
+                        "w-5 h-5 border rounded flex items-center justify-center transition-all",
+                        state.autoCalibration ? "bg-white border-white" : "border-white/20 group-hover:border-white/40"
+                      )}>
+                        {state.autoCalibration && <CheckCircle2 className="w-3.5 h-3.5 text-black" />}
                       </div>
-                      <span className="text-[9px] font-black uppercase tracking-widest opacity-40 group-hover:opacity-100 italic transition-opacity">Auto_Pilot</span>
-                    </label>
+                      <div className="flex flex-col">
+                        <span className="text-[10px] font-black uppercase tracking-widest leading-none">Auto_Pilot</span>
+                        <span className="text-[8px] opacity-30 uppercase">Randomize_On_Roll</span>
+                      </div>
+                    </div>
 
                     <button 
                       onClick={() => handleSubmit()}
-                      className="px-3 py-1.5 bg-white text-black text-[9px] font-black uppercase tracking-tighter rounded hover:bg-white/90 active:scale-95 transition-all"
+                      className="px-4 py-2 bg-white text-black text-[10px] font-black uppercase tracking-widest rounded shadow-glow hover:bg-white/90 active:scale-95 transition-all"
                     >
-                      Enter
+                      Execute
                     </button>
                   </div>
                </motion.div>
