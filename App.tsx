@@ -1289,7 +1289,11 @@ export const App: React.FC = () => {
                {/* MAIN VERDICT - PROMINENT AND POSITIONED BELOW THE GRAPHICS */}
                <div className="w-full flex flex-col items-center justify-center text-center py-10 mb-10 bg-current/[0.03] rounded-[40px] border border-current/5 px-8 shadow-inner animate-in zoom-in duration-700">
                   <span className={`text-[10px] font-black uppercase tracking-[0.7em] opacity-40 mb-5`}>{verdictTypeLabel}</span>
-                  <span className={`text-2xl md:text-4xl font-black uppercase tracking-tighter leading-tight ${isRenoir ? 'text-amber-500 font-serif' : 'text-red-600 font-sans'}`}>
+                  <span className={`leading-tight ${isRenoir ? 'text-amber-500 font-serif' : 'text-red-600 font-sans'} ${
+                     (activeAnalysisData?.verdict?.length || 0) > 60 || activeFramework !== 'DEFAULT'
+                       ? 'text-lg md:text-xl font-medium tracking-normal'
+                       : 'text-2xl md:text-5xl font-black uppercase tracking-tighter'
+                   }`}>
                      {renderHyperlinkedText(activeAnalysisData?.verdict || "Awaiting the echo of fate...", !!isRenoir, true)}
                   </span>
                   

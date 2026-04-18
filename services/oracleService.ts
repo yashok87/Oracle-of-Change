@@ -531,12 +531,12 @@ export async function regenerateOracleImage(response: OracleResponse, theme: 'SU
     style = 'Suprematism art, geometric painting in the style of Kazimir Malevich, bold primary colors, stark geometric shapes, abstract composition on white background, museum quality';
   } else {
     const impressionistKeywords = [
-      'dappled sunlight through trees', 'vibrant color palette', 'visible textured brushstrokes', 
+      'dappled lighting', 'vibrant color palette', 'visible textured brushstrokes', 
       'fleeting moment captured in light', 'atmospheric perspective', 'soft edges', 
-      'shimmering reflections on water', 'garden scene with flowers', 'bustling Parisian street',
-      'ethereal morning mist', 'golden hour lighting', 'loose painterly style',
-      'impasto texture', 'broken color technique', 'en plein air', 'luminous shadows',
-      'swirling brushwork', 'delicate color transitions', 'capturing the ephemeral'
+      'shimmering highlights', 'ethereal atmosphere', 'golden hour lighting', 
+      'loose painterly style', 'impasto texture', 'broken color technique', 
+      'luminous shadows', 'swirling brushwork', 'delicate color transitions', 
+      'capturing the ephemeral', 'vibrant energy', 'ethereal glow'
     ];
     const masters = [
       'Pierre-Auguste Renoir', 'Claude Monet', 'Edgar Degas', 'Camille Pissarro', 
@@ -547,10 +547,10 @@ export async function regenerateOracleImage(response: OracleResponse, theme: 'SU
     const randomMaster = masters[Math.floor(Math.random() * masters.length)];
     const randomMaster2 = masters[Math.floor(Math.random() * masters.length)];
     
-    style = `High-detail Impressionist oil painting, fine art masterpiece, ${randomKeywords}, in the style of ${randomMaster} and ${randomMaster2}, rich impasto textures, expressive light and shadow, museum lighting`;
+    style = `Professional Impressionist oil painting, fine art museum quality, ${randomKeywords}, in the style of ${randomMaster} and ${randomMaster2}, rich textures, expressive light`;
   }
   
-  const divinePrompt = `${style}, an evocative and detailed visualization of "${cleanTitle}" related to "${cleanQuery}", high resolution, artistic masterpiece, 8k resolution`;
+  const divinePrompt = `An evocative and detailed artistic visualization of "${cleanTitle}": ${cleanQuery}. Style: ${style}. High resolution, 8k, masterpiece.`;
 
   // Pollinations is main API
   const seed = Math.floor(Math.random() * 1000000);
