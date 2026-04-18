@@ -46,6 +46,7 @@ export function App() {
     status: 'IDLE',
     input: '',
     result: null,
+    chaosLevel: 25,
   });
   const [showChaosToggle, setShowChaosToggle] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -57,11 +58,16 @@ export function App() {
     setState((prev: LogicState) => ({ ...prev, status: 'PROCESSING' }));
 
     try {
-      const result = await processLogic(state.input);
+      const result = await processLogic(state.input, state.chaosLevel);
       setState((prev: LogicState) => ({ ...prev, status: 'RESULT', result }));
     } catch (err: any) {
       setState((prev: LogicState) => ({ ...prev, status: 'ERROR', error: err.message }));
     }
+  };
+
+  const handleChaosChange = (level: number) => {
+    setState((prev: LogicState) => ({ ...prev, chaosLevel: level }));
+    setShowChaosToggle(false);
   };
 
   useEffect(() => {
@@ -96,6 +102,15 @@ export function App() {
         </div>
         
         <div className="flex items-center gap-6">
+          <div className="hidden md:flex flex-col items-end">
+            <span className="text-[9px] opacity-30 uppercase tracking-widest">Chaos Calibration</span>
+            <span className={cn(
+              "text-xs font-bold transition-all duration-300",
+              state.chaosLevel > 70 ? "text-red-400" : state.chaosLevel > 40 ? "text-amber-400" : "text-emerald-400"
+            )}>
+              {state.chaosLevel}%
+            </span>
+          </div>
           <div className="w-px h-8 bg-white/10" />
           <Settings2 className="w-5 h-5 opacity-40 hover:opacity-100 cursor-pointer transition-opacity" />
         </div>
@@ -184,7 +199,8 @@ export function App() {
               exit={{ opacity: 0 }}
               className="flex flex-col gap-2 border-l-2 border-white/10 pl-4 py-2"
             >
-              <div className="text-[9px] opacity-40 font-black animate-pulse uppercase tracking-[0.2em]">PROCESSING_GATE_SYNTAX...</div>
+              <div className="text-[9px] opacity-40 font-black animate-pulse uppercase tracking-[0.2em]">Analyzing_Syntactic_Pillars...</div>
+              <div className="text-[10px] text-white/60">Executing ontological synthesis with {state.chaosLevel}% Chaos parity.</div>
             </motion.div>
           )}
 
@@ -205,12 +221,78 @@ export function App() {
               animate={{ opacity: 1, scale: 1 }}
               className="flex flex-col gap-6"
             >
+              {/* Header Status */}
+              <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                 <div className={cn("text-[10px] font-black uppercase tracking-[0.3em] flex items-center gap-2", MODE_COLORS[state.result.mode])}>
+                    {MODE_ICONS[state.result.mode]}
+                    Mode_Identified: {state.result.mode}
+                 </div>
+                 <div className="text-[9px] opacity-30 flex items-center gap-2 uppercase">
+                   <LayoutGrid className="w-3 h-3" />
+                   Fragment_Count: 1
+                 </div>
+              </div>
+
+              {/* Internal Thought */}
+              <div className="flex gap-4">
+                 <div className="hidden sm:flex flex-col items-center gap-2">
+                    <div className="w-px h-6 bg-white/10" />
+                    <div className="text-[9px] vertical-text opacity-20 uppercase tracking-widest py-2">Thought</div>
+                    <div className="w-px flex-1 bg-white/10" />
+                 </div>
+                 <div className="flex-1 p-4 bg-white/[0.01] border-l-2 border-white/10 italic text-white/50 text-xs leading-relaxed">
+                   "{state.result.thought}"
+                 </div>
+              </div>
+
               {/* Main Output */}
               <div className="relative group">
+                 <div className="absolute -inset-1 bg-gradient-to-r from-transparent via-white/5 to-transparent rounded-lg opacity-0 group-hover:opacity-100 transition-opacity blur" />
                  <div className="relative bg-[#0F0F0F] border border-white/10 p-8 rounded-lg min-h-[200px] flex flex-col gap-6">
-                    <div className="text-xl md:text-2xl font-mono text-white tracking-tight leading-relaxed whitespace-pre-wrap">
+                    <div className="text-2xl md:text-3xl font-black uppercase text-white tracking-tighter leading-none whitespace-pre-wrap">
                        {state.result.output}
                     </div>
+
+                    {/* Metadata Displays */}
+                    {state.result.mode === 'RECOMMENDATION' && state.result.metadata?.recommendation && (
+                      <div className="mt-4 pt-6 border-t border-white/10 flex flex-wrap gap-8 items-start">
+                         <div className="space-y-1">
+                            <div className="text-[9px] uppercase opacity-40 font-black tracking-widest">Metadata</div>
+                            <div className="text-sm font-bold">{state.result.metadata.recommendation.title} ({state.result.metadata.recommendation.year})</div>
+                         </div>
+                         <div className="space-y-1">
+                            <div className="text-[9px] uppercase opacity-40 font-black tracking-widest">Pricing</div>
+                            <div className="text-sm font-black text-emerald-400">{state.result.metadata.recommendation.price}</div>
+                         </div>
+                      </div>
+                    )}
+
+                    {state.result.mode === 'DECISION' && state.result.metadata?.decision && (
+                      <div className="mt-4 pt-6 border-t border-white/10 flex flex-col gap-4">
+                         <div className="flex items-center gap-4">
+                            <div className={cn(
+                              "text-xs px-3 py-1 rounded font-black border",
+                              state.result.metadata.decision.firm === 'YES' ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400" : "bg-red-500/10 border-red-500/30 text-red-400"
+                            )}>
+                              {state.result.metadata.decision.firm}
+                            </div>
+                            <div className="text-[10px] opacity-40 font-black uppercase tracking-widest">Logic_Pillar</div>
+                         </div>
+                         <p className="text-sm text-white/70 italic leading-relaxed">
+                            {state.result.metadata.decision.logic}
+                         </p>
+                      </div>
+                    )}
+
+                    {state.result.mode === 'COMPARISON' && (
+                      <div className="mt-4 pt-6 border-t border-white/10">
+                        <div className="text-[9px] uppercase opacity-40 font-black tracking-widest mb-4">Symposium_Majority_Vote (10/10)</div>
+                        <div className="flex items-center gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-white" />
+                          <span className="text-xs opacity-60">Result verified by consensus.</span>
+                        </div>
+                      </div>
+                    )}
                  </div>
               </div>
             </motion.div>
@@ -221,23 +303,92 @@ export function App() {
       {/* Footer Controls */}
       <footer className="fixed bottom-0 w-full p-6 bg-gradient-to-t from-[#0D0D0D] to-transparent pointer-events-none">
         <div className="max-w-4xl mx-auto flex flex-col items-center gap-4 pointer-events-auto">
+           
+           {/* Calibration UI */}
+           <AnimatePresence>
+             {showChaosToggle && (
+               <motion.div 
+                 initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                 animate={{ opacity: 1, y: 0, scale: 1 }}
+                 exit={{ opacity: 0, y: 10, scale: 0.9 }}
+                 className="p-4 bg-[#1A1A1A] border border-white/10 rounded-xl shadow-2xl flex flex-col gap-4 min-w-[300px]"
+               >
+                  <div className="flex justify-between items-center px-1">
+                    <span className="text-[10px] font-black uppercase tracking-widest opacity-40">Entropy_Calibration</span>
+                    <button onClick={() => setShowChaosToggle(false)}><XCircle className="w-4 h-4 opacity-20 hover:opacity-100" /></button>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-2">
+                    <button 
+                      onClick={() => handleChaosChange(Math.floor(Math.random() * 100))}
+                      className="p-4 border-tech rounded group bg-white/[0.02]"
+                    >
+                      <Dices className="w-5 h-5 mb-2 mx-auto group-hover:rotate-12 transition-transform" />
+                      <div className="text-[9px] font-black uppercase">Pure_Random</div>
+                    </button>
+                    <button 
+                      onClick={() => handleChaosChange(10)}
+                      className="p-4 border-tech rounded group bg-white/[0.02]"
+                    >
+                      <Activity className="w-5 h-5 mb-2 mx-auto group-hover:scale-110 transition-transform" />
+                      <div className="text-[9px] font-black uppercase">Strict_Logic</div>
+                    </button>
+                    <button 
+                      onClick={() => handleChaosChange(50)}
+                      className="p-4 border-tech rounded group bg-white/[0.02]"
+                    >
+                      <Settings2 className="w-5 h-5 mb-2 mx-auto" />
+                      <div className="text-[9px] font-black uppercase">Balanced</div>
+                    </button>
+                    <button 
+                      onClick={() => handleChaosChange(90)}
+                      className="p-4 border-tech rounded group bg-white/[0.02]"
+                    >
+                      <Zap className="w-5 h-5 mb-2 mx-auto text-amber-500" />
+                      <div className="text-[9px] font-black uppercase text-amber-500">Chaos_Spike</div>
+                    </button>
+                  </div>
+
+                  <div className="px-1 pt-2">
+                    <input 
+                      type="range" 
+                      min="1" 
+                      max="100" 
+                      value={state.chaosLevel} 
+                      onChange={(e) => setState((prev: LogicState) => ({ ...prev, chaosLevel: parseInt(e.target.value) }))}
+                      className="w-full h-1 bg-white/10 rounded-full appearance-none cursor-pointer accent-white"
+                    />
+                    <div className="flex justify-between mt-2 text-[8px] opacity-20 font-black uppercase">
+                       <span>Logic</span>
+                       <span>Current: {state.chaosLevel}%</span>
+                       <span>Chaos</span>
+                    </div>
+                  </div>
+               </motion.div>
+             )}
+           </AnimatePresence>
+
            <div className="flex items-center gap-3">
               <button 
-                onClick={() => handleSubmit()}
+                onClick={() => state.result ? handleSubmit() : setShowChaosToggle(!showChaosToggle)}
                 className={cn(
-                  "flex items-center gap-2 pr-6 pl-6 py-3 rounded-full font-black text-xs uppercase tracking-[0.2em] transition-all active:scale-95 group border-2",
+                  "flex items-center gap-2 pr-6 pl-4 py-3 rounded-full font-black text-xs uppercase tracking-[0.2em] transition-all active:scale-95 group border-2",
                   "bg-[#0D0D0D] border-white/10 hover:border-white/30 text-white/80 hover:text-white"
                 )}
               >
+                <div onClick={(e) => { e.stopPropagation(); setShowChaosToggle(!showChaosToggle); }} className="p-1 hover:bg-white/10 rounded-full transition-colors">
+                  <Settings2 className="w-4 h-4" />
+                </div>
+                <div className="w-px h-4 bg-white/10 mx-1" />
                 <span className="flex items-center gap-2">
-                  <Activity className="w-4 h-4 group-hover:scale-110 transition-transform duration-500" />
-                  RE-PROCESS_LOGIC
+                  <Dices className="w-4 h-4 group-hover:rotate-180 transition-transform duration-500" />
+                  Roll the Dice Again
                 </span>
               </button>
            </div>
            
            <div className="text-[8px] opacity-20 uppercase tracking-[0.4em] font-black">
-              LOGIC-GATE PROCESSOR // API_READY
+              Ontological Registry // Code_01001010
            </div>
         </div>
       </footer>

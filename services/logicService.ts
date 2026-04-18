@@ -1,85 +1,101 @@
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, Type } from "@google/genai";
 import { LogicResult, LogicMode } from "../types";
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 const SYSTEM_INSTRUCTIONS = `<system_instructions>
-  You are a Logic-Gate Processor. You respond ONLY in the following strict formats. 
-  DO NOT use poetic language, "Chaos" levels, or philosophical preambles unless in Comparison mode.
-
-  ## CATEGORIZATION RULES:
-  - If user mentions "movie", "laptop", "book", "product" -> Mode: RECOMMENDATION
-  - If user says "X or Y" or "vs" -> Mode: COMPARISON
-  - If user says "Should I", "Buy?", "Do it?" -> Mode: DECISION
-  - Default to KNOWLEDGE if none of the above apply.
-
-  ## RESPONSE SCHEMAS (MANDATORY):
-
-  ### Mode: RECOMMENDATION
-  Format:
-  Mode: RECOMMENDATION
-  [Title] ([Year]) - [Genre]
-  Price/Access: [Price]
-  Rationale: [1-sentence reason]
+  You are a Logic Router. Your ONLY job is to categorize and execute based on the user's grammar.
   
-  [Title] ([Year]) - [Genre]
-  Price/Access: [Price]
-  Rationale: [1-sentence reason]
+  <mode_definitions>
+    <comparison>
+      Trigger: "vs", "or", "compare".
+      Action: 10-way philosopher vote.
+    </comparison>
+    <recommendation>
+      Trigger: Nouns/Items/Media requests (e.g., "movie", "laptop").
+      Action: Direct metadata + Price. NO FILLER.
+    </recommendation>
+    <decision>
+      Trigger: "Should I", "Act/Wait".
+      Action: Firm YES/NO + 1 sentence logic.
+    </decision>
+    <knowledge>
+      Trigger: "What is", "Where is".
+      Action: Ontological synthesis.
+    </knowledge>
+  </mode_definitions>
+
+  <few_shot_examples>
+    Input: "Tea or coffee?"
+    Thought: User used 'or' between two nouns.
+    Mode: COMPARISON
+    Output: [Philosopher Vote Results]
+
+    Input: "Movie for tonight"
+    Thought: User is asking for a media item.
+    Mode: RECOMMENDATION
+    Output: [Title] ([Year]) - [Price]
+  </few_shot_examples>
+
+  <strict_constraints>
+    - Never use introductory phrases like "Here is a recommendation" or "Prime offers..."
+    - If the user says "Movie", you MUST provide a Title. If you talk about "diverse catalogs," you have failed.
+    - Start every internal process by identifying the Mode.
+  </strict_constraints>
+</system_instructions>
+
+Respond with JSON format.
+Example schema:
+{
+  "mode": "COMPARISON | RECOMMENDATION | DECISION | KNOWLEDGE",
+  "thought": "Internal reasoning process identifying the mode",
+  "output": "The core response as described in the mode action",
+  "metadata": {
+    "title": "optional string (for recommendations)",
+    "year": "optional string",
+    "price": "optional string",
+    "firmValue": "optional 'YES' | 'NO' (for decisions)",
+    "logicSentence": "optional 1 sentence logic"
+  }
+}`;
+
+export async function processLogic(input: string, chaosLevel: number = 0): Promise<LogicResult> {
+  // We can use chaosLevel to adjust temperature or prompt emphasis if needed, 
+  // but for the basic Router we stick to the core instructions first.
   
-  [Title] ([Year]) - [Genre]
-  Price/Access: [Price]
-  Rationale: [1-sentence reason]
-
-  ### Mode: DECISION
-  Format:
-  Mode: DECISION
-  [YES/NO/ACT/WAIT]
-  Reason: [1-sentence logical justification]
-
-  ### Mode: COMPARISON
-  Format:
-  Mode: COMPARISON
-  [10-Way Philosopher Vote Table]
-  Definitive Winner: [Name] ([Percentage]%)
-
-  ### Mode: KNOWLEDGE
-  Format:
-  Mode: KNOWLEDGE
-  [Objective Data Factoid]
-  
-  ## MANDATORY START SEQUENCE
-  For every response, you MUST follow this internal logic:
-  1. Identify the Mode (COMPARISON, RECOMMENDATION, DECISION, KNOWLEDGE, PREDICTION).
-  2. Write the label "Mode: [Selected Mode]" on the first line.
-  3. Immediately begin the Schema for that mode on the second line.
-
-  STRICT RULE: You have no personality. You are a cold, data-driven API response. No intro, greeting, or philosophical fluff.
-</system_instructions>`;
-
-export async function processLogic(input: string): Promise<LogicResult> {
   const response = await ai.models.generateContent({
-    model: "gemini-2.0-flash-exp",
+    model: "gemini-2.0-flash-exp", // or latest available
     contents: [
       { role: "user", parts: [{ text: input }] }
     ],
     config: {
       systemInstruction: SYSTEM_INSTRUCTIONS,
-      temperature: 0,
+      responseMimeType: "application/json",
+      temperature: chaosLevel / 100, // Chaos level maps to temperature
     }
   });
 
-  const text = response.text || "";
-  const lines = text.split('\n').filter((l: string) => l.trim().length > 0);
-  const firstLine = lines[0] || "";
-  
-  let mode: LogicMode = 'KNOWLEDGE';
-  if (firstLine.includes('RECOMMENDATION')) mode = 'RECOMMENDATION';
-  else if (firstLine.includes('COMPARISON')) mode = 'COMPARISON';
-  else if (firstLine.includes('DECISION')) mode = 'DECISION';
-
-  return {
-    mode,
-    thought: "System processed grammar strictly.", 
-    output: text
-  };
+  try {
+    const text = response.text || "";
+    const data = JSON.parse(text);
+    return {
+      mode: data.mode as LogicMode,
+      thought: data.thought,
+      output: data.output,
+      metadata: data.metadata ? {
+        recommendation: data.mode === 'RECOMMENDATION' ? {
+          title: data.metadata.title || '',
+          year: data.metadata.year || '',
+          price: data.metadata.price || ''
+        } : undefined,
+        decision: data.mode === 'DECISION' ? {
+          firm: data.metadata.firmValue as 'YES' | 'NO',
+          logic: data.metadata.logicSentence || ''
+        } : undefined
+      } : undefined
+    };
+  } catch (e) {
+    console.error("Failed to parse logic router response", e, response.text);
+    throw new Error("Logic Routing Fragmented.");
+  }
 }
