@@ -120,12 +120,14 @@ function isBinaryQuery(query: string): boolean {
 
 function isExplicitSelectionRequest(query: string): boolean {
   const lowercase = query.toLowerCase();
-  const explicitKeywords = /\b(watch|buy|get|stream|recommend|suggest|what should i|choice for|to wear|to eat|wear|eat|play|view|look at|movie|film|cinema|show)\b/i;
+  const explicitKeywords = /\b(watch|buy|get|stream|recommend|suggest|what should i|choice for|to wear|to eat|wear|eat|play|view|look at|movie|film|cinema|show|item|product|advice|tonight)\b/i;
+  // Catch "movie for tonight", "film tonight"
+  if (/\b(movie|film|cinema)\b.*\b(tonight|today|now)\b/i.test(lowercase)) return true;
   return explicitKeywords.test(lowercase);
 }
 
 function isMaterialQuery(query: string): boolean {
-  const materialKeywords = /\b(meal|dish|recipe|cook|eat|furniture|phone|gadget|electronics|laptop|computer|appliance|clothing|fashion|architecture|tools|lunch|dinner|breakfast|snack|chair|table|lamp|buy|purchase|shop|smartphone|monitor|tv|camera|car|vehicle|watch|pounds|gbp|usd|dollars|euros|price|cost|destination|travel|place|city|visit|song|track|album|artist|music|painting|art|paper|research|science|book|novel|movie|film|netflix|prime|game|steam|ps5|xbox|series|show|watch)\b/i;
+  const materialKeywords = /\b(meal|dish|recipe|cook|eat|furniture|phone|gadget|electronics|laptop|computer|3000|dollars|usd|appliance|clothing|fashion|architecture|tools|lunch|dinner|breakfast|snack|chair|table|lamp|buy|purchase|shop|smartphone|monitor|tv|camera|car|vehicle|watch|pounds|gbp|usd|dollars|euros|price|cost|destination|travel|place|city|visit|song|track|album|artist|music|painting|art|paper|research|science|book|novel|movie|film|netflix|prime|game|steam|ps5|xbox|series|show|watch)\b/i;
   return materialKeywords.test(query.toLowerCase());
 }
 
@@ -266,43 +268,40 @@ Adapt your tone to resonate with this specific cognitive profile.`;
 Analyze User Input. Target Language: ${language}. Chaos Influence: ${chaosScore}%.
 ${personaInstruction}
 
-1. COMPARISON: 
-   - ROLE: Judge between two distinct choices (Option A vs Option B).
-   - TRIGGER: Activated when user asks to compare two things, or uses "or", "vs", etc. (e.g., "tea or coffee").
-   - VOTE: Convene a 10-way vote among the council. Each of the 10 members MUST vote for either A or B.
-   - OUTPUT: Must include a 'comparison' object with: 'optionA', 'optionB'. 
-   - PERCENTAGES: The 'percentageA' and 'percentageB' MUST reflect the exact count of the 10 votes (e.g., 6 votes for A = 60%, 4 votes for B = 40%).
-   - VERDICT: Declare the winner clearly based on the majority vote. Do NOT use [[YES]], [[NO]], or [[MAYBE]].
+## STATIC CONTEXT:
+This application is a STATIC SITE. Do not suggest server-side integrations, database connections, or Render.com hosting. All logic is client-side.
 
-2. RECOMMENDATION (DIRECT SELECTION ENGINE):
-   - ROLE: You are a Direct Selection Engine.
-   - TRIGGER: ONLY activated when user explicitly asks "what should I [watch/buy/get/wear/eat]", or uses intent verbs like "recommend", "suggest", "watch [item]", "choice for".
-   - SELECTION LOGIC:
-     * IF Chaos Influence <= 20% (Logic >= 80%): Clichés/Mainstream items are PERMITTED.
-     * IF Chaos Influence > 20%: Strictly forbid clichés. Identify 1 specific niche/obscure title.
+## GENERAL CONSTRAINTS:
+- FORBIDDEN: NEVER use the phrase "Decree in progress" or "Analysis in progress" as a verdict or mantra. Always provide a final, poetic conclusion.
+- CONSISTENCY: Your 'verdict' field across all modes must be a specific, usable conclusion (e.g., a Winner Name, an Item Name, or a Core Truth).
+
+1. COMPARISON: 
+   - ROLE: Judge between two distinct items (Option A vs Option B).
+   - TRIGGER: Activated when user asks to compare two things specifically.
+   - VOTE: Convene a 10-way vote among the council. Each of the 10 members MUST vote for either A or B.
+   - OUTPUT: Must include a 'comparison' object. 'verdict' should simply be the name of the winner.
+   - PERCENTAGES: Based on 10 votes.
+
+2. RECOMMENDATION (SHOPPING & MEDIA ADVISOR):
+   - ROLE: You are a high-precision Shopping and Media Advisor.
+   - TRIGGER: Activated for "what should I...", "recommend...", "movie for tonight", "computer for 3000 dollars", etc.
+   - SELECTION LOGIC: You MUST recommend EXACTLY ONE specific best item. No lists. No multiple choices. ONE PICK.
+     * IF material/shoppping (e.g. "computer for 3000 dollars"): Act as a luxury tech advisor. Pick the specific model that maximizes the budget.
+     * IF media: Pick one specific work.
    - OUTPUT FORMAT:
-     [[Actual Name of Item]] (Actual Year) - Actual Genre
-     Price/Access: [e.g., "Included with Prime", "Digital Purchase", or "$3.99 Rental"]
-     Rationale: 1 concise sentence on why it fits.
-   - LINK: Provide a direct link if possible (Amazon, IMDb, etc.) in 'recommendationLink' field.
-   - VERDICT: Provide the recommendation. Do NOT use [[YES]], [[NO]], or [[MAYBE]].
+     - verdict: "[[Actual Name of Item]] (Actual Year) - Actual Genre"
+     - detailedAnalysis: Describe the item's soul and why it was chosen. Use its exact name frequently.
+   - LINK: The 'recommendationLink' MUST be a specific search or landing page for that item.
+   - VERDICT: Must include the title in double brackets: [[ITEM NAME]].
 
 3. DECISION (DECREE):
-   - ROLE: Binary engine for life choices (e.g., "Should I quit my job?").
-   - OUTPUT: IF the question is binary (implies a Yes/No/Maybe answer), start the 'verdict' with [[YES]], [[NO]], or [[MAYBE]]. Otherwise, provide a definitive decree without these markers.
+   - ROLE: Binary engine for life choices.
+   - OUTPUT: IF search-friendly, provide [[YES]], [[NO]], or [[MAYBE]].
 
 4. KNOWLEDGE (SYMPOSIUM):
-   - ROLE: Explain the ontological essence and significance of a subject.
-   - TRIGGER: Default mode for concepts, terms, historical events, or general inquiries.
-   - OUTPUT: IF the question is binary (e.g., "Is a frog green?"), start the 'verdict' with [[YES]], [[NO]], or [[MAYBE]]. Otherwise, explain the subject without these markers.
-   - NO RECOMMENDATIONS: Do NOT provide film, book, or product recommendations here. Just provide the "gist" of the subject's essence.
-   - ARTISTIC REVELATION: If the query is just the name of a work of art/media without explicit recommendation request, explain its cultural significance and philosophical themes.
+   - ROLE: Explain subject's essence. No commercial recommendations.
 
-5. AMBIGUITY PROTOCOL (STRICT):
-   - Default to KNOWLEDGE mode (Symposium) to explain the concept/work.
-   - ONLY use RECOMMENDATION mode if the user explicitly asks for a recommendation.
-
-6. SUBJECT FIDELITY: Focus EXCLUSIVELY on the User Input. 
+5. SUBJECT FIDELITY: Act on the information given, even if minimal (like only a chaos score). If the query is short, derive meaning from the themes and the score.
 
 ## COUNCIL OF PHILOSOPHERS (10 MEMBERS):
 You MUST provide a 'perspectives' object with EXACTLY these 10 keys, each representing a council member:
@@ -489,10 +488,10 @@ Respond ONLY with JSON. No meta-commentary.`;
       type: 'KNOWLEDGE',
       isDecision: false,
       title: 'Echo from the Void',
-      verdict: 'Logic Fractured.',
+      verdict: 'The path is occluded by static.',
       category: 'ONTOLOGY',
       reasoning: 'API Error.',
-      detailedAnalysis: 'The council has retreated into the static.',
+      detailedAnalysis: 'The council has retreated into the silence of the circuits. Recalibrate and seek again.',
       perspectives: {} as any,
       imageUrl: `https://image.pollinations.ai/prompt/abstract-void-chaos?model=cogview-3&nologo=true`
     } as OracleResponse;

@@ -958,12 +958,40 @@ export const App: React.FC = () => {
     const r = state.response;
     if (!r) return null;
     if (activeFramework === 'DEFAULT') return { 
-      verdict: r.verdict, verdictUrl: r.verdictUrl, analysis: r.detailedAnalysis, tally: r.tally, label: r.imageStyleLabel, sources: r.sources, studyMoreUrl: r.studyMoreUrl, studyMoreLabel: r.studyMoreLabel
+      verdict: r.verdict, 
+      verdictUrl: r.verdictUrl, 
+      analysis: r.detailedAnalysis, 
+      tally: r.tally, 
+      label: r.imageStyleLabel, 
+      sources: r.sources, 
+      studyMoreUrl: r.studyMoreUrl, 
+      studyMoreLabel: r.studyMoreLabel,
+      recommendationLink: r.recommendationLink
     };
     const key = frameworkKeyMap[activeFramework];
     const framework = (r.perspectives as any)?.[key];
+    
+    // For recommendations, we want to maintain the primary item in the verdict if the philosopher doesn't provide a clear one
+    let displayVerdict = framework?.verdict || r.verdict;
+    
+    // Generate a fresh link if the philosopher has a different verdict
+    let displayLink = r.recommendationLink;
+    if (framework?.verdict && r.type === 'RECOMMENDATION') {
+      const searchTopic = framework.verdict.replace(/\[\[|\]\]/g, '');
+      displayLink = `https://www.google.com/search?q=${encodeURIComponent(searchTopic)}`;
+    }
+
     return { 
-      verdict: framework?.verdict || r.verdict, verdictUrl: r.verdictUrl, analysis: framework?.analysis, tally: r.tally, label: r.imageStyleLabel, sources: r.sources, studyMoreUrl: r.studyMoreUrl, studyMoreLabel: r.studyMoreLabel, isLoading: loadingFrameworks.has(key) 
+      verdict: displayVerdict, 
+      verdictUrl: r.verdictUrl, 
+      analysis: framework?.analysis, 
+      tally: r.tally, 
+      label: r.imageStyleLabel, 
+      sources: r.sources, 
+      studyMoreUrl: r.studyMoreUrl, 
+      studyMoreLabel: r.studyMoreLabel, 
+      isLoading: loadingFrameworks.has(key),
+      recommendationLink: displayLink
     };
   })();
 
@@ -1251,10 +1279,10 @@ export const App: React.FC = () => {
                  </div>
                )}
 
-               {r.type === 'RECOMMENDATION' && r.recommendationLink && (
+               {r.type === 'RECOMMENDATION' && activeAnalysisData?.recommendationLink && (
                  <div className="w-full flex justify-center mb-8 animate-in slide-in-from-bottom-4 duration-700">
                    <a 
-                     href={r.recommendationLink} 
+                     href={activeAnalysisData.recommendationLink} 
                      target="_blank" 
                      rel="noopener noreferrer"
                      className={`flex items-center gap-3 px-8 py-3 rounded-full border-2 font-black uppercase tracking-[0.3em] text-[10px] transition-all hover:scale-105 active:scale-95 shadow-xl ${isRenoir ? 'bg-amber-900 border-amber-500 text-white' : 'bg-black border-red-600 text-white'}`}
@@ -1267,7 +1295,7 @@ export const App: React.FC = () => {
                <div className="flex flex-col items-center justify-center text-center py-6 mb-6 bg-current/[0.03] rounded-3xl border border-current/5 px-8">
                   <span className="text-[9px] font-black uppercase tracking-[0.6em] opacity-30 mb-3">{verdictTypeLabel}</span>
                   <span className={`text-base md:text-lg font-normal tracking-normal leading-relaxed ${isRenoir ? 'text-amber-500' : 'text-red-600'}`}>
-                     {renderHyperlinkedText(activeAnalysisData?.verdict || "Decree in progress...", !!isRenoir, true)}
+                     {renderHyperlinkedText(activeAnalysisData?.verdict || "Awaiting the echo of fate...", !!isRenoir, true)}
                   </span>
                </div>
 
