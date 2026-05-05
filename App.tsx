@@ -603,12 +603,12 @@ export const App: React.FC = () => {
         style={{ backgroundImage: `url('https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=2670&auto=format&fit=crop')` }}
       />
       
-      <div className="relative z-10 min-h-full py-20 px-6 flex flex-col items-center">
-        <div className="max-w-5xl w-full space-y-16 lg:space-y-24">
+      <div className="relative z-10 min-h-full lg:h-full py-12 lg:py-0 px-6 flex flex-col items-center justify-center">
+        <div className="max-w-5xl w-full space-y-12 lg:space-y-16">
           
           {/* Hero Quote - Centered and Refined */}
-          <div className="text-center space-y-6 pt-10">
-            <div className="inline-block px-3 py-1 border border-black/10 rounded-full mb-2">
+          <div className="text-center space-y-4 pt-4 lg:pt-0">
+            <div className="inline-block px-3 py-1 border border-black/10 rounded-full mb-1">
               <span className="text-[8px] font-black uppercase tracking-[0.4em] opacity-40">Independent Musician</span>
             </div>
             <h2 className="text-lg md:text-xl font-serif text-black leading-relaxed font-normal max-w-2xl mx-auto italic">
@@ -616,10 +616,10 @@ export const App: React.FC = () => {
             </h2>
           </div>
 
-          <div className="flex flex-col lg:flex-row items-center lg:items-center justify-center gap-16 lg:gap-24">
+          <div className="flex flex-col lg:flex-row items-center justify-center gap-12 lg:gap-24">
             
             {/* SoundCloud Widget */}
-            <div className="w-full lg:w-1/2 max-w-[560px] aspect-[560/450] shadow-2xl rounded-xl overflow-hidden bg-black/5 animate-in zoom-in-95 duration-1000">
+            <div className="w-full lg:w-1/2 max-w-[500px] aspect-[500/400] shadow-2xl rounded-xl overflow-hidden bg-black/5 animate-in zoom-in-95 duration-1000">
                <iframe 
                  width="100%" 
                  height="100%" 
@@ -633,13 +633,13 @@ export const App: React.FC = () => {
             </div>
 
             {/* Links Section - Balanced with Player */}
-            <div className="w-full lg:w-[320px] space-y-8 flex flex-col items-center lg:items-start shrink-0">
+            <div className="w-full lg:w-[300px] space-y-6 flex flex-col items-center lg:items-start shrink-0">
               <div className="space-y-2 text-center lg:text-left">
                 <span className="text-[9px] font-black uppercase tracking-[0.5em] opacity-30">Connect & Support</span>
                 <div className="h-[1px] w-8 bg-red-600/30 mx-auto lg:mx-0" />
               </div>
               
-              <div className="flex flex-col gap-6 items-center lg:items-start w-full">
+              <div className="flex flex-col gap-4 lg:gap-5 items-center lg:items-start w-full">
                 {[
                   { label: "Listen on SoundCloud", url: "https://soundcloud.com/ykelbert" },
                   { label: "YouTube Profile", url: "https://www.youtube.com/@yashok" },
@@ -656,7 +656,7 @@ export const App: React.FC = () => {
                     className="group relative flex items-center gap-4 transition-all"
                   >
                     <span className="text-[8px] font-mono opacity-20 group-hover:opacity-100 transition-opacity">0{idx + 1}</span>
-                    <span className="text-[10px] md:text-[11px] font-black uppercase tracking-[0.3em] group-hover:text-red-600 transition-colors border-b border-black/5 pb-1 group-hover:border-red-600/30 leading-none">
+                    <span className="text-[10px] md:text-[11px] font-black uppercase tracking-[0.3em] group-hover:text-red-600 transition-colors border-b border-black/5 pb-0.5 group-hover:border-red-600/30 leading-none">
                       {link.label}
                     </span>
                   </a>
@@ -666,13 +666,13 @@ export const App: React.FC = () => {
           </div>
 
           {/* Footer Back Button - Centered */}
-          <div className="pt-20 pb-10 text-center">
+          <div className="pt-8 lg:pt-12 text-center">
             <button 
               onClick={() => setActivePage('ORACLE')}
               className="group flex items-center justify-center gap-8 mx-auto transition-all"
             >
               <div className="h-[1px] w-12 bg-black/10 group-hover:w-24 group-hover:bg-red-600/30 transition-all duration-700" />
-              <span className="text-[10px] font-black uppercase tracking-[0.8em] opacity-40 group-hover:opacity-100 group-hover:text-red-600 transition-all">Back to Oracle</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.8em] opacity-40 group-hover:opacity-100 group-hover:text-red-600 transition-all text-nowrap">Back to Oracle</span>
               <div className="h-[1px] w-12 bg-black/10 group-hover:w-24 group-hover:bg-red-600/30 transition-all duration-700" />
             </button>
           </div>
