@@ -514,14 +514,14 @@ export const App: React.FC = () => {
       <div 
         onMouseEnter={() => setIsSideMenuOpen(true)}
         onClick={() => setIsSideMenuOpen(true)}
-        className="fixed left-0 top-0 bottom-0 w-2 z-[1999] hover:w-6 transition-all group"
+        className="fixed left-0 top-0 bottom-0 w-4 md:w-2 z-[1999] hover:w-8 transition-all group cursor-pointer"
       >
         {!isSideMenuOpen && (
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-2 pointer-events-none animate-pulse-slow">
-            <svg width="40" height="20" viewBox="0 0 40 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="opacity-40">
-              <path d="M38 10H3M3 10L10 3M3 10L10 17" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="animate-in slide-in-from-right duration-1000" />
+          <div className="absolute left-2 md:left-4 top-1/4 -translate-y-1/2 flex items-center gap-2 pointer-events-none animate-pulse-slow">
+            <svg width="24" height="12" viewBox="0 0 40 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="opacity-20 md:opacity-40">
+              <path d="M38 10H3M3 10L10 3M3 10L10 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="animate-in slide-in-from-right duration-1000" />
             </svg>
-            <span className="text-[10px] font-black uppercase tracking-[0.4em] opacity-30 origin-left -rotate-90 md:rotate-0 translate-y-12 md:translate-y-0">menu</span>
+            <span className="text-[7px] md:text-[8px] font-black uppercase tracking-[0.4em] opacity-20 md:opacity-30 origin-left -rotate-90">menu</span>
           </div>
         )}
       </div>
@@ -597,44 +597,67 @@ export const App: React.FC = () => {
   );
 
   const JacobMusicPage = (
-    <div className="fixed inset-0 z-[1500] bg-white flex items-center justify-center overflow-hidden animate-in fade-in duration-1000">
+    <div className="fixed inset-0 z-[1500] bg-white overflow-y-auto animate-in fade-in duration-1000">
       <div 
-        className="absolute inset-0 bg-cover bg-center opacity-10 grayscale mix-blend-multiply"
+        className="fixed inset-0 bg-cover bg-center opacity-10 grayscale mix-blend-multiply pointer-events-none"
         style={{ backgroundImage: `url('https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=2670&auto=format&fit=crop')` }}
       />
-      <div className="relative z-10 max-w-2xl px-10 text-center space-y-12">
-        <p className="text-xl md:text-2xl font-serif text-black leading-relaxed font-medium">
-          "Born in Russia, Jacob is an independent musician raised on the likes of Damien Rice and Leonard Cohen. He's been writing songs since he was 20."
-        </p>
-        <div className="flex flex-col gap-6 items-center">
-          {[
-            { label: "My Music", url: "https://soundcloud.com/ykelbert" },
-            { label: "YouTube", url: "https://www.youtube.com/@yashok" },
-            { label: "Support my music!", url: "https://jkelbert.bandcamp.com/" },
-            { label: "The best way to support me is to buy a T-Shirt here", url: "https://j-kelbert-shop.fourthwall.com/products/t-shirt-miracle" },
-            { label: "link to Spotify, Apple Music, YouTube and BandLab", url: "https://bnd.link/ykelbert" },
-            { label: "Facebook", url: "https://www.facebook.com/share/1B6Xw8Qx5c/" }
-          ].map((link, idx) => (
-            <a 
-              key={idx}
-              href={link.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[10px] md:text-[11px] font-black uppercase tracking-[0.4em] hover:text-red-600 transition-all border-b border-transparent hover:border-red-600/30 pb-1 max-w-sm"
-            >
-              {link.label}
-            </a>
-          ))}
-        </div>
-        <div className="pt-8">
-          <button 
-            onClick={() => setActivePage('ORACLE')}
-            className="group flex items-center gap-4 mx-auto"
-          >
-            <div className="h-px w-8 bg-black/20 group-hover:w-12 transition-all duration-500" />
-            <span className="text-[10px] font-black uppercase tracking-[0.6em]">Back to Oracle</span>
-            <div className="h-px w-8 bg-black/20 group-hover:w-12 transition-all duration-500" />
-          </button>
+      
+      <div className="relative z-10 min-h-full py-20 px-6 flex flex-col items-center justify-center">
+        <div className="max-w-6xl w-full flex flex-col lg:flex-row items-center lg:items-start justify-center gap-16 lg:gap-24">
+          
+          {/* SoundCloud Widget */}
+          <div className="w-full max-w-[560px] aspect-[560/415] shadow-2xl rounded-xl overflow-hidden bg-black/5 animate-in slide-in-from-left duration-1000">
+             <iframe 
+               width="100%" 
+               height="100%" 
+               scrolling="no" 
+               frameBorder="no" 
+               allow="autoplay" 
+               src="https://w.soundcloud.com/player/?url=https://soundcloud.com/ykelbert&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true"
+             >
+               <a href="https://womanitely.com" style={{ display: 'none' }}>Womanitely.com</a>
+             </iframe>
+          </div>
+
+          {/* Links and Text */}
+          <div className="max-w-xl text-center lg:text-left space-y-12">
+            <p className="text-xl md:text-2xl font-serif text-black leading-relaxed font-medium">
+              "Born in Russia, Jacob is an independent musician raised on the likes of Damien Rice and Leonard Cohen. He's been writing songs since he was 20."
+            </p>
+            <div className="flex flex-col gap-6 items-center lg:items-start">
+              {[
+                { label: "My Music", url: "https://soundcloud.com/ykelbert" },
+                { label: "YouTube", url: "https://www.youtube.com/@yashok" },
+                { label: "Support my music!", url: "https://jkelbert.bandcamp.com/" },
+                { label: "The best way to support me is to buy a T-Shirt here", url: "https://j-kelbert-shop.fourthwall.com/products/t-shirt-miracle" },
+                { label: "link to Spotify, Apple Music, YouTube and BandLab", url: "https://bnd.link/ykelbert" },
+                { label: "Facebook", url: "https://www.facebook.com/share/1B6Xw8Qx5c/" }
+              ].map((link, idx) => (
+                <a 
+                  key={idx}
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[10px] md:text-[11px] font-black uppercase tracking-[0.4em] hover:text-red-600 transition-all border-b border-transparent hover:border-red-600/30 pb-1 w-fit"
+                >
+                  {link.label}
+                </a>
+              ))}
+            </div>
+            
+            <div className="pt-8">
+              <button 
+                onClick={() => setActivePage('ORACLE')}
+                className="group flex items-center gap-4 mx-auto lg:mx-0"
+              >
+                <div className="h-px w-8 bg-black/20 group-hover:w-12 transition-all duration-500" />
+                <span className="text-[10px] font-black uppercase tracking-[0.6em]">Back to Oracle</span>
+                <div className="h-px w-8 bg-black/20 group-hover:w-12 transition-all duration-500" />
+              </button>
+            </div>
+          </div>
+          
         </div>
       </div>
     </div>
