@@ -357,6 +357,8 @@ export const App: React.FC = () => {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [learningProfile, setLearningProfile] = useState<LearningProfile | null>(null);
   const [selectedImageModel, setSelectedImageModel] = useState<string>('flux');
+  const [activePage, setActivePage] = useState<'ORACLE' | 'MUSIC'>('ORACLE');
+  const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
   
   // Profiling State
   const [showProfilingModal, setShowProfilingModal] = useState(false);
@@ -387,6 +389,14 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     // Server health check removed for static site mode
+  }, []);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 1024) setIsSideMenuOpen(false);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   // Logic Handlers
@@ -496,6 +506,128 @@ export const App: React.FC = () => {
         <NavButton onClick={() => setShowHistory(true)}><Icons.History /></NavButton>
       </div>
     </>
+  );
+
+  const GlassSidebar = (
+    <>
+      {/* Invisible Hover Trigger Edge */}
+      <div 
+        onMouseEnter={() => setIsSideMenuOpen(true)}
+        onClick={() => setIsSideMenuOpen(true)}
+        className="fixed left-0 top-0 bottom-0 w-2 z-[1999] hover:w-6 transition-all"
+      />
+
+      {/* Backdrop for closing */}
+      {isSideMenuOpen && (
+        <div 
+          onClick={() => setIsSideMenuOpen(false)}
+          className="fixed inset-0 z-[1998] bg-black/5 backdrop-blur-[2px] transition-all duration-700"
+        />
+      )}
+
+      <div 
+        className={`fixed left-0 top-0 bottom-0 z-[2000] flex transition-all duration-700 ease-in-out 
+          ${isSideMenuOpen ? 'w-[280px] translate-x-0' : 'w-[280px] -translate-x-full'}`}
+      >
+        <div className={`w-full h-full backdrop-blur-[40px] border-r p-8 md:p-10 flex flex-col justify-between shadow-2xl relative
+          ${isRenoir ? 'bg-amber-950/20 border-amber-900/10 text-amber-100/90' : 'bg-white/30 border-black/5 text-black/90'}`}>
+          
+          <div className="space-y-16 mt-8">
+            <div className="space-y-4">
+               <div className="flex flex-col gap-2">
+                  <span className="text-[9px] font-black uppercase tracking-[0.6em] opacity-30">Selection Portal</span>
+                  <div className={`w-10 h-[1px] ${isRenoir ? 'bg-amber-500' : 'bg-red-600'}`} />
+               </div>
+            </div>
+            
+            <nav className="flex flex-col gap-10">
+              <button 
+                onClick={() => { setActivePage('ORACLE'); setIsSideMenuOpen(false); }}
+                className="group text-left space-y-2 transition-all outline-none"
+              >
+                <div className="flex items-center gap-3">
+                   <span className="text-[10px] font-black uppercase tracking-widest opacity-20 group-hover:opacity-100 transition-opacity">01</span>
+                   <div className={`h-px w-0 group-hover:w-4 transition-all duration-300 ${isRenoir ? 'bg-amber-500' : 'bg-red-600'}`} />
+                </div>
+                <span className="block text-xl md:text-2xl font-black uppercase tracking-tighter group-hover:translate-x-3 transition-transform duration-500">Oracle</span>
+              </button>
+  
+              <a 
+                href="https://dreamjung.onrender.com" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="group block space-y-2 transition-all outline-none"
+              >
+                <div className="flex items-center gap-3">
+                   <span className="text-[10px] font-black uppercase tracking-widest opacity-20 group-hover:opacity-100 transition-opacity">02</span>
+                   <div className={`h-px w-0 group-hover:w-4 transition-all duration-300 ${isRenoir ? 'bg-amber-500' : 'bg-red-600'}`} />
+                </div>
+                <span className="block text-xl md:text-2xl font-black uppercase tracking-tighter group-hover:translate-x-3 transition-transform duration-500 leading-none">Jung Dream<br/>Analysis</span>
+              </a>
+  
+              <button 
+                onClick={() => { setActivePage('MUSIC'); setIsSideMenuOpen(false); }}
+                className="group text-left space-y-2 transition-all outline-none"
+              >
+                <div className="flex items-center gap-3">
+                   <span className="text-[10px] font-black uppercase tracking-widest opacity-20 group-hover:opacity-100 transition-opacity">03</span>
+                   <div className={`h-px w-0 group-hover:w-4 transition-all duration-300 ${isRenoir ? 'bg-amber-500' : 'bg-red-600'}`} />
+                </div>
+                <span className="block text-xl md:text-2xl font-black uppercase tracking-tighter group-hover:translate-x-3 transition-transform duration-500 leading-none">Jacob Kelbert's<br/>Music</span>
+              </button>
+            </nav>
+          </div>
+  
+          <div className="space-y-4">
+             <div className="text-[8px] font-black uppercase tracking-[0.5em] opacity-10">The Architecture of Chance</div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+
+  const JacobMusicPage = (
+    <div className="fixed inset-0 z-[1500] bg-white flex items-center justify-center overflow-hidden animate-in fade-in duration-1000">
+      <div 
+        className="absolute inset-0 bg-cover bg-center opacity-10 grayscale mix-blend-multiply"
+        style={{ backgroundImage: `url('https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=2670&auto=format&fit=crop')` }}
+      />
+      <div className="relative z-10 max-w-2xl px-10 text-center space-y-12">
+        <p className="text-xl md:text-2xl font-serif text-black leading-relaxed font-medium">
+          "Born in Russia, Jacob is an independent musician raised on the likes of Damien Rice and Leonard Cohen. He's been writing songs since he was 20."
+        </p>
+        <div className="flex flex-col gap-6 items-center">
+          {[
+            { label: "My Music", url: "https://soundcloud.com/ykelbert" },
+            { label: "YouTube", url: "https://www.youtube.com/@yashok" },
+            { label: "Support my music!", url: "https://jkelbert.bandcamp.com/" },
+            { label: "The best way to support me is to buy a T-Shirt here", url: "https://j-kelbert-shop.fourthwall.com/products/t-shirt-miracle" },
+            { label: "link to Spotify, Apple Music, YouTube and BandLab", url: "https://bnd.link/ykelbert" },
+            { label: "Facebook", url: "https://www.facebook.com/share/1B6Xw8Qx5c/" }
+          ].map((link, idx) => (
+            <a 
+              key={idx}
+              href={link.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[10px] md:text-[11px] font-black uppercase tracking-[0.4em] hover:text-red-600 transition-all border-b border-transparent hover:border-red-600/30 pb-1 max-w-sm"
+            >
+              {link.label}
+            </a>
+          ))}
+        </div>
+        <div className="pt-8">
+          <button 
+            onClick={() => setActivePage('ORACLE')}
+            className="group flex items-center gap-4 mx-auto"
+          >
+            <div className="h-px w-8 bg-black/20 group-hover:w-12 transition-all duration-500" />
+            <span className="text-[10px] font-black uppercase tracking-[0.6em]">Back to Oracle</span>
+            <div className="h-px w-8 bg-black/20 group-hover:w-12 transition-all duration-500" />
+          </button>
+        </div>
+      </div>
+    </div>
   );
 
   const HistorySidebar = (
@@ -1473,6 +1605,8 @@ export const App: React.FC = () => {
       <ThemeBackground theme={theme} />
       {GlobalUI}
       {HistorySidebar}
+      {state.status === 'IDLE' && activePage === 'ORACLE' && GlassSidebar}
+      {activePage === 'MUSIC' && JacobMusicPage}
       {showProfilingModal && ProfilingModal}
       {showCalibrationPopup && CalibrationPopup}
 
