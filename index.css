@@ -71,6 +71,14 @@ a,
   animation: broken-light 8s infinite ease-in-out;
 }
 
+@keyframes pulse-slow {
+  0%, 100% { opacity: 0.3; transform: translateX(0); }
+  50% { opacity: 0.6; transform: translateX(4px); }
+}
+.animate-pulse-slow {
+  animation: pulse-slow 3s infinite ease-in-out;
+}
+
 /* Fix for iOS PWA safe areas */
 @supports (padding: env(safe-area-inset-top)) {
   body {

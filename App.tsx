@@ -358,7 +358,7 @@ export const App: React.FC = () => {
   const [learningProfile, setLearningProfile] = useState<LearningProfile | null>(null);
   const [selectedImageModel, setSelectedImageModel] = useState<string>('flux');
   const [activePage, setActivePage] = useState<'ORACLE' | 'MUSIC'>('ORACLE');
-  const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
+  const [isSideMenuOpen, setIsSideMenuOpen] = useState(true);
   
   // Profiling State
   const [showProfilingModal, setShowProfilingModal] = useState(false);
@@ -514,8 +514,17 @@ export const App: React.FC = () => {
       <div 
         onMouseEnter={() => setIsSideMenuOpen(true)}
         onClick={() => setIsSideMenuOpen(true)}
-        className="fixed left-0 top-0 bottom-0 w-2 z-[1999] hover:w-6 transition-all"
-      />
+        className="fixed left-0 top-0 bottom-0 w-2 z-[1999] hover:w-6 transition-all group"
+      >
+        {!isSideMenuOpen && (
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-2 pointer-events-none animate-pulse-slow">
+            <svg width="40" height="20" viewBox="0 0 40 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="opacity-40">
+              <path d="M38 10H3M3 10L10 3M3 10L10 17" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="animate-in slide-in-from-right duration-1000" />
+            </svg>
+            <span className="text-[10px] font-black uppercase tracking-[0.4em] opacity-30 origin-left -rotate-90 md:rotate-0 translate-y-12 md:translate-y-0">menu</span>
+          </div>
+        )}
+      </div>
 
       {/* Backdrop for closing */}
       {isSideMenuOpen && (
@@ -556,6 +565,7 @@ export const App: React.FC = () => {
                 href="https://dreamjung.onrender.com" 
                 target="_blank" 
                 rel="noopener noreferrer"
+                onClick={() => setIsSideMenuOpen(false)}
                 className="group block space-y-2 transition-all outline-none"
               >
                 <div className="flex items-center gap-3">
