@@ -597,65 +597,84 @@ export const App: React.FC = () => {
   );
 
   const JacobMusicPage = (
-    <div className="fixed inset-0 z-[1500] bg-white overflow-y-auto animate-in fade-in duration-1000">
+    <div className="fixed inset-0 z-[1500] bg-white overflow-y-auto animate-in fade-in duration-1000 scrollbar-hide">
       <div 
         className="fixed inset-0 bg-cover bg-center opacity-10 grayscale mix-blend-multiply pointer-events-none"
         style={{ backgroundImage: `url('https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=2670&auto=format&fit=crop')` }}
       />
       
-      <div className="relative z-10 min-h-full py-20 px-6 flex flex-col items-center justify-center">
-        <div className="max-w-6xl w-full flex flex-col lg:flex-row items-center lg:items-start justify-center gap-16 lg:gap-24">
+      <div className="relative z-10 min-h-full py-20 px-6 flex flex-col items-center">
+        <div className="max-w-5xl w-full space-y-20 lg:space-y-32">
           
-          {/* SoundCloud Widget */}
-          <div className="w-full max-w-[560px] aspect-[560/415] shadow-2xl rounded-xl overflow-hidden bg-black/5 animate-in slide-in-from-left duration-1000">
-             <iframe 
-               width="100%" 
-               height="100%" 
-               scrolling="no" 
-               frameBorder="no" 
-               allow="autoplay" 
-               src="https://w.soundcloud.com/player/?url=https://soundcloud.com/ykelbert&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true"
-             >
-               <a href="https://womanitely.com" style={{ display: 'none' }}>Womanitely.com</a>
-             </iframe>
+          {/* Hero Quote */}
+          <div className="text-center space-y-6 pt-10">
+            <div className="inline-block px-3 py-1 border border-black/10 rounded-full mb-4">
+              <span className="text-[9px] font-black uppercase tracking-[0.4em] opacity-40">Independent Musician</span>
+            </div>
+            <h2 className="text-2xl md:text-4xl font-serif text-black leading-tight font-medium max-w-3xl mx-auto italic">
+              "Born in Russia, Jacob is an independent musician raised on the likes of Damien Rice and Leonard Cohen. He's been writing songs since he was 20."
+            </h2>
           </div>
 
-          {/* Links and Text */}
-          <div className="max-w-xl text-center lg:text-left space-y-12">
-            <p className="text-xl md:text-2xl font-serif text-black leading-relaxed font-medium">
-              "Born in Russia, Jacob is an independent musician raised on the likes of Damien Rice and Leonard Cohen. He's been writing songs since he was 20."
-            </p>
-            <div className="flex flex-col gap-6 items-center lg:items-start">
-              {[
-                { label: "My Music", url: "https://soundcloud.com/ykelbert" },
-                { label: "YouTube", url: "https://www.youtube.com/@yashok" },
-                { label: "Support my music!", url: "https://jkelbert.bandcamp.com/" },
-                { label: "The best way to support me is to buy a T-Shirt here", url: "https://j-kelbert-shop.fourthwall.com/products/t-shirt-miracle" },
-                { label: "link to Spotify, Apple Music, YouTube and BandLab", url: "https://bnd.link/ykelbert" },
-                { label: "Facebook", url: "https://www.facebook.com/share/1B6Xw8Qx5c/" }
-              ].map((link, idx) => (
-                <a 
-                  key={idx}
-                  href={link.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-[10px] md:text-[11px] font-black uppercase tracking-[0.4em] hover:text-red-600 transition-all border-b border-transparent hover:border-red-600/30 pb-1 w-fit"
-                >
-                  {link.label}
-                </a>
-              ))}
-            </div>
+          <div className="flex flex-col lg:flex-row items-center lg:items-center justify-between gap-16 lg:gap-24">
             
-            <div className="pt-8">
-              <button 
-                onClick={() => setActivePage('ORACLE')}
-                className="group flex items-center gap-4 mx-auto lg:mx-0"
-              >
-                <div className="h-px w-8 bg-black/20 group-hover:w-12 transition-all duration-500" />
-                <span className="text-[10px] font-black uppercase tracking-[0.6em]">Back to Oracle</span>
-                <div className="h-px w-8 bg-black/20 group-hover:w-12 transition-all duration-500" />
-              </button>
+            {/* SoundCloud Widget */}
+            <div className="w-full lg:w-1/2 max-w-[560px] aspect-[560/450] shadow-[0_30px_100px_-20px_rgba(0,0,0,0.15)] rounded-2xl overflow-hidden bg-black/5 animate-in zoom-in-95 duration-1000">
+               <iframe 
+                 width="100%" 
+                 height="100%" 
+                 scrolling="no" 
+                 frameBorder="no" 
+                 allow="autoplay" 
+                 src="https://w.soundcloud.com/player/?url=https://soundcloud.com/ykelbert&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true"
+               >
+                 <a href="https://womanitely.com" style={{ display: 'none' }}>Womanitely.com</a>
+               </iframe>
             </div>
+
+            {/* Links Section */}
+            <div className="w-full lg:w-1/2 space-y-10 flex flex-col items-center lg:items-start">
+              <div className="space-y-2 text-center lg:text-left">
+                <span className="text-[10px] font-black uppercase tracking-[0.5em] opacity-30">Connect & Support</span>
+                <div className="h-[1px] w-12 bg-red-600/30 mx-auto lg:mx-0" />
+              </div>
+              
+              <div className="flex flex-col gap-8 items-center lg:items-start w-full">
+                {[
+                  { label: "My Music", url: "https://soundcloud.com/ykelbert" },
+                  { label: "YouTube Profile", url: "https://www.youtube.com/@yashok" },
+                  { label: "Bandcamp support", url: "https://jkelbert.bandcamp.com/" },
+                  { label: "Official Merchandise", url: "https://j-kelbert-shop.fourthwall.com/products/t-shirt-miracle" },
+                  { label: "Streaming Platforms", url: "https://bnd.link/ykelbert" },
+                  { label: "Facebook Page", url: "https://www.facebook.com/share/1B6Xw8Qx5c/" }
+                ].map((link, idx) => (
+                  <a 
+                    key={idx}
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group relative flex items-center gap-4 transition-all"
+                  >
+                    <span className="text-[9px] font-mono opacity-20 group-hover:opacity-100 transition-opacity">0{idx + 1}</span>
+                    <span className="text-xs md:text-sm font-black uppercase tracking-[0.3em] group-hover:text-red-600 transition-colors border-b border-black/5 pb-1 group-hover:border-red-600/30">
+                      {link.label}
+                    </span>
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Footer Back Button */}
+          <div className="pt-20 pb-10 text-center">
+            <button 
+              onClick={() => setActivePage('ORACLE')}
+              className="group flex items-center justify-center gap-6 mx-auto transition-all"
+            >
+              <div className="h-[1px] w-12 bg-black/10 group-hover:w-20 group-hover:bg-red-600/30 transition-all duration-700" />
+              <span className="text-[11px] font-black uppercase tracking-[0.8em] opacity-40 group-hover:opacity-100 group-hover:text-red-600 transition-all">Return into the Void</span>
+              <div className="h-[1px] w-12 bg-black/10 group-hover:w-20 group-hover:bg-red-600/30 transition-all duration-700" />
+            </button>
           </div>
           
         </div>
