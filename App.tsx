@@ -356,8 +356,8 @@ export const App: React.FC = () => {
   const [learningProfile, setLearningProfile] = useState<LearningProfile | null>(null);
   const [selectedImageModel, setSelectedImageModel] = useState<string>('flux');
   const [activePage, setActivePage] = useState<'ORACLE' | 'MUSIC'>('ORACLE');
-  const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
-  const [isMusicMuted, setIsMusicMuted] = useState(false);
+  const [isSideMenuOpen, setIsSideMenuOpen] = useState(true);
+  const [isMusicMuted, setIsMusicMuted] = useState(true);
   const scWidgetRef = useRef<any>(null);
   const [stopAudio] = useState(() => () => {}); // No-op to prevent crashes in history/perspectives
   
