@@ -171,7 +171,7 @@ const TRANSLATIONS = {
     aboutPara3: "Например, вы можете найти известный фильм, такой как «Крестный отец», и приложение сразу после нажатия предоставит вам мнение Фрейда о нем, наряду с Ницше или Платоном. Вы можете сравнить их вклад и стиль ради развлечения или обучения.",
     aboutFooter: "Вопросы могут быть о знаниях или быть жизненными вопросами, такими как «Стоит ли мне уволиться с работы?», в этом случае приложение будет действовать как хрустальный шар (НЕ воспринимайте его советы серьезно); это могут быть рекомендации фильма на вечер или вопросы для сравнения, например, «Кофе или торт».",
     consultBtn: "Консультация Оракула",
-    musicQuote: "\"Яков — независимый музыкант, родившийся в России и воспитанный на творчестве Дамьена Райса и Леонарда Коэна. Он пишет песни с 20 лет.\"",
+    musicQuote: "\"Яков — независимый музыкант, родившийся в России и воспитанный на творчестве Дамьена Райса и Леонарда Коэна. Пишет песни с 20 лет.\"",
     musicConnect: "Связь и поддержка",
     musicLabels: ["Моя музыка", "YouTube профиль", "Поддержка на Bandcamp", "Мерч", "Стриминг", "Facebook"],
     cancelManual: "Отмена",
@@ -520,8 +520,8 @@ export const App: React.FC = () => {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [learningProfile, setLearningProfile] = useState<LearningProfile | null>(null);
   const [selectedImageModel, setSelectedImageModel] = useState<string>('flux');
-  const [activePage, setActivePage] = useState<'ORACLE' | 'MUSIC' | 'ABOUT'>('ORACLE');
-  const [isSideMenuOpen, setIsSideMenuOpen] = useState(true);
+  const [activePage, setActivePage] = useState<'ORACLE' | 'MUSIC' | 'ABOUT'>('MUSIC');
+  const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
   const [isMusicMuted, setIsMusicMuted] = useState(true);
   const scWidgetRef = useRef<any>(null);
   const [stopAudio] = useState(() => () => {}); // No-op to prevent crashes in history/perspectives
@@ -710,9 +710,9 @@ export const App: React.FC = () => {
         className="fixed left-0 top-0 bottom-0 w-6 md:w-4 z-[2000] group cursor-pointer"
       >
         {!isSideMenuOpen && (
-          <div className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 flex items-center gap-3 pointer-events-none group-hover:translate-x-1 transition-transform duration-500">
-            <div className={`w-px h-12 transition-all duration-700 ${isRenoir ? 'bg-amber-500/20 group-hover:bg-amber-500/60' : 'bg-red-600/20 group-hover:bg-red-600/60'}`} />
-            <span className={`text-[8px] md:text-[10px] font-black uppercase tracking-[0.4em] origin-left -rotate-90 transition-opacity duration-700 ${isRenoir ? 'text-amber-500/30 group-hover:text-amber-500' : 'text-red-900/30 group-hover:text-red-900 font-sans'}`}>
+          <div className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 flex items-center gap-3 pointer-events-none group-hover:translate-x-1 transition-transform duration-500 animate-in fade-in slide-in-from-left duration-1000">
+            <div className={`w-px h-12 transition-all duration-700 animate-pulse ${isRenoir ? 'bg-amber-500/40 group-hover:bg-amber-500/80' : 'bg-red-600/40 group-hover:bg-red-600/80'}`} />
+            <span className={`text-[8px] md:text-[10px] font-black uppercase tracking-[0.4em] origin-left -rotate-90 transition-opacity duration-700 ${isRenoir ? 'text-amber-500/50 group-hover:text-amber-500' : 'text-red-900/50 group-hover:text-red-900 font-sans'}`}>
               menu
             </span>
           </div>
