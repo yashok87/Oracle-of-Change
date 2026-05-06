@@ -134,6 +134,8 @@ const TRANSLATIONS = {
     musicConnect: "Connect & Support",
     musicLabels: ["My Music", "YouTube Profile", "Bandcamp support", "Official Merchandise", "Streaming Platforms", "Facebook Page"],
     goToOracle: "Go to Oracle",
+    oracleDescription: "Oracle of Chance is an engine for knowledge, similar to any search engine, powered by the AI, which is designed to give information, compare entities or give advice on life matters.",
+    seeInstructions: "See Instructions",
     cancelManual: "Cancel",
     backupWarning: "BACKUP MODE ENABLED",
     dailyContemplation: "Daily Contemplation",
@@ -176,6 +178,8 @@ const TRANSLATIONS = {
     musicConnect: "Связь и поддержка",
     musicLabels: ["Моя музыка", "YouTube профиль", "Поддержка на Bandcamp", "Мерч", "Стриминг", "Facebook"],
     goToOracle: "Перейти к Оракулу",
+    oracleDescription: "Oracle of Chance — это поисковая система знаний, подобная любой другой, работающая на базе ИИ и предназначенная для предоставления информации, сравнения сущностей или жизненных советов.",
+    seeInstructions: "Инструкции",
     cancelManual: "Отмена",
     backupWarning: "АКТИВИРОВАН РЕЗЕРВНЫЙ РЕЖИМ",
     dailyContemplation: "Ежедневное размышление",
@@ -769,7 +773,7 @@ export const App: React.FC = () => {
               </div>
   
               <a 
-                href="https://dreamjung.onrender.com" 
+                href="https://dreamjung.onrender.com/" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 onClick={() => setIsSideMenuOpen(false)}
@@ -925,7 +929,7 @@ export const App: React.FC = () => {
               </button>
 
               <a 
-                href="https://jung-dreams.vercel.app/" 
+                href="https://dreamjung.onrender.com/" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="group relative flex flex-col items-center gap-4 transition-all"
@@ -935,6 +939,18 @@ export const App: React.FC = () => {
                 </div>
                 <span className={`text-[11px] md:text-sm font-black uppercase tracking-[0.3em] transition-all ${isRenoir ? 'group-hover:text-amber-500' : 'group-hover:text-red-600'}`}>{t.dreamAnalysis}</span>
               </a>
+            </div>
+
+            <div className="max-w-xl mx-auto space-y-6 px-6">
+              <p className={`text-xs md:text-sm leading-relaxed opacity-60 ${isRenoir ? 'text-amber-100/80' : 'text-black/70'}`}>
+                {t.oracleDescription}
+              </p>
+              <button 
+                onClick={() => setActivePage('ABOUT')}
+                className={`text-[10px] font-black uppercase tracking-[0.4em] transition-all border-b pb-1 ${isRenoir ? 'border-amber-500/30 text-amber-500 hover:border-amber-500' : 'border-red-600/30 text-red-600 hover:border-red-600'}`}
+              >
+                {t.seeInstructions}
+              </button>
             </div>
           </div>
           
