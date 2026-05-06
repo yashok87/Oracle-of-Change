@@ -571,23 +571,27 @@ export const App: React.FC = () => {
             </div>
             
             <nav className="flex flex-col gap-10">
-              <div className="group block space-y-2 transition-all outline-none">
-                <button 
-                  onClick={() => { setActivePage('ORACLE'); setIsSideMenuOpen(false); }}
-                  className="flex items-center gap-3 text-left w-full"
-                >
+              <div className="group space-y-2 transition-all outline-none">
+                <div className="flex items-center gap-3">
                    <span className="text-[10px] font-black uppercase tracking-widest opacity-20 group-hover:opacity-100 transition-opacity">01</span>
                    <div className={`h-px w-0 group-hover:w-4 transition-all duration-300 ${isRenoir ? 'bg-amber-500' : 'bg-red-600'}`} />
-                   <span className="text-xl md:text-2xl font-black uppercase tracking-tighter group-hover:translate-x-3 transition-transform duration-500">Oracle</span>
-                </button>
-                <button 
-                  onClick={() => { setActivePage('ABOUT'); setIsSideMenuOpen(false); }}
-                  className="block text-left opacity-40 hover:opacity-100 transition-opacity pl-8"
-                >
-                  <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest leading-none">
-                    (what I am, read me)
-                  </span>
-                </button>
+                </div>
+                <div className="group-hover:translate-x-3 transition-transform duration-500 space-y-2">
+                  <button 
+                    onClick={() => { setActivePage('ORACLE'); setIsSideMenuOpen(false); }}
+                    className="block text-xl md:text-2xl font-black uppercase tracking-tighter leading-none"
+                  >
+                    Oracle
+                  </button>
+                  <button 
+                    onClick={() => { setActivePage('ABOUT'); setIsSideMenuOpen(false); }}
+                    className="block opacity-40 hover:opacity-100 transition-opacity"
+                  >
+                    <span className="text-[8px] md:text-[9px] font-bold uppercase tracking-widest leading-none">
+                      (what I am, read me)
+                    </span>
+                  </button>
+                </div>
               </div>
   
               <a 
