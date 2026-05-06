@@ -205,40 +205,175 @@ interface ProfilingQuestion {
   q: string;
   a1: string; // Map to left side (E/S/T/J)
   a2: string; // Map to right side (I/N/F/P)
+  q_ru?: string;
+  a1_ru?: string;
+  a2_ru?: string;
 }
 
 const QUESTION_POOL: ProfilingQuestion[] = [
   // EI Pool
-  { id: 'ei1', axis: 'EI', q: "At a symposium, do you find energy in the crowd or in the shadows?", a1: "The Crowd (Extraversion)", a2: "The Shadows (Introversion)" },
-  { id: 'ei2', axis: 'EI', q: "When struck by a new thought, do you seek a listener or a locked room?", a1: "A Listener (Extraversion)", a2: "A Locked Room (Introversion)" },
-  { id: 'ei3', axis: 'EI', q: "Do you prefer a broad network of acquaintances or a small circle of deep bonds?", a1: "Broad Network (Extraversion)", a2: "Deep Bonds (Introversion)" },
-  { id: 'ei4', axis: 'EI', q: "In a public square, do you walk the center path or stick to the edges?", a1: "The Center (Extraversion)", a2: "The Edges (Introversion)" },
-  { id: 'ei5', axis: 'EI', q: "Do you process your dilemmas by speaking them aloud or by silent internal debate?", a1: "Speaking Aloud (Extraversion)", a2: "Silent Debate (Introversion)" },
+  { 
+    id: 'ei1', axis: 'EI', 
+    q: "At a symposium, do you find energy in the crowd or in the shadows?", 
+    a1: "The Crowd (Extraversion)", a2: "The Shadows (Introversion)",
+    q_ru: "На симпозиуме вы ищете энергию в толпе или в тенях?",
+    a1_ru: "Толпа (Экстраверсия)", a2_ru: "Тени (Интроверсия)"
+  },
+  { 
+    id: 'ei2', axis: 'EI', 
+    q: "When struck by a new thought, do you seek a listener or a locked room?", 
+    a1: "A Listener (Extraversion)", a2: "A Locked Room (Introversion)",
+    q_ru: "Когда вас посещает новая мысль, вы ищете слушателя или запертую комнату?",
+    a1_ru: "Слушатель (Экстраверсия)", a2_ru: "Запертая комната (Интроверсия)"
+  },
+  { 
+    id: 'ei3', axis: 'EI', 
+    q: "Do you prefer a broad network of acquaintances or a small circle of deep bonds?", 
+    a1: "Broad Network (Extraversion)", a2: "Deep Bonds (Introversion)",
+    q_ru: "Вы предпочитаете широкую сеть знакомств или узкий круг глубоких связей?",
+    a1_ru: "Широкая сеть (Экстраверсия)", a2_ru: "Глубокие связи (Интроверсия)"
+  },
+  { 
+    id: 'ei4', axis: 'EI', 
+    q: "In a public square, do you walk the center path or stick to the edges?", 
+    a1: "The Center (Extraversion)", a2: "The Edges (Introversion)",
+    q_ru: "На площади вы идете по центру или держитесь краев?",
+    a1_ru: "Центр (Экстраверсия)", a2_ru: "Края (Интроверсия)"
+  },
+  { 
+    id: 'ei5', axis: 'EI', 
+    q: "Do you process your dilemmas by speaking them aloud or by silent internal debate?", 
+    a1: "Speaking Aloud (Extraversion)", a2: "Silent Debate (Introversion)",
+    q_ru: "Вы решаете дилеммы, проговаривая их вслух или ведя тихий внутренний спор?",
+    a1_ru: "Вслух (Экстраверсия)", a2_ru: "Тихий спор (Интроверсия)"
+  },
   // SN Pool
-  { id: 'sn1', axis: 'SN', q: "When observing a painting, do you see the brushstrokes or the hidden story?", a1: "The Brushstrokes (Sensing)", a2: "The Hidden Story (Intuition)" },
-  { id: 'sn2', axis: 'SN', q: "To build a machine, do you trust the schematic or the divine spark?", a1: "The Schematic (Sensing)", a2: "The Divine Spark (Intuition)" },
-  { id: 'sn3', axis: 'SN', q: "When exploring a new city, do you look at the architecture or feel the 'spirit' of the streets?", a1: "The Architecture (Sensing)", a2: "The Spirit (Intuition)" },
-  { id: 'sn4', axis: 'SN', q: "Do you focus on the facts of today or the possibilities of tomorrow?", a1: "Facts of Today (Sensing)", a2: "Possibilities (Intuition)" },
-  { id: 'sn5', axis: 'SN', q: "When following a recipe, do you measure exactly or improvise based on a 'hunch'?", a1: "Measure Exactly (Sensing)", a2: "Improvise (Intuition)" },
+  { 
+    id: 'sn1', axis: 'SN', 
+    q: "When observing a painting, do you see the brushstrokes or the hidden story?", 
+    a1: "The Brushstrokes (Sensing)", a2: "The Hidden Story (Intuition)",
+    q_ru: "Глядя на картину, вы видите мазки кисти или скрытую историю?",
+    a1_ru: "Мазки (Сенсорика)", a2_ru: "Скрытая история (Интуиция)"
+  },
+  { 
+    id: 'sn2', axis: 'SN', 
+    q: "To build a machine, do you trust the schematic or the divine spark?", 
+    a1: "The Schematic (Sensing)", a2: "The Divine Spark (Intuition)",
+    q_ru: "Чтобы собрать машину, вы доверяете схеме или божественной искре?",
+    a1_ru: "Схема (Сенсорика)", a2_ru: "Божественная искра (Интуиция)"
+  },
+  { 
+    id: 'sn3', axis: 'SN', 
+    q: "When exploring a new city, do you look at the architecture or feel the 'spirit' of the streets?", 
+    a1: "The Architecture (Sensing)", a2: "The Spirit (Intuition)",
+    q_ru: "Изучая новый город, вы смотрите на архитектуру или чувствуете «дух» улиц?",
+    a1_ru: "Архитектура (Сенсорика)", a2_ru: "Дух улиц (Интуиция)"
+  },
+  { 
+    id: 'sn4', axis: 'SN', 
+    q: "Do you focus on the facts of today or the possibilities of tomorrow?", 
+    a1: "Facts of Today (Sensing)", a2: "Possibilities (Intuition)",
+    q_ru: "Вы фокусируетесь на фактах сегодняшнего дня или на возможностях завтрашнего?",
+    a1_ru: "Факты сегодня (Сенсорика)", a2_ru: "Возможности завтра (Интуиция)"
+  },
+  { 
+    id: 'sn5', axis: 'SN', 
+    q: "When following a recipe, do you measure exactly or improvise based on a 'hunch'?", 
+    a1: "Measure Exactly (Sensing)", a2: "Improvise (Intuition)",
+    q_ru: "Следуя рецепту, вы отмеряете точно или импровизируете по наитию?",
+    a1_ru: "Точно (Сенсорика)", a2_ru: "По наитию (Интуиция)"
+  },
   // TF Pool
-  { id: 'tf1', axis: 'TF', q: "In a crisis of logic, do you trust the cold equation or the warm pulse?", a1: "The Cold Equation (Thinking)", a2: "The Warm Pulse (Feeling)" },
-  { id: 'tf2', axis: 'TF', q: "If the truth hurts a friend, do you sharpen the blade or soften the blow?", a1: "Sharpen the Blade (Thinking)", a2: "Soften the Blow (Feeling)" },
-  { id: 'tf3', axis: 'TF', q: "Do you value Justice over Mercy, or Mercy over Justice?", a1: "Justice (Thinking)", a2: "Mercy (Feeling)" },
-  { id: 'tf4', axis: 'TF', q: "Should society be governed by objective laws or subjective needs?", a1: "Objective Laws (Thinking)", a2: "Subjective Needs (Feeling)" },
-  { id: 'tf5', axis: 'TF', q: "When criticizing a flawed design, do you focus on the technical error or the impact on the user's mood?", a1: "Technical Error (Thinking)", a2: "Emotional Impact (Feeling)" },
+  { 
+    id: 'tf1', axis: 'TF', 
+    q: "In a crisis of logic, do you trust the cold equation or the warm pulse?", 
+    a1: "The Cold Equation (Thinking)", a2: "The Warm Pulse (Feeling)",
+    q_ru: "В кризисе логики вы доверяете холодному уравнению или теплому пульсу?",
+    a1_ru: "Холодное уравнение (Логика)", a2_ru: "Теплый пульс (Этика)"
+  },
+  { 
+    id: 'tf2', axis: 'TF', 
+    q: "If the truth hurts a friend, do you sharpen the blade or soften the blow?", 
+    a1: "Sharpen the Blade (Thinking)", a2: "Soften the Blow (Feeling)",
+    q_ru: "Если истина ранит друга, вы заострите клинок или смягчите удар?",
+    a1_ru: "Заострю клинок (Логика)", a2_ru: "Смягчу удар (Этика)"
+  },
+  { 
+    id: 'tf3', axis: 'TF', 
+    q: "Do you value Justice over Mercy, or Mercy over Justice?", 
+    a1: "Justice (Thinking)", a2: "Mercy (Feeling)",
+    q_ru: "Что вы цените выше: Справедливость или Милосердие?",
+    a1_ru: "Справедливость (Логика)", a2_ru: "Милосердие (Этика)"
+  },
+  { 
+    id: 'tf4', axis: 'TF', 
+    q: "Should society be governed by objective laws or subjective needs?", 
+    a1: "Objective Laws (Thinking)", a2: "Subjective Needs (Feeling)",
+    q_ru: "Должно ли общество управляться объективными законами или субъективными потребностями?",
+    a1_ru: "Объективные законы (Логика)", a2_ru: "Субъективные нужды (Этика)"
+  },
+  { 
+    id: 'tf5', axis: 'TF', 
+    q: "When criticizing a flawed design, do you focus on the technical error or the impact on the user's mood?", 
+    a1: "Technical Error (Thinking)", a2: "Emotional Impact (Feeling)",
+    q_ru: "Критикуя несовершенный дизайн, вы фокусируетесь на технической ошибке или на влиянии на настроение пользователя?",
+    a1_ru: "Техническая ошибка (Логика)", a2_ru: "Влияние на эмоции (Этика)"
+  },
   // JP Pool
-  { id: 'jp1', axis: 'JP', q: "Do you prefer a map with a fixed path or a compass for a wild trail?", a1: "Fixed Path (Judging)", a2: "Wild Trail (Perceiving)" },
-  { id: 'jp2', axis: 'JP', q: "Is a finished task a closure of a chapter or a cage for the spirit?", a1: "Closure (Judging)", a2: "A Cage (Perceiving)" },
-  { id: 'jp3', axis: 'JP', q: "When invited to a feast, do you prefer a scheduled menu or a spontaneous potluck?", a1: "Scheduled (Judging)", a2: "Spontaneous (Perceiving)" },
-  { id: 'jp4', axis: 'JP', q: "Is your workspace a structured grid or a landscape of creative chaos?", a1: "Structured Grid (Judging)", a2: "Creative Chaos (Perceiving)" },
-  { id: 'jp5', axis: 'JP', q: "Do you find peace in a completed list or thrill in an unplanned afternoon?", a1: "Completed List (Judging)", a2: "Unplanned Thrill (Perceiving)" },
+  { 
+    id: 'jp1', axis: 'JP', 
+    q: "Do you prefer a map with a fixed path or a compass for a wild trail?", 
+    a1: "Fixed Path (Judging)", a2: "Wild Trail (Perceiving)",
+    q_ru: "Вы предпочитаете карту с фиксированным путем или компас для дикой тропы?",
+    a1_ru: "Фиксированный путь (Рациональность)", a2_ru: "Дикая тропа (Иррациональность)"
+  },
+  { 
+    id: 'jp2', axis: 'JP', 
+    q: "Is a finished task a closure of a chapter or a cage for the spirit?", 
+    a1: "Closure (Judging)", a2: "A Cage (Perceiving)",
+    q_ru: "Завершенная задача — это решение вопроса или клетка для духа?",
+    a1_ru: "Решение (Рациональность)", a2_ru: "Клетка (Иррациональность)"
+  },
+  { 
+    id: 'jp3', axis: 'JP', 
+    q: "When invited to a feast, do you prefer a scheduled menu or a spontaneous potluck?", 
+    a1: "Scheduled (Judging)", a2: "Spontaneous (Perceiving)",
+    q_ru: "Будучи приглашенным на пир, вы предпочитаете заранее составленное меню или спонтанное застолье?",
+    a1_ru: "Заранее составленное (Рациональность)", a2_ru: "Спонтанное (Иррациональность)"
+  },
+  { 
+    id: 'jp4', axis: 'JP', 
+    q: "Is your workspace a structured grid or a landscape of creative chaos?", 
+    a1: "Structured Grid (Judging)", a2: "Creative Chaos (Perceiving)",
+    q_ru: "Ваше рабочее место — это структурированная сетка или ландшафт творческого хаоса?",
+    a1_ru: "Структурированная сетка (Рациональность)", a2_ru: "Творческий хаос (Иррациональность)"
+  },
+  { 
+    id: 'jp5', axis: 'JP', 
+    q: "Do you find peace in a completed list or thrill in an unplanned afternoon?", 
+    a1: "Completed List (Judging)", a2: "Unplanned Thrill (Perceiving)",
+    q_ru: "Вы находите покой в завершенном списке дел или азарт в незапланированном вечере?",
+    a1_ru: "Завершенный список (Рациональность)", a2_ru: "Незапланированный азарт (Иррациональность)"
+  },
 ];
 
-const MBTI_MAP: Record<string, { label: string }> = {
-  "ISTJ": { label: "The Inspector" }, "ISFJ": { label: "The Protector" }, "INFJ": { label: "The Advocate" }, "INTJ": { label: "The Architect" },
-  "ISTP": { label: "The Crafter" }, "ISFP": { label: "The Artist" }, "INFP": { label: "The Mediator" }, "INTP": { label: "The Thinker" },
-  "ESTP": { label: "The Persuader" }, "ESFP": { label: "The Performer" }, "ENFP": { label: "The Champion" }, "ENTP": { label: "The Debater" },
-  "ESTJ": { label: "The Director" }, "ESFJ": { label: "The Caregiver" }, "ENFJ": { label: "The Protagonist" }, "ENTJ": { label: "The Commander" }
+const MBTI_MAP: Record<string, { label: string, label_ru: string }> = {
+  "ISTJ": { label: "The Inspector", label_ru: "Инспектор" }, 
+  "ISFJ": { label: "The Protector", label_ru: "Защитник" }, 
+  "INFJ": { label: "The Advocate", label_ru: "Советчик" }, 
+  "INTJ": { label: "The Architect", label_ru: "Стратег" },
+  "ISTP": { label: "The Crafter", label_ru: "Мастер" }, 
+  "ISFP": { label: "The Artist", label_ru: "Художник" }, 
+  "INFP": { label: "The Mediator", label_ru: "Посредник" }, 
+  "INTP": { label: "The Thinker", label_ru: "Мыслитель" },
+  "ESTP": { label: "The Persuader", label_ru: "Маршал" }, 
+  "ESFP": { label: "The Performer", label_ru: "Политик" }, 
+  "ENFP": { label: "The Champion", label_ru: "Вдохновитель" }, 
+  "ENTP": { label: "The Debater", label_ru: "Искатель" },
+  "ESTJ": { label: "The Director", label_ru: "Администратор" }, 
+  "ESFJ": { label: "The Caregiver", label_ru: "Учитель" }, 
+  "ENFJ": { label: "The Protagonist", label_ru: "Наставник" }, 
+  "ENTJ": { label: "The Commander", label_ru: "Предприниматель" }
 };
 
 const Icons = {
@@ -554,7 +689,14 @@ export const App: React.FC = () => {
             {theme === 'SUPREMATIST' ? 'Mode A' : 'Mode B'}
           </button>
         </div>
-        <NavButton onClick={() => setShowHistory(true)}><Icons.History /></NavButton>
+        <NavButton onClick={() => {
+          if (showHistory) {
+            setShowHistory(false);
+            setActivePage('ORACLE');
+          } else {
+            setShowHistory(true);
+          }
+        }}><Icons.History /></NavButton>
       </div>
     </>
   );
@@ -601,9 +743,34 @@ export const App: React.FC = () => {
             </div>
             
             <nav className="flex flex-col gap-10">
-              <div className="group space-y-2 transition-all outline-none">
+              <button 
+                onClick={() => { setActivePage('MUSIC'); setIsSideMenuOpen(false); }}
+                className="group text-left space-y-2 transition-all outline-none"
+              >
                 <div className="flex items-center gap-3">
                    <span className="text-[10px] font-black uppercase tracking-widest opacity-20 group-hover:opacity-100 transition-opacity">01</span>
+                   <div className={`h-px w-0 group-hover:w-4 transition-all duration-300 ${isRenoir ? 'bg-amber-500' : 'bg-red-600'}`} />
+                </div>
+                <span className="block text-xl md:text-2xl font-black uppercase tracking-tighter group-hover:translate-x-3 transition-transform duration-500 leading-none">{t.jacobMusic}</span>
+              </button>
+
+              <a 
+                href="https://www.youtube.com/@yashok" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                onClick={() => setIsSideMenuOpen(false)}
+                className="group block space-y-2 transition-all outline-none"
+              >
+                <div className="flex items-center gap-3">
+                   <span className="text-[10px] font-black uppercase tracking-widest opacity-20 group-hover:opacity-100 transition-opacity">02</span>
+                   <div className={`h-px w-0 group-hover:w-4 transition-all duration-300 ${isRenoir ? 'bg-amber-500' : 'bg-red-600'}`} />
+                </div>
+                <span className="block text-xl md:text-2xl font-black uppercase tracking-tighter group-hover:translate-x-3 transition-transform duration-500 leading-none">{t.youtubeChannel}</span>
+              </a>
+
+              <div className="group space-y-2 transition-all outline-none">
+                <div className="flex items-center gap-3">
+                   <span className="text-[10px] font-black uppercase tracking-widest opacity-20 group-hover:opacity-100 transition-opacity">03</span>
                    <div className={`h-px w-0 group-hover:w-4 transition-all duration-300 ${isRenoir ? 'bg-amber-500' : 'bg-red-600'}`} />
                 </div>
                 <div className="group-hover:translate-x-3 transition-transform duration-500 space-y-2">
@@ -632,35 +799,10 @@ export const App: React.FC = () => {
                 className="group block space-y-2 transition-all outline-none"
               >
                 <div className="flex items-center gap-3">
-                   <span className="text-[10px] font-black uppercase tracking-widest opacity-20 group-hover:opacity-100 transition-opacity">02</span>
-                   <div className={`h-px w-0 group-hover:w-4 transition-all duration-300 ${isRenoir ? 'bg-amber-500' : 'bg-red-600'}`} />
-                </div>
-                <span className="block text-xl md:text-2xl font-black uppercase tracking-tighter group-hover:translate-x-3 transition-transform duration-500 leading-none">{t.dreamAnalysis}</span>
-              </a>
-  
-              <button 
-                onClick={() => { setActivePage('MUSIC'); setIsSideMenuOpen(false); }}
-                className="group text-left space-y-2 transition-all outline-none"
-              >
-                <div className="flex items-center gap-3">
-                   <span className="text-[10px] font-black uppercase tracking-widest opacity-20 group-hover:opacity-100 transition-opacity">03</span>
-                   <div className={`h-px w-0 group-hover:w-4 transition-all duration-300 ${isRenoir ? 'bg-amber-500' : 'bg-red-600'}`} />
-                </div>
-                <span className="block text-xl md:text-2xl font-black uppercase tracking-tighter group-hover:translate-x-3 transition-transform duration-500 leading-none">{t.jacobMusic}</span>
-              </button>
-
-              <a 
-                href="https://www.youtube.com/@yashok" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                onClick={() => setIsSideMenuOpen(false)}
-                className="group block space-y-2 transition-all outline-none"
-              >
-                <div className="flex items-center gap-3">
                    <span className="text-[10px] font-black uppercase tracking-widest opacity-20 group-hover:opacity-100 transition-opacity">04</span>
                    <div className={`h-px w-0 group-hover:w-4 transition-all duration-300 ${isRenoir ? 'bg-amber-500' : 'bg-red-600'}`} />
                 </div>
-                <span className="block text-xl md:text-2xl font-black uppercase tracking-tighter group-hover:translate-x-3 transition-transform duration-500 leading-none">{t.youtubeChannel}</span>
+                <span className="block text-xl md:text-2xl font-black uppercase tracking-tighter group-hover:translate-x-3 transition-transform duration-500 leading-none">{t.dreamAnalysis}</span>
               </a>
             </nav>
           </div>
@@ -1011,7 +1153,7 @@ export const App: React.FC = () => {
       
       const profile: LearningProfile = {
         type,
-        label: MBTI_MAP[type]?.label || "The Individual",
+        label: (uiLanguage === 'RU' ? MBTI_MAP[type]?.label_ru : MBTI_MAP[type]?.label) || "The Individual",
         traits: {
           energy: type[0] as 'I' | 'E',
           information: type[1] as 'S' | 'N',
@@ -1050,7 +1192,7 @@ export const App: React.FC = () => {
             </div>
 
             <h3 className="text-xl md:text-2xl font-black uppercase leading-tight tracking-tighter text-center h-24 flex items-center justify-center">
-               {activeQuestions[profilingStep]?.q}
+               {uiLanguage === 'RU' ? activeQuestions[profilingStep]?.q_ru : activeQuestions[profilingStep]?.q}
             </h3>
 
             <div className="grid grid-cols-1 gap-4">
@@ -1058,13 +1200,13 @@ export const App: React.FC = () => {
                   onClick={() => handleProfilingAnswer(0)}
                   className={`py-6 px-8 rounded-3xl border-2 font-bold transition-all text-sm uppercase tracking-widest active:scale-95 text-center ${isRenoir ? 'border-amber-900/40 hover:bg-amber-900' : 'border-black/5 hover:bg-black hover:text-white'}`}
                >
-                  {activeQuestions[profilingStep]?.a1}
+                  {uiLanguage === 'RU' ? activeQuestions[profilingStep]?.a1_ru : activeQuestions[profilingStep]?.a1}
                </button>
                <button 
                   onClick={() => handleProfilingAnswer(1)}
                   className={`py-6 px-8 rounded-3xl border-2 font-bold transition-all text-sm uppercase tracking-widest active:scale-95 text-center ${isRenoir ? 'border-amber-900/40 hover:bg-amber-900' : 'border-black/5 hover:bg-black hover:text-white'}`}
                >
-                  {activeQuestions[profilingStep]?.a2}
+                  {uiLanguage === 'RU' ? activeQuestions[profilingStep]?.a2_ru : activeQuestions[profilingStep]?.a2}
                </button>
             </div>
          </div>
