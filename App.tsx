@@ -341,8 +341,6 @@ export const App: React.FC = () => {
   const [state, setState] = useState<OracleState>({ status: 'IDLE', query: '', response: null, logicScore: 50, chaosScore: 50, attempts: 0 });
   const [activeFramework, setActiveFramework] = useState<FrameworkType>('DEFAULT');
   const [loadingFrameworks, setLoadingFrameworks] = useState<Set<string>>(new Set());
-  const [isMuted, setIsMuted] = useState(true);
-  const [isTtsLoading, setIsTtsLoading] = useState(false);
   const [isTranslating, setIsTranslating] = useState(false);
   const [showPerspectivesModal, setShowPerspectivesModal] = useState(false);
   const [isImageLoading, setIsImageLoading] = useState(false);
@@ -358,7 +356,10 @@ export const App: React.FC = () => {
   const [learningProfile, setLearningProfile] = useState<LearningProfile | null>(null);
   const [selectedImageModel, setSelectedImageModel] = useState<string>('flux');
   const [activePage, setActivePage] = useState<'ORACLE' | 'MUSIC'>('ORACLE');
-  const [isSideMenuOpen, setIsSideMenuOpen] = useState(true);
+  const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
+  const [isMusicMuted, setIsMusicMuted] = useState(false);
+  const scWidgetRef = useRef<any>(null);
+  const [stopAudio] = useState(() => () => {}); // No-op to prevent crashes in history/perspectives
   
   // Profiling State
   const [showProfilingModal, setShowProfilingModal] = useState(false);
@@ -399,38 +400,41 @@ export const App: React.FC = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Logic Handlers
-  const stopAudio = () => {
-    stopSpeaking();
-    setIsMuted(true);
-    setIsTtsLoading(false);
-  };
-
-  const handleSpeakerToggle = async () => {
-    if (!isMuted || isTtsLoading) {
-      stopAudio();
-      return;
-    }
-    
-    if (state.response) {
-      setIsTtsLoading(true);
-      setIsMuted(false);
-      try {
-        const textToSpeak = activeAnalysisData?.analysis || activeAnalysisData?.verdict || "";
-        const result = await speakText(textToSpeak, uiLanguage);
-        if (result) {
-          result.source.onstart = () => setIsTtsLoading(false);
-          result.source.onend = () => { setIsMuted(true); setIsTtsLoading(false); };
-          result.source.onerror = () => { setIsMuted(true); setIsTtsLoading(false); };
-        } else {
-          setIsMuted(true);
-          setIsTtsLoading(false);
-        }
-      } catch (e) {
-        console.error("Speaker failure", e);
-        setIsMuted(true);
-        setIsTtsLoading(false);
+  useEffect(() => {
+    const initWidget = () => {
+      const iframe = document.getElementById('soundcloud-player');
+      if (iframe && (window as any).SC) {
+        scWidgetRef.current = (window as any).SC.Widget(iframe);
+        scWidgetRef.current.bind((window as any).SC.Widget.Events.READY, () => {
+          console.log("SoundCloud Widget Ready");
+        });
       }
+    };
+
+    if ((window as any).SC) {
+      initWidget();
+    } else {
+      const interval = setInterval(() => {
+        if ((window as any).SC) {
+          initWidget();
+          clearInterval(interval);
+        }
+      }, 500);
+      return () => clearInterval(interval);
+    }
+  }, []);
+
+  const handleMusicToggle = () => {
+    if (scWidgetRef.current) {
+      if (isMusicMuted) {
+        scWidgetRef.current.setVolume(100);
+        setIsMusicMuted(false);
+      } else {
+        scWidgetRef.current.setVolume(0);
+        setIsMusicMuted(true);
+      }
+    } else {
+      setIsMusicMuted(!isMusicMuted);
     }
   };
 
@@ -492,11 +496,20 @@ export const App: React.FC = () => {
 
   const GlobalUI = (
     <>
-      <div className="fixed top-6 left-4 z-[500] flex gap-3">
-        {state.status !== 'IDLE' && <NavButton onClick={() => { stopAudio(); setState(s => ({ ...s, status: 'IDLE' })); }}><Icons.ArrowLeft /></NavButton>}
-        <NavButton onClick={handleSpeakerToggle} className={(!isMuted || isTtsLoading) ? 'ring-1 ring-red-500' : 'opacity-40'}><Icons.Speaker muted={isMuted} loading={isTtsLoading}/></NavButton>
+      <div className="fixed top-6 left-4 z-[2500] flex gap-3">
+        {state.status !== 'IDLE' && activePage === 'ORACLE' && (
+          <NavButton onClick={() => { setState(s => ({ ...s, status: 'IDLE' })); }}>
+            <Icons.ArrowLeft />
+          </NavButton>
+        )}
+        <NavButton 
+          onClick={handleMusicToggle} 
+          className={!isMusicMuted ? (isRenoir ? 'ring-1 ring-amber-500' : 'ring-1 ring-red-500') : 'opacity-40'}
+        >
+          <Icons.Speaker muted={isMusicMuted} loading={false}/>
+        </NavButton>
       </div>
-      <div className="fixed top-6 right-4 z-[500] flex gap-3 items-center">
+      <div className="fixed top-6 right-4 z-[2500] flex gap-3 items-center">
         <div className={`flex p-1 rounded-full border backdrop-blur-xl ${isRenoir ? 'bg-amber-950/40 border-amber-900/20' : 'bg-white/40 border-black/5'}`}>
           <button onClick={() => setUiLanguage(l => l === 'EN' ? 'RU' : 'EN')} className="w-8 h-8 rounded-full text-[9px] font-black">{uiLanguage}</button>
           <button onClick={() => setTheme(t => t === 'SUPREMATIST' ? 'IMPRESSIONIST' : 'SUPREMATIST')} className={`px-3 h-8 rounded-full text-[9px] font-black ${isRenoir ? 'bg-amber-700 text-white' : 'bg-black text-white'}`}>
@@ -514,14 +527,14 @@ export const App: React.FC = () => {
       <div 
         onMouseEnter={() => setIsSideMenuOpen(true)}
         onClick={() => setIsSideMenuOpen(true)}
-        className="fixed left-0 top-0 bottom-0 w-4 md:w-2 z-[1999] hover:w-8 transition-all group cursor-pointer"
+        className="fixed left-0 top-0 bottom-0 w-6 md:w-4 z-[2000] group cursor-pointer"
       >
         {!isSideMenuOpen && (
-          <div className="absolute left-2 md:left-4 top-1/4 -translate-y-1/2 flex items-center gap-2 pointer-events-none animate-pulse-slow">
-            <svg width="24" height="12" viewBox="0 0 40 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="opacity-20 md:opacity-40">
-              <path d="M38 10H3M3 10L10 3M3 10L10 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="animate-in slide-in-from-right duration-1000" />
-            </svg>
-            <span className="text-[7px] md:text-[8px] font-black uppercase tracking-[0.4em] opacity-20 md:opacity-30 origin-left -rotate-90">menu</span>
+          <div className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 flex items-center gap-3 pointer-events-none group-hover:translate-x-1 transition-transform duration-500">
+            <div className={`w-px h-12 transition-all duration-700 ${isRenoir ? 'bg-amber-500/20 group-hover:bg-amber-500/60' : 'bg-red-600/20 group-hover:bg-red-600/60'}`} />
+            <span className={`text-[8px] md:text-[10px] font-black uppercase tracking-[0.4em] origin-left -rotate-90 transition-opacity duration-700 ${isRenoir ? 'text-amber-500/30 group-hover:text-amber-500' : 'text-red-900/30 group-hover:text-red-900 font-sans'}`}>
+              menu
+            </span>
           </div>
         )}
       </div>
@@ -618,6 +631,7 @@ export const App: React.FC = () => {
             {/* SoundCloud Widget */}
             <div className={`w-full lg:w-1/2 max-w-[500px] aspect-[560/450] shadow-[0_30px_100px_-20px_rgba(0,0,0,0.15)] rounded-2xl overflow-hidden bg-black/5 animate-in zoom-in-95 duration-1000 ${isRenoir ? 'border border-amber-900/40' : ''}`}>
                <iframe 
+                 id="soundcloud-player"
                  width="100%" 
                  height="100%" 
                  scrolling="no" 
@@ -1246,31 +1260,34 @@ export const App: React.FC = () => {
   );
 
   if (state.status === 'ERROR') return (
-    <div className={`h-screen flex flex-col items-center justify-center p-8 text-center ${isRenoir ? 'bg-[#0f0505] text-amber-100 font-serif' : 'bg-white text-black font-sans'}`}>
+    <div className={`h-screen flex flex-col items-center justify-center p-8 text-center relative overflow-hidden ${isRenoir ? 'bg-[#0f0505] text-amber-100 font-serif' : 'bg-white text-black font-sans'}`}>
+       <ThemeBackground theme={theme} />
        {GlobalUI}
        {HistorySidebar}
        {GlassSidebar}
        {JacobMusicPage}
-       <h1 
-         onClick={triggerConfetti}
-         className="text-2xl font-black uppercase mb-4 tracking-tighter cursor-pointer"
-       >
-         Paradox Encountered
-       </h1>
-       <p className="text-xs opacity-60 mb-8 max-w-xs mx-auto">{state.error || "The void is currently unreadable."}</p>
-       <button onClick={() => setState(s => ({ ...s, status: 'IDLE' }))} className="px-8 py-3 border-current font-black uppercase text-[10px] rounded-full">Recalibrate</button>
-        {showCalibrationPopup && CalibrationPopup}
+       <div className="z-10 flex flex-col items-center">
+         <h1 
+           onClick={triggerConfetti}
+           className="text-2xl font-black uppercase mb-4 tracking-tighter cursor-pointer"
+         >
+           Paradox Encountered
+         </h1>
+         <p className="text-xs opacity-60 mb-8 max-w-xs mx-auto">{state.error || "The void is currently unreadable."}</p>
+         <button onClick={() => setState(s => ({ ...s, status: 'IDLE' }))} className="px-8 py-3 border-current font-black uppercase text-[10px] rounded-full">Recalibrate</button>
+       </div>
+       {showCalibrationPopup && CalibrationPopup}
     </div>
   );
 
   if (state.status === 'THINKING') return (
-    <>
+    <div className={`h-screen w-full relative overflow-hidden ${isRenoir ? 'bg-[#0f0505] text-amber-100 font-serif' : 'bg-white text-black font-sans'}`}>
       <LoadingScreen theme={theme} language={uiLanguage} />
       {GlobalUI}
       {HistorySidebar}
       {GlassSidebar}
       {JacobMusicPage}
-    </>
+    </div>
   );
 
   if (state.status === 'REVEALED' && state.response) {
@@ -1294,7 +1311,7 @@ export const App: React.FC = () => {
     else if (r.type === 'DECISION') tallyLabel = t.councilResolve;
 
     return (
-      <div className={`min-h-screen pt-24 pb-24 px-6 md:px-8 overflow-y-auto ${isRenoir ? 'bg-[#0f0505] text-amber-100 font-serif' : 'bg-white text-black font-sans'}`}>
+      <div className={`min-h-screen pt-24 pb-24 px-6 md:px-8 overflow-y-auto relative ${isRenoir ? 'bg-[#0f0505] text-amber-100 font-serif' : 'bg-white text-black font-sans'}`}>
         
         <div className={`fixed top-0 left-0 right-0 z-[1000] border-t-[1px] flex flex-col items-center py-0.5 bg-current/[0.05] backdrop-blur-md ${isRenoir ? 'border-amber-600' : 'border-red-600'}`}>
           <div className={`text-[4px] md:text-[5px] font-black uppercase tracking-[0.2em] leading-none ${isRenoir ? 'text-amber-500/60' : 'text-red-600/60'}`}>
@@ -1606,14 +1623,14 @@ export const App: React.FC = () => {
         </div>
 
         {showPerspectivesModal && (
-          <div className="fixed inset-0 z-[1000] bg-black/80 backdrop-blur-3xl overflow-y-auto font-sans flex items-start justify-center p-4 md:p-12 cursor-pointer" onClick={() => { setShowPerspectivesModal(false); stopAudio(); setIsMuted(true); }}>
+          <div className="fixed inset-0 z-[1000] bg-black/80 backdrop-blur-3xl overflow-y-auto font-sans flex items-start justify-center p-4 md:p-12 cursor-pointer" onClick={() => { setShowPerspectivesModal(false); stopAudio(); }}>
             <div className="w-full max-w-4xl min-h-full flex flex-col items-center py-12" onClick={e => e.stopPropagation()}>
                <div className="w-full flex justify-between items-end mb-24 border-b-2 border-white/20 pb-12">
                   <div className="flex flex-col">
                     <span className="text-white/40 text-[11px] font-black uppercase tracking-[1.2em] mb-4">Council Proceedings</span>
                     <h2 className="text-2xl md:text-6xl font-black text-white uppercase tracking-tighter leading-[0.8]">{(r?.title || "Decree")?.replace(/\[\[|\]\]/g, '')}</h2>
                   </div>
-                  <button onClick={() => { setShowPerspectivesModal(false); stopAudio(); setIsMuted(true); }} className="text-white p-4 border-2 border-white rounded-full hover:bg-white hover:text-black transition-all active:scale-90"><Icons.Close /></button>
+                  <button onClick={() => { setShowPerspectivesModal(false); stopAudio(); }} className="text-white p-4 border-2 border-white rounded-full hover:bg-white hover:text-black transition-all active:scale-90"><Icons.Close /></button>
                </div>
                <div className="w-full space-y-32 md:space-y-48">
                   {perspectivesList.map((p, idx) => {
@@ -1651,7 +1668,7 @@ export const App: React.FC = () => {
                   })}
                </div>
                <div className="mt-48 mb-32">
-                <button onClick={() => { setShowPerspectivesModal(false); stopAudio(); setIsMuted(true); }} className="px-24 py-6 bg-white text-black font-black uppercase tracking-[0.5em] text-[12px] hover:bg-red-600 hover:text-white transition-all shadow-2xl rounded-full">
+                <button onClick={() => { setShowPerspectivesModal(false); stopAudio(); }} className="px-24 py-6 bg-white text-black font-black uppercase tracking-[0.5em] text-[12px] hover:bg-red-600 hover:text-white transition-all shadow-2xl rounded-full">
                   {t.closeVerdict}
                 </button>
                </div>
