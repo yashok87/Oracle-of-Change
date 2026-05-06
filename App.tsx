@@ -355,7 +355,7 @@ export const App: React.FC = () => {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [learningProfile, setLearningProfile] = useState<LearningProfile | null>(null);
   const [selectedImageModel, setSelectedImageModel] = useState<string>('flux');
-  const [activePage, setActivePage] = useState<'ORACLE' | 'MUSIC'>('ORACLE');
+  const [activePage, setActivePage] = useState<'ORACLE' | 'MUSIC' | 'ABOUT'>('ORACLE');
   const [isSideMenuOpen, setIsSideMenuOpen] = useState(true);
   const [isMusicMuted, setIsMusicMuted] = useState(true);
   const scWidgetRef = useRef<any>(null);
@@ -502,8 +502,11 @@ export const App: React.FC = () => {
   const GlobalUI = (
     <>
       <div className="fixed top-6 left-4 z-[2500] flex gap-3">
-        {state.status !== 'IDLE' && activePage === 'ORACLE' && (
-          <NavButton onClick={() => { setState(s => ({ ...s, status: 'IDLE' })); }}>
+        {(state.status !== 'IDLE' || activePage !== 'ORACLE') && (
+          <NavButton onClick={() => { 
+            if (activePage !== 'ORACLE') setActivePage('ORACLE');
+            else setState(s => ({ ...s, status: 'IDLE' })); 
+          }}>
             <Icons.ArrowLeft />
           </NavButton>
         )}
@@ -568,16 +571,24 @@ export const App: React.FC = () => {
             </div>
             
             <nav className="flex flex-col gap-10">
-              <button 
-                onClick={() => { setActivePage('ORACLE'); setIsSideMenuOpen(false); }}
-                className="group text-left space-y-2 transition-all outline-none"
-              >
-                <div className="flex items-center gap-3">
+              <div className="group block space-y-2 transition-all outline-none">
+                <button 
+                  onClick={() => { setActivePage('ORACLE'); setIsSideMenuOpen(false); }}
+                  className="flex items-center gap-3 text-left w-full"
+                >
                    <span className="text-[10px] font-black uppercase tracking-widest opacity-20 group-hover:opacity-100 transition-opacity">01</span>
                    <div className={`h-px w-0 group-hover:w-4 transition-all duration-300 ${isRenoir ? 'bg-amber-500' : 'bg-red-600'}`} />
-                </div>
-                <span className="block text-xl md:text-2xl font-black uppercase tracking-tighter group-hover:translate-x-3 transition-transform duration-500">Oracle</span>
-              </button>
+                   <span className="text-xl md:text-2xl font-black uppercase tracking-tighter group-hover:translate-x-3 transition-transform duration-500">Oracle</span>
+                </button>
+                <button 
+                  onClick={() => { setActivePage('ABOUT'); setIsSideMenuOpen(false); }}
+                  className="block text-left opacity-40 hover:opacity-100 transition-opacity pl-8"
+                >
+                  <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest leading-none">
+                    (what I am, read me)
+                  </span>
+                </button>
+              </div>
   
               <a 
                 href="https://dreamjung.onrender.com" 
@@ -729,6 +740,46 @@ export const App: React.FC = () => {
             </button>
           </div>
           
+        </div>
+      </div>
+    </div>
+  );
+
+  const AboutPage = (
+    <div className={`fixed inset-0 z-[1500] overflow-y-auto duration-1000 scrollbar-hide transition-all ${isRenoir ? 'bg-[#0f0505] text-amber-100 font-serif' : 'bg-white text-black font-sans'} ${activePage === 'ABOUT' ? 'visible opacity-100 pointer-events-auto' : 'invisible opacity-0 pointer-events-none'}`}>
+      <div className="relative min-h-screen pt-32 pb-24 px-6 md:px-12 flex flex-col items-center">
+        <div className="w-full max-w-3xl space-y-12">
+          <header className="space-y-4">
+            <div className={`w-12 h-px mb-8 ${isRenoir ? 'bg-amber-500' : 'bg-red-600'}`} />
+            <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter leading-none animate-in slide-in-from-bottom duration-1000">The Oracle<br/>of Chance</h1>
+            <p className={`text-[10px] md:text-xs uppercase tracking-[0.4em] opacity-40 animate-in slide-in-from-bottom-2 duration-1000 delay-100 ${isRenoir ? '' : 'font-sans font-bold'}`}>Information Engine & Philosophical Council</p>
+          </header>
+
+          <div className="space-y-8 text-sm md:text-lg leading-relaxed animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-300">
+            <p className="opacity-80">
+              Oracle of Chance is an engine for knowledge, similar to any search engine, powered by the AI, which is designed to give information, compare entities or give advice on life matters. 
+            </p>
+            <p className="opacity-80">
+              Behind the simple surface of the app, there is a council of different philosophical schools, which provides a YES/NO/MAYBE vote to important life matters and whose opinion on any query can be read. 
+            </p>
+            <p className="opacity-80">
+              For example, you might search for a famous movie, like the Godfather, and the app will immediately, upon click, provide you with the view on this film of Freud, alongside Nietzsche or Plato. You can compare their input and style, for fun or learning.
+            </p>
+            <div className={`p-8 border rounded-3xl ${isRenoir ? 'border-amber-900/20 bg-amber-900/5' : 'border-black/5 bg-black/[0.02]'}`}>
+              <p className="opacity-80 italic">
+                The questions can be about knowledge, they can be life questions, such as "Should I quit my job?", in which case the app will act as a crystal ball (DO NOT take it's advice seriously); they can be recommendations of a movie for the night or comparison questions, such as "Coffee or Cake".
+              </p>
+            </div>
+          </div>
+
+          <footer className="pt-12">
+            <button 
+              onClick={() => setActivePage('ORACLE')}
+              className={`px-8 py-4 rounded-full text-[10px] font-black uppercase tracking-[0.3em] transition-all active:scale-95 ${isRenoir ? 'bg-amber-100 text-[#0f0505] hover:bg-amber-500 hover:text-white shadow-amber-900/20 shadow-xl' : 'bg-black text-white hover:bg-red-600 shadow-black/10 shadow-xl'}`}
+            >
+              Consult the Oracle
+            </button>
+          </footer>
         </div>
       </div>
     </div>
@@ -1307,6 +1358,7 @@ export const App: React.FC = () => {
        {HistorySidebar}
        {GlassSidebar}
        {JacobMusicPage}
+       {AboutPage}
        <div className="z-10 flex flex-col items-center">
          <h1 
            onClick={triggerConfetti}
@@ -1328,6 +1380,7 @@ export const App: React.FC = () => {
       {HistorySidebar}
       {GlassSidebar}
       {JacobMusicPage}
+      {AboutPage}
     </div>
   );
 
@@ -1364,6 +1417,7 @@ export const App: React.FC = () => {
         {HistorySidebar}
         {GlassSidebar}
         {JacobMusicPage}
+        {AboutPage}
 
         <div ref={captureRef} className="max-w-3xl mx-auto flex flex-col items-center space-y-12">
           <h1 
@@ -1728,6 +1782,7 @@ export const App: React.FC = () => {
       {HistorySidebar}
       {GlassSidebar}
       {JacobMusicPage}
+      {AboutPage}
       {showProfilingModal && ProfilingModal}
       {showCalibrationPopup && CalibrationPopup}
 
