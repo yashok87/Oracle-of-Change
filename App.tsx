@@ -355,7 +355,7 @@ export const App: React.FC = () => {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [learningProfile, setLearningProfile] = useState<LearningProfile | null>(null);
   const [selectedImageModel, setSelectedImageModel] = useState<string>('flux');
-  const [activePage, setActivePage] = useState<'ORACLE' | 'MUSIC'>('ORACLE');
+  const [activePage, setActivePage] = useState<'ORACLE' | 'MUSIC'>('MUSIC');
   const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
   const [isMusicMuted, setIsMusicMuted] = useState(false);
   const scWidgetRef = useRef<any>(null);
