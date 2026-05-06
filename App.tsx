@@ -426,13 +426,10 @@ export const App: React.FC = () => {
 
   const handleMusicToggle = () => {
     if (scWidgetRef.current) {
-      if (isMusicMuted) {
-        scWidgetRef.current.setVolume(100);
-        setIsMusicMuted(false);
-      } else {
-        scWidgetRef.current.setVolume(0);
-        setIsMusicMuted(true);
-      }
+      scWidgetRef.current.toggle();
+      scWidgetRef.current.isPaused((paused: boolean) => {
+        setIsMusicMuted(paused);
+      });
     } else {
       setIsMusicMuted(!isMusicMuted);
     }
@@ -504,7 +501,7 @@ export const App: React.FC = () => {
         )}
         <NavButton 
           onClick={handleMusicToggle} 
-          className={!isMusicMuted ? (isRenoir ? 'ring-1 ring-amber-500' : 'ring-1 ring-red-500') : 'opacity-40'}
+          className={`hidden md:flex ${!isMusicMuted ? (isRenoir ? 'ring-1 ring-amber-500' : 'ring-1 ring-red-500') : 'opacity-40'}`}
         >
           <Icons.Speaker muted={isMusicMuted} loading={false}/>
         </NavButton>
