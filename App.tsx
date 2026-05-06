@@ -501,7 +501,7 @@ export const App: React.FC = () => {
         )}
         <NavButton 
           onClick={handleMusicToggle} 
-          className={`hidden md:flex ${!isMusicMuted ? (isRenoir ? 'ring-1 ring-amber-500' : 'ring-1 ring-red-500') : 'opacity-40'}`}
+          className={`${!isMusicMuted ? (isRenoir ? 'ring-1 ring-amber-500' : 'ring-1 ring-red-500') : 'opacity-40'}`}
         >
           <Icons.Speaker muted={isMusicMuted} loading={false}/>
         </NavButton>
