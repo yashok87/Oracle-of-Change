@@ -707,12 +707,12 @@ export const App: React.FC = () => {
       <div 
         onMouseEnter={() => setIsSideMenuOpen(true)}
         onClick={() => setIsSideMenuOpen(true)}
-        className="fixed left-0 top-0 bottom-0 w-6 md:w-4 z-[2000] group cursor-pointer"
+        className={`fixed left-0 top-0 bottom-0 z-[2000] group cursor-pointer transition-all duration-500 ${!isSideMenuOpen && activePage === 'MUSIC' ? 'w-12 bg-gradient-to-r from-black/5 to-transparent' : 'w-6 md:w-4'}`}
       >
         {!isSideMenuOpen && (
-          <div className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 flex items-center gap-3 pointer-events-none group-hover:translate-x-1 transition-transform duration-500 animate-in fade-in slide-in-from-left duration-1000">
-            <div className={`w-px h-12 transition-all duration-700 animate-pulse ${isRenoir ? 'bg-amber-500/40 group-hover:bg-amber-500/80' : 'bg-red-600/40 group-hover:bg-red-600/80'}`} />
-            <span className={`text-[8px] md:text-[10px] font-black uppercase tracking-[0.4em] origin-left -rotate-90 transition-opacity duration-700 ${isRenoir ? 'text-amber-500/50 group-hover:text-amber-500' : 'text-red-900/50 group-hover:text-red-900 font-sans'}`}>
+          <div className={`absolute top-1/2 -translate-y-1/2 flex items-center gap-3 pointer-events-none transition-all duration-700 ${activePage === 'MUSIC' ? 'left-4 opacity-100' : 'left-2 md:left-4 opacity-40 group-hover:opacity-100'}`}>
+            <div className={`w-0.5 h-16 transition-all duration-700 ${activePage === 'MUSIC' ? 'animate-bounce' : 'animate-pulse'} ${isRenoir ? 'bg-amber-500' : 'bg-red-600'}`} />
+            <span className={`text-[9px] md:text-[11px] font-black uppercase tracking-[0.5em] origin-left -rotate-90 transition-all duration-700 ${isRenoir ? 'text-amber-500' : 'text-red-900 font-sans'}`}>
               menu
             </span>
           </div>
