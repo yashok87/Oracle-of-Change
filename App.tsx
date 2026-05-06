@@ -603,23 +603,20 @@ export const App: React.FC = () => {
         style={{ backgroundImage: `url('https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=2670&auto=format&fit=crop')` }}
       />
       
-      <div className="relative z-10 min-h-full py-20 px-6 flex flex-col items-center">
-        <div className="max-w-5xl w-full space-y-20 lg:space-y-32">
+      <div className="relative z-10 min-h-full py-12 px-6 flex flex-col items-center">
+        <div className="max-w-5xl w-full space-y-12 lg:space-y-20">
           
           {/* Hero Quote */}
-          <div className="text-center space-y-6 pt-10">
-            <div className="inline-block px-3 py-1 border border-black/10 rounded-full mb-4">
-              <span className="text-[9px] font-black uppercase tracking-[0.4em] opacity-40">Independent Musician</span>
-            </div>
-            <h2 className="text-2xl md:text-4xl font-serif text-black leading-tight font-medium max-w-3xl mx-auto italic">
+          <div className="text-center space-y-6 pt-6">
+            <h2 className="text-lg md:text-2xl font-serif text-black leading-relaxed font-medium max-w-2xl mx-auto italic">
               "Born in Russia, Jacob is an independent musician raised on the likes of Damien Rice and Leonard Cohen. He's been writing songs since he was 20."
             </h2>
           </div>
 
-          <div className="flex flex-col lg:flex-row items-center lg:items-center justify-between gap-16 lg:gap-24">
+          <div className="flex flex-col lg:flex-row items-center lg:items-center justify-between gap-12 lg:gap-24">
             
             {/* SoundCloud Widget */}
-            <div className="w-full lg:w-1/2 max-w-[560px] aspect-[560/450] shadow-[0_30px_100px_-20px_rgba(0,0,0,0.15)] rounded-2xl overflow-hidden bg-black/5 animate-in zoom-in-95 duration-1000">
+            <div className="w-full lg:w-1/2 max-w-[500px] aspect-[560/450] shadow-[0_30px_100px_-20px_rgba(0,0,0,0.15)] rounded-2xl overflow-hidden bg-black/5 animate-in zoom-in-95 duration-1000">
                <iframe 
                  width="100%" 
                  height="100%" 
@@ -633,13 +630,13 @@ export const App: React.FC = () => {
             </div>
 
             {/* Links Section */}
-            <div className="w-full lg:w-1/2 space-y-10 flex flex-col items-center lg:items-start">
+            <div className="w-full lg:w-1/2 space-y-8 flex flex-col items-center lg:items-start">
               <div className="space-y-2 text-center lg:text-left">
                 <span className="text-[10px] font-black uppercase tracking-[0.5em] opacity-30">Connect & Support</span>
                 <div className="h-[1px] w-12 bg-red-600/30 mx-auto lg:mx-0" />
               </div>
               
-              <div className="flex flex-col gap-8 items-center lg:items-start w-full">
+              <div className="flex flex-col gap-6 items-center lg:items-start w-full">
                 {[
                   { label: "My Music", url: "https://soundcloud.com/ykelbert" },
                   { label: "YouTube Profile", url: "https://www.youtube.com/@yashok" },
@@ -666,14 +663,14 @@ export const App: React.FC = () => {
           </div>
 
           {/* Footer Back Button */}
-          <div className="pt-20 pb-10 text-center">
+          <div className="pt-10 pb-10 text-center">
             <button 
               onClick={() => setActivePage('ORACLE')}
               className="group flex items-center justify-center gap-6 mx-auto transition-all"
             >
-              <div className="h-[1px] w-12 bg-black/10 group-hover:w-20 group-hover:bg-red-600/30 transition-all duration-700" />
-              <span className="text-[11px] font-black uppercase tracking-[0.8em] opacity-40 group-hover:opacity-100 group-hover:text-red-600 transition-all">Return into the Void</span>
-              <div className="h-[1px] w-12 bg-black/10 group-hover:w-20 group-hover:bg-red-600/30 transition-all duration-700" />
+              <div className="h-[1px] w-8 bg-black/10 group-hover:w-12 group-hover:bg-red-600/30 transition-all duration-700" />
+              <span className="text-[10px] font-black uppercase tracking-[0.5em] opacity-40 group-hover:opacity-100 group-hover:text-red-600 transition-all">Back to Oracle</span>
+              <div className="h-[1px] w-8 bg-black/10 group-hover:w-12 group-hover:bg-red-600/30 transition-all duration-700" />
             </button>
           </div>
           
