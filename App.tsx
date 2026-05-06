@@ -597,7 +597,7 @@ export const App: React.FC = () => {
   );
 
   const JacobMusicPage = (
-    <div className="fixed inset-0 z-[1500] bg-white overflow-y-auto animate-in fade-in duration-1000 scrollbar-hide">
+    <div className={`fixed inset-0 z-[1500] overflow-y-auto animate-in fade-in duration-1000 scrollbar-hide ${isRenoir ? 'bg-[#0f0505] text-amber-100 font-serif' : 'bg-white text-black font-sans'}`}>
       <div 
         className="fixed inset-0 bg-cover bg-center opacity-10 grayscale mix-blend-multiply pointer-events-none"
         style={{ backgroundImage: `url('https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=2670&auto=format&fit=crop')` }}
@@ -608,7 +608,7 @@ export const App: React.FC = () => {
           
           {/* Hero Quote */}
           <div className="text-center space-y-6 pt-6">
-            <h2 className="text-lg md:text-2xl font-serif text-black leading-relaxed font-medium max-w-2xl mx-auto italic">
+            <h2 className={`text-lg md:text-2xl font-serif leading-relaxed font-medium max-w-2xl mx-auto italic ${isRenoir ? 'text-amber-100' : 'text-black'}`}>
               "Born in Russia, Jacob is an independent musician raised on the likes of Damien Rice and Leonard Cohen. He's been writing songs since he was 20."
             </h2>
           </div>
@@ -616,7 +616,7 @@ export const App: React.FC = () => {
           <div className="flex flex-col lg:flex-row items-center lg:items-center justify-between gap-12 lg:gap-24">
             
             {/* SoundCloud Widget */}
-            <div className="w-full lg:w-1/2 max-w-[500px] aspect-[560/450] shadow-[0_30px_100px_-20px_rgba(0,0,0,0.15)] rounded-2xl overflow-hidden bg-black/5 animate-in zoom-in-95 duration-1000">
+            <div className={`w-full lg:w-1/2 max-w-[500px] aspect-[560/450] shadow-[0_30px_100px_-20px_rgba(0,0,0,0.15)] rounded-2xl overflow-hidden bg-black/5 animate-in zoom-in-95 duration-1000 ${isRenoir ? 'border border-amber-900/40' : ''}`}>
                <iframe 
                  width="100%" 
                  height="100%" 
@@ -633,7 +633,7 @@ export const App: React.FC = () => {
             <div className="w-full lg:w-1/2 space-y-8 flex flex-col items-center lg:items-start">
               <div className="space-y-2 text-center lg:text-left">
                 <span className="text-[10px] font-black uppercase tracking-[0.5em] opacity-30">Connect & Support</span>
-                <div className="h-[1px] w-12 bg-red-600/30 mx-auto lg:mx-0" />
+                <div className={`h-[1px] w-12 mx-auto lg:mx-0 ${isRenoir ? 'bg-amber-500/30' : 'bg-red-600/30'}`} />
               </div>
               
               <div className="flex flex-col gap-6 items-center lg:items-start w-full">
@@ -653,7 +653,7 @@ export const App: React.FC = () => {
                     className="group relative flex items-center gap-4 transition-all"
                   >
                     <span className="text-[9px] font-mono opacity-20 group-hover:opacity-100 transition-opacity">0{idx + 1}</span>
-                    <span className="text-xs md:text-sm font-black uppercase tracking-[0.3em] group-hover:text-red-600 transition-colors border-b border-black/5 pb-1 group-hover:border-red-600/30">
+                    <span className={`text-xs md:text-sm font-black uppercase tracking-[0.3em] transition-colors border-b pb-1 ${isRenoir ? 'group-hover:text-amber-500 border-amber-100/5 group-hover:border-amber-500/30' : 'group-hover:text-red-600 border-black/5 group-hover:border-red-600/30'}`}>
                       {link.label}
                     </span>
                   </a>
@@ -668,9 +668,9 @@ export const App: React.FC = () => {
               onClick={() => setActivePage('ORACLE')}
               className="group flex items-center justify-center gap-6 mx-auto transition-all"
             >
-              <div className="h-[1px] w-8 bg-black/10 group-hover:w-12 group-hover:bg-red-600/30 transition-all duration-700" />
-              <span className="text-[10px] font-black uppercase tracking-[0.5em] opacity-40 group-hover:opacity-100 group-hover:text-red-600 transition-all">Back to Oracle</span>
-              <div className="h-[1px] w-8 bg-black/10 group-hover:w-12 group-hover:bg-red-600/30 transition-all duration-700" />
+              <div className={`h-[1px] w-8 transition-all duration-700 ${isRenoir ? 'bg-amber-100/10 group-hover:w-12 group-hover:bg-amber-500/30' : 'bg-black/10 group-hover:w-12 group-hover:bg-red-600/30'}`} />
+              <span className={`text-[10px] font-black uppercase tracking-[0.5em] opacity-40 group-hover:opacity-100 transition-all ${isRenoir ? 'group-hover:text-amber-500' : 'group-hover:text-red-600'}`}>Back to Oracle</span>
+              <div className={`h-[1px] w-8 transition-all duration-700 ${isRenoir ? 'bg-amber-100/10 group-hover:w-12 group-hover:bg-amber-500/30' : 'bg-black/10 group-hover:w-12 group-hover:bg-red-600/30'}`} />
             </button>
           </div>
           
@@ -1654,7 +1654,7 @@ export const App: React.FC = () => {
       <ThemeBackground theme={theme} />
       {GlobalUI}
       {HistorySidebar}
-      {state.status === 'IDLE' && activePage === 'ORACLE' && GlassSidebar}
+      {GlassSidebar}
       {activePage === 'MUSIC' && JacobMusicPage}
       {showProfilingModal && ProfilingModal}
       {showCalibrationPopup && CalibrationPopup}
