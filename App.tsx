@@ -133,6 +133,7 @@ const TRANSLATIONS = {
     musicQuote: "\"Born in Russia, Jacob is an independent musician raised on the likes of Damien Rice and Leonard Cohen. He's been writing songs since he was 20.\"",
     musicConnect: "Connect & Support",
     musicLabels: ["My Music", "YouTube Profile", "Bandcamp support", "Official Merchandise", "Streaming Platforms", "Facebook Page"],
+    goToOracle: "Go to Oracle",
     cancelManual: "Cancel",
     backupWarning: "BACKUP MODE ENABLED",
     dailyContemplation: "Daily Contemplation",
@@ -174,6 +175,7 @@ const TRANSLATIONS = {
     musicQuote: "\"Яков — независимый музыкант, родившийся в России и воспитанный на творчестве Дамьена Райса и Леонарда Коэна. Пишет песни с 20 лет.\"",
     musicConnect: "Связь и поддержка",
     musicLabels: ["Моя музыка", "YouTube профиль", "Поддержка на Bandcamp", "Мерч", "Стриминг", "Facebook"],
+    goToOracle: "Перейти к Оракулу",
     cancelManual: "Отмена",
     backupWarning: "АКТИВИРОВАН РЕЗЕРВНЫЙ РЕЖИМ",
     dailyContemplation: "Ежедневное размышление",
@@ -905,15 +907,35 @@ export const App: React.FC = () => {
           </div>
 
           {/* Footer Back Button */}
-          <div className="pt-10 pb-10 text-center">
-            <button 
-              onClick={() => setActivePage('ORACLE')}
-              className="group flex items-center justify-center gap-6 mx-auto transition-all"
-            >
-              <div className={`h-[1px] w-8 transition-all duration-700 ${isRenoir ? 'bg-amber-100/10 group-hover:w-12 group-hover:bg-amber-500/30' : 'bg-black/10 group-hover:w-12 group-hover:bg-red-600/30'}`} />
-              <span className={`text-[10px] font-black uppercase tracking-[0.5em] opacity-40 group-hover:opacity-100 transition-all ${isRenoir ? 'group-hover:text-amber-500' : 'group-hover:text-red-600'}`}>Back to Oracle</span>
-              <div className={`h-[1px] w-8 transition-all duration-700 ${isRenoir ? 'bg-amber-100/10 group-hover:w-12 group-hover:bg-amber-500/30' : 'bg-black/10 group-hover:w-12 group-hover:bg-red-600/30'}`} />
-            </button>
+          <div className="pt-20 pb-20 text-center space-y-12">
+            <div className="space-y-4">
+              <span className={`text-[10px] font-black uppercase tracking-[0.6em] opacity-30 ${isRenoir ? 'text-amber-500' : 'text-red-900'}`}>{t.goToOracle}</span>
+              <div className={`h-[1px] w-12 mx-auto ${isRenoir ? 'bg-amber-500/30' : 'bg-red-600/30'}`} />
+            </div>
+
+            <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16">
+              <button 
+                onClick={() => setActivePage('ORACLE')}
+                className="group relative flex flex-col items-center gap-4 transition-all"
+              >
+                <div className={`w-20 h-20 md:w-24 md:h-24 rounded-full border flex items-center justify-center transition-all duration-700 group-hover:scale-110 shadow-lg ${isRenoir ? 'border-amber-900/30 bg-amber-900/5 group-hover:bg-amber-900/20 group-hover:border-amber-500/50' : 'border-black/5 bg-black/[0.02] group-hover:bg-black group-hover:text-white'}`}>
+                   <Icons.Sparkle className="w-8 h-8 md:w-10 md:h-10 opacity-40 group-hover:opacity-100 transition-opacity" />
+                </div>
+                <span className={`text-[11px] md:text-sm font-black uppercase tracking-[0.3em] transition-all ${isRenoir ? 'group-hover:text-amber-500' : 'group-hover:text-red-600'}`}>{t.oracle}</span>
+              </button>
+
+              <a 
+                href="https://jung-dreams.vercel.app/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="group relative flex flex-col items-center gap-4 transition-all"
+              >
+                <div className={`w-20 h-20 md:w-24 md:h-24 rounded-full border flex items-center justify-center transition-all duration-700 group-hover:scale-110 shadow-lg ${isRenoir ? 'border-amber-900/30 bg-amber-900/5 group-hover:bg-amber-900/20 group-hover:border-amber-500/50' : 'border-black/5 bg-black/[0.02] group-hover:bg-black group-hover:text-white'}`}>
+                   <Icons.Mind className="w-8 h-8 md:w-10 md:h-10 opacity-40 group-hover:opacity-100 transition-opacity" />
+                </div>
+                <span className={`text-[11px] md:text-sm font-black uppercase tracking-[0.3em] transition-all ${isRenoir ? 'group-hover:text-amber-500' : 'group-hover:text-red-600'}`}>{t.dreamAnalysis}</span>
+              </a>
+            </div>
           </div>
           
         </div>
@@ -1583,11 +1605,11 @@ export const App: React.FC = () => {
     return (
       <div className={`min-h-screen pt-24 pb-24 px-6 md:px-8 overflow-y-auto relative ${isRenoir ? 'bg-[#0f0505] text-amber-100 font-serif' : 'bg-white text-black font-sans'}`}>
         
-        <div className={`fixed top-0 left-0 right-0 z-[1000] border-t-[1px] flex flex-col items-center py-0.5 bg-current/[0.05] backdrop-blur-md ${isRenoir ? 'border-amber-600' : 'border-red-600'}`}>
+        {/* <div className={`fixed top-0 left-0 right-0 z-[1000] border-t-[1px] flex flex-col items-center py-0.5 bg-current/[0.05] backdrop-blur-md ${isRenoir ? 'border-amber-600' : 'border-red-600'}`}>
           <div className={`text-[4px] md:text-[5px] font-black uppercase tracking-[0.2em] leading-none ${isRenoir ? 'text-amber-500/60' : 'text-red-600/60'}`}>
             {t.backupWarning} | {r.textModelUsed} | {r.imageStyleLabel} ({r.imageModel}) | CHAOS: {state.chaosScore}% | NEURAL: SYNCED
           </div>
-        </div>
+        </div> */}
 
         {GlobalUI}
         {HistorySidebar}
