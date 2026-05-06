@@ -212,21 +212,21 @@ const MBTI_MAP: Record<string, { label: string }> = {
 };
 
 const Icons = {
-  ArrowLeft: () => <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>,
-  History: () => <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>,
-  Speaker: ({ muted, loading }: { muted: boolean, loading: boolean }) => (
-    <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" className={loading ? 'animate-pulse' : ''}>
+  ArrowLeft: (props: any) => <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" {...props}><path d="M19 12H5M12 19l-7-7 7-7"/></svg>,
+  History: (props: any) => <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" {...props}><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>,
+  Speaker: ({ muted, loading, ...props }: { muted: boolean, loading: boolean, [key: string]: any }) => (
+    <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" {...props} className={`${loading ? 'animate-pulse' : ''} ${props.className || ''}`}>
       {muted ? <><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></> : <><path d="M11 5l-5 4H2v6h4l5 4V5z"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></>}
     </svg>
   ),
-  Close: () => <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg>,
-  Settings: () => <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M12 3v3m0 12v3M3 12h3m12 0h3M5.6 5.6l2.1 2.1m8.6 8.6l2.1 2.1M5.6 18.4l2.1-2.1m8.6-8.6l2.1-2.1"/></svg>,
-  Download: () => <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>,
-  Sparkle: () => <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>,
-  External: () => <svg width="10" height="10" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>,
-  Refresh: () => <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>,
-  Search: () => <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>,
-  Mind: () => <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M12 21a9 9 0 1 1 0-18 9 9 0 0 1 0 18z"/><path d="M8 9.5h8M8 12h8M8 14.5h5"/></svg>
+  Close: (props: any) => <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" {...props}><path d="M6 18L18 6M6 6l12 12"/></svg>,
+  Settings: (props: any) => <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" {...props}><path d="M12 3v3m0 12v3M3 12h3m12 0h3M5.6 5.6l2.1 2.1m8.6 8.6l2.1 2.1M5.6 18.4l2.1-2.1m8.6-8.6l2.1-2.1"/></svg>,
+  Download: (props: any) => <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" {...props}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>,
+  Sparkle: (props: any) => <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24" {...props}><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>,
+  External: (props: any) => <svg width="10" height="10" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" {...props}><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>,
+  Refresh: (props: any) => <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" {...props}><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>,
+  Search: (props: any) => <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" {...props}><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>,
+  Mind: (props: any) => <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" {...props}><path d="M12 21a9 9 0 1 1 0-18 9 9 0 0 1 0 18z"/><path d="M8 9.5h8M8 12h8M8 14.5h5"/></svg>
 };
 
 const renderHyperlinkedText = (input: string | undefined, isRenoir: boolean, isVerdict: boolean = false) => {
@@ -355,7 +355,7 @@ export const App: React.FC = () => {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [learningProfile, setLearningProfile] = useState<LearningProfile | null>(null);
   const [selectedImageModel, setSelectedImageModel] = useState<string>('flux');
-  const [activePage, setActivePage] = useState<'ORACLE' | 'MUSIC'>('MUSIC');
+  const [activePage, setActivePage] = useState<'ORACLE' | 'MUSIC'>('ORACLE');
   const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
   const [isMusicMuted, setIsMusicMuted] = useState(false);
   const scWidgetRef = useRef<any>(null);
@@ -408,6 +408,9 @@ export const App: React.FC = () => {
         scWidgetRef.current.bind((window as any).SC.Widget.Events.READY, () => {
           console.log("SoundCloud Widget Ready");
         });
+        scWidgetRef.current.bind((window as any).SC.Widget.Events.PLAY, () => setIsMusicMuted(false));
+        scWidgetRef.current.bind((window as any).SC.Widget.Events.PAUSE, () => setIsMusicMuted(true));
+        scWidgetRef.current.bind((window as any).SC.Widget.Events.FINISH, () => setIsMusicMuted(true));
       }
     };
 
@@ -427,12 +430,17 @@ export const App: React.FC = () => {
   const handleMusicToggle = () => {
     if (scWidgetRef.current) {
       scWidgetRef.current.toggle();
-      scWidgetRef.current.isPaused((paused: boolean) => {
-        setIsMusicMuted(paused);
-      });
     } else {
       setIsMusicMuted(!isMusicMuted);
     }
+  };
+
+  const handlePrev = () => {
+    if (scWidgetRef.current) scWidgetRef.current.prev();
+  };
+
+  const handleNext = () => {
+    if (scWidgetRef.current) scWidgetRef.current.next();
   };
 
   const scrollToAnalysis = () => {
@@ -595,6 +603,20 @@ export const App: React.FC = () => {
                 </div>
                 <span className="block text-xl md:text-2xl font-black uppercase tracking-tighter group-hover:translate-x-3 transition-transform duration-500 leading-none">Jacob Kelbert's<br/>Music</span>
               </button>
+
+              <a 
+                href="https://www.youtube.com/@yashok" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                onClick={() => setIsSideMenuOpen(false)}
+                className="group block space-y-2 transition-all outline-none"
+              >
+                <div className="flex items-center gap-3">
+                   <span className="text-[10px] font-black uppercase tracking-widest opacity-20 group-hover:opacity-100 transition-opacity">04</span>
+                   <div className={`h-px w-0 group-hover:w-4 transition-all duration-300 ${isRenoir ? 'bg-amber-500' : 'bg-red-600'}`} />
+                </div>
+                <span className="block text-xl md:text-2xl font-black uppercase tracking-tighter group-hover:translate-x-3 transition-transform duration-500 leading-none">YouTube<br/>Channel</span>
+              </a>
             </nav>
           </div>
   
@@ -625,19 +647,41 @@ export const App: React.FC = () => {
 
           <div className="flex flex-col lg:flex-row items-center lg:items-center justify-between gap-12 lg:gap-24">
             
-            {/* SoundCloud Widget */}
-            <div className={`w-full lg:w-1/2 max-w-[500px] aspect-[560/450] shadow-[0_30px_100px_-20px_rgba(0,0,0,0.15)] rounded-2xl overflow-hidden bg-black/5 animate-in zoom-in-95 duration-1000 ${isRenoir ? 'border border-amber-900/40' : ''}`}>
-               <iframe 
-                 id="soundcloud-player"
-                 width="100%" 
-                 height="100%" 
-                 scrolling="no" 
-                 frameBorder="no" 
-                 allow="autoplay" 
-                 src="https://w.soundcloud.com/player/?url=https://soundcloud.com/ykelbert&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true"
-               >
-                 <a href="https://womanitely.com" style={{ display: 'none' }}>Womanitely.com</a>
-               </iframe>
+            {/* SoundCloud Widget Container */}
+            <div className="w-full lg:w-1/2 flex flex-col items-center gap-8">
+              <div className={`w-full max-w-[500px] aspect-[4/3] md:aspect-[560/450] shadow-[0_30px_100px_-20px_rgba(0,0,0,0.15)] rounded-2xl overflow-hidden bg-black/5 animate-in zoom-in-95 duration-1000 ${isRenoir ? 'border border-amber-900/40' : ''}`}>
+                 <iframe 
+                   id="soundcloud-player"
+                   width="100%" 
+                   height="100%" 
+                   scrolling="no" 
+                   frameBorder="no" 
+                   allow="autoplay" 
+                   src="https://w.soundcloud.com/player/?url=https://soundcloud.com/ykelbert&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true"
+                 >
+                   <a href="https://womanitely.com" style={{ display: 'none' }}>Womanitely.com</a>
+                 </iframe>
+              </div>
+
+              {/* Mobile/External Player Controls */}
+              <div className="flex items-center gap-8 md:gap-12 animate-in fade-in slide-in-from-bottom duration-1000 delay-300">
+                <button onClick={handlePrev} className="group p-2 transition-transform active:scale-90">
+                  <Icons.ArrowLeft className="w-5 h-5 opacity-40 group-hover:opacity-100 group-hover:text-red-600 transition-all" />
+                </button>
+                <button 
+                  onClick={handleMusicToggle}
+                  className={`w-14 h-14 rounded-full flex items-center justify-center transition-all active:scale-95 shadow-xl ${isRenoir ? 'bg-amber-100 text-[#0f0505] hover:bg-amber-500 hover:text-white' : 'bg-black text-white hover:bg-red-600'}`}
+                >
+                  {isMusicMuted ? (
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                  ) : (
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                  )}
+                </button>
+                <button onClick={handleNext} className="group p-2 transition-transform active:scale-90 rotate-180">
+                  <Icons.ArrowLeft className="w-5 h-5 opacity-40 group-hover:opacity-100 group-hover:text-red-600 transition-all" />
+                </button>
+              </div>
             </div>
 
             {/* Links Section */}
