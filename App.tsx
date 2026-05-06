@@ -743,34 +743,9 @@ export const App: React.FC = () => {
             </div>
             
             <nav className="flex flex-col gap-10">
-              <button 
-                onClick={() => { setActivePage('MUSIC'); setIsSideMenuOpen(false); }}
-                className="group text-left space-y-2 transition-all outline-none"
-              >
-                <div className="flex items-center gap-3">
-                   <span className="text-[10px] font-black uppercase tracking-widest opacity-20 group-hover:opacity-100 transition-opacity">01</span>
-                   <div className={`h-px w-0 group-hover:w-4 transition-all duration-300 ${isRenoir ? 'bg-amber-500' : 'bg-red-600'}`} />
-                </div>
-                <span className="block text-xl md:text-2xl font-black uppercase tracking-tighter group-hover:translate-x-3 transition-transform duration-500 leading-none">{t.jacobMusic}</span>
-              </button>
-
-              <a 
-                href="https://www.youtube.com/@yashok" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                onClick={() => setIsSideMenuOpen(false)}
-                className="group block space-y-2 transition-all outline-none"
-              >
-                <div className="flex items-center gap-3">
-                   <span className="text-[10px] font-black uppercase tracking-widest opacity-20 group-hover:opacity-100 transition-opacity">02</span>
-                   <div className={`h-px w-0 group-hover:w-4 transition-all duration-300 ${isRenoir ? 'bg-amber-500' : 'bg-red-600'}`} />
-                </div>
-                <span className="block text-xl md:text-2xl font-black uppercase tracking-tighter group-hover:translate-x-3 transition-transform duration-500 leading-none">{t.youtubeChannel}</span>
-              </a>
-
               <div className="group space-y-2 transition-all outline-none">
                 <div className="flex items-center gap-3">
-                   <span className="text-[10px] font-black uppercase tracking-widest opacity-20 group-hover:opacity-100 transition-opacity">03</span>
+                   <span className="text-[10px] font-black uppercase tracking-widest opacity-20 group-hover:opacity-100 transition-opacity">01</span>
                    <div className={`h-px w-0 group-hover:w-4 transition-all duration-300 ${isRenoir ? 'bg-amber-500' : 'bg-red-600'}`} />
                 </div>
                 <div className="group-hover:translate-x-3 transition-transform duration-500 space-y-2">
@@ -799,10 +774,35 @@ export const App: React.FC = () => {
                 className="group block space-y-2 transition-all outline-none"
               >
                 <div className="flex items-center gap-3">
-                   <span className="text-[10px] font-black uppercase tracking-widest opacity-20 group-hover:opacity-100 transition-opacity">04</span>
+                   <span className="text-[10px] font-black uppercase tracking-widest opacity-20 group-hover:opacity-100 transition-opacity">02</span>
                    <div className={`h-px w-0 group-hover:w-4 transition-all duration-300 ${isRenoir ? 'bg-amber-500' : 'bg-red-600'}`} />
                 </div>
                 <span className="block text-xl md:text-2xl font-black uppercase tracking-tighter group-hover:translate-x-3 transition-transform duration-500 leading-none">{t.dreamAnalysis}</span>
+              </a>
+  
+              <button 
+                onClick={() => { setActivePage('MUSIC'); setIsSideMenuOpen(false); }}
+                className="group text-left space-y-2 transition-all outline-none"
+              >
+                <div className="flex items-center gap-3">
+                   <span className="text-[10px] font-black uppercase tracking-widest opacity-20 group-hover:opacity-100 transition-opacity">03</span>
+                   <div className={`h-px w-0 group-hover:w-4 transition-all duration-300 ${isRenoir ? 'bg-amber-500' : 'bg-red-600'}`} />
+                </div>
+                <span className="block text-xl md:text-2xl font-black uppercase tracking-tighter group-hover:translate-x-3 transition-transform duration-500 leading-none">{t.jacobMusic}</span>
+              </button>
+
+              <a 
+                href="https://www.youtube.com/@yashok" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                onClick={() => setIsSideMenuOpen(false)}
+                className="group block space-y-2 transition-all outline-none"
+              >
+                <div className="flex items-center gap-3">
+                   <span className="text-[10px] font-black uppercase tracking-widest opacity-20 group-hover:opacity-100 transition-opacity">04</span>
+                   <div className={`h-px w-0 group-hover:w-4 transition-all duration-300 ${isRenoir ? 'bg-amber-500' : 'bg-red-600'}`} />
+                </div>
+                <span className="block text-xl md:text-2xl font-black uppercase tracking-tighter group-hover:translate-x-3 transition-transform duration-500 leading-none">{t.youtubeChannel}</span>
               </a>
             </nav>
           </div>
