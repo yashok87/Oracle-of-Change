@@ -118,6 +118,21 @@ const TRANSLATIONS = {
   EN: {
     ask: "CONSULT", randomRequest: "RANDOM REQUEST", logic: "Logic", chaos: "Chaos", voidEmpty: "The void is silent", return: "Return", winner: "THE WINNER", essence: "THE ESSENCE", mantra: "THE MANTRA", decree: "THE DECREE", forecast: "THE FORECAST", gist: "THE GIST", prediction: "THE PREDICTION", decision: "THE CHOICE", recommendation: "RECOMMENDATION", readPerspectives: "EXPAND SYMPOSIUM", closeVerdict: "CLOSE", saveArtifact: "SAVE ARTEFACT", saveCard: "Save Card", saveImage: "Save Picture", newQuery: "NEW QUERY", sources: "Grounding Evidence", studyFurther: "STUDY FURTHER", imageLost: "Vision lost.", title: "The Oracle\nof Chance", footer: "Anti-Algorithm v1.5", errorMsg: "A paradox has occurred.", history: "HISTORY", optionA: "Option A", optionB: "Option B", translating: "Translating...",
     manualCalibration: "Calibration",
+    oracle: "Oracle",
+    dreamAnalysis: "Dream Analysis",
+    jacobMusic: "Jacob Kelbert's Music",
+    youtubeChannel: "YouTube Channel",
+    readMe: "(what I am, read me)",
+    aboutTitle: "The Oracle\nof Chance",
+    aboutSubtitle: "Information Engine & Philosophical Council",
+    aboutPara1: "Oracle of Chance is an engine for knowledge, similar to any search engine, powered by the AI, which is designed to give information, compare entities or give advice on life matters.",
+    aboutPara2: "Behind the simple surface of the app, there is a council of different philosophical schools, which provides a YES/NO/MAYBE vote to important life matters and whose opinion on any query can be read.",
+    aboutPara3: "For example, you might search for a famous movie, like the Godfather, and the app will immediately, upon click, provide you with the view on this film of Freud, alongside Nietzsche or Plato. You can compare their input and style, for fun or learning.",
+    aboutFooter: "The questions can be about knowledge, they can be life questions, such as \"Should I quit my job?\", in which case the app will act as a crystal ball (DO NOT take it's advice seriously); they can be recommendations of a movie for the night or comparison questions, such as \"Coffee or Cake\".",
+    consultBtn: "Consult the Oracle",
+    musicQuote: "\"Born in Russia, Jacob is an independent musician raised on the likes of Damien Rice and Leonard Cohen. He's been writing songs since he was 20.\"",
+    musicConnect: "Connect & Support",
+    musicLabels: ["My Music", "YouTube Profile", "Bandcamp support", "Official Merchandise", "Streaming Platforms", "Facebook Page"],
     cancelManual: "Cancel",
     backupWarning: "BACKUP MODE ENABLED",
     dailyContemplation: "Daily Contemplation",
@@ -144,6 +159,21 @@ const TRANSLATIONS = {
   RU: {
     ask: "СПРОСИТЬ", randomRequest: "СЛУЧАЙНЫЙ ЗАПРОС", logic: "Логика", chaos: "Хаос", voidEmpty: "Пустота безмолвна", return: "Назад", winner: "ПОБЕДИТЕЛЬ", essence: "СУЩНОСТЬ", mantra: "МАНТРА", decree: "УКАЗ", forecast: "ПРОГНОЗ", gist: "СУТЬ", prediction: "ПРЕДСКАЗАНИЕ", decision: "ВЫБОР", recommendation: "РЕКОМЕНДАЦИЯ", readPerspectives: "ПОЛНЫЙ СИМПОЗИУМ", closeVerdict: "ЗАКРЫТЬ", saveArtifact: "АРТЕФАКТ", saveCard: "Сохранить Карту", saveImage: "Сохранить Фото", newQuery: "НОВЫЙ ЗАПРОС", sources: "База доказательств", studyFurther: "ИЗУЧИТЬ ПОДРОБНЕЕ", imageLost: "Видение потеряно.", title: "Оракул\nСлучая", footer: "Анти-Алгоритм v1.5", errorMsg: "Произошел парадокс.", history: "ИСТОРИЯ", optionA: "Вариант А", optionB: "Вариант Б", translating: "Перевод...",
     manualCalibration: "Калибровка",
+    oracle: "Оракул",
+    dreamAnalysis: "Анализ снов",
+    jacobMusic: "Музыка Якова Кельберта",
+    youtubeChannel: "Видео на YouTube",
+    readMe: "(кто я, прочти меня)",
+    aboutTitle: "Оракул\nШанса",
+    aboutSubtitle: "Движок знаний и Философский совет",
+    aboutPara1: "Оракул Шанса — это поисковик знаний, подобный любой поисковой системе, работающий на базе ИИ. Он создан для предоставления информации, сравнения сущностей или получения советов по жизненным вопросам.",
+    aboutPara2: "За простым интерфейсом приложения скрывается совет представителей различных философских школ, который проводит голосование ЗА/ПРОТИВ/ВОЗМОЖНО по важным жизненным вопросам и чье мнение по любому запросу можно изучить.",
+    aboutPara3: "Например, вы можете найти известный фильм, такой как «Крестный отец», и приложение сразу после нажатия предоставит вам мнение Фрейда о нем, наряду с Ницше или Платоном. Вы можете сравнить их вклад и стиль ради развлечения или обучения.",
+    aboutFooter: "Вопросы могут быть о знаниях или быть жизненными вопросами, такими как «Стоит ли мне уволиться с работы?», в этом случае приложение будет действовать как хрустальный шар (НЕ воспринимайте его советы серьезно); это могут быть рекомендации фильма на вечер или вопросы для сравнения, например, «Кофе или торт».",
+    consultBtn: "Консультация Оракула",
+    musicQuote: "\"Яков — независимый музыкант, родившийся в России и воспитанный на творчестве Дамьена Райса и Леонарда Коэна. Он пишет песни с 20 лет.\"",
+    musicConnect: "Связь и поддержка",
+    musicLabels: ["Моя музыка", "YouTube профиль", "Поддержка на Bandcamp", "Мерч", "Стриминг", "Facebook"],
     cancelManual: "Отмена",
     backupWarning: "АКТИВИРОВАН РЕЗЕРВНЫЙ РЕЖИМ",
     dailyContemplation: "Ежедневное размышление",
@@ -581,14 +611,14 @@ export const App: React.FC = () => {
                     onClick={() => { setActivePage('ORACLE'); setIsSideMenuOpen(false); }}
                     className="block text-xl md:text-2xl font-black uppercase tracking-tighter leading-none"
                   >
-                    Oracle
+                    {t.oracle}
                   </button>
                   <button 
                     onClick={() => { setActivePage('ABOUT'); setIsSideMenuOpen(false); }}
                     className="block opacity-40 hover:opacity-100 transition-opacity"
                   >
                     <span className="text-[8px] md:text-[9px] font-bold uppercase tracking-widest leading-none">
-                      (what I am, read me)
+                      {t.readMe}
                     </span>
                   </button>
                 </div>
@@ -605,7 +635,7 @@ export const App: React.FC = () => {
                    <span className="text-[10px] font-black uppercase tracking-widest opacity-20 group-hover:opacity-100 transition-opacity">02</span>
                    <div className={`h-px w-0 group-hover:w-4 transition-all duration-300 ${isRenoir ? 'bg-amber-500' : 'bg-red-600'}`} />
                 </div>
-                <span className="block text-xl md:text-2xl font-black uppercase tracking-tighter group-hover:translate-x-3 transition-transform duration-500 leading-none">Jung Dream<br/>Analysis</span>
+                <span className="block text-xl md:text-2xl font-black uppercase tracking-tighter group-hover:translate-x-3 transition-transform duration-500 leading-none">{t.dreamAnalysis}</span>
               </a>
   
               <button 
@@ -616,7 +646,7 @@ export const App: React.FC = () => {
                    <span className="text-[10px] font-black uppercase tracking-widest opacity-20 group-hover:opacity-100 transition-opacity">03</span>
                    <div className={`h-px w-0 group-hover:w-4 transition-all duration-300 ${isRenoir ? 'bg-amber-500' : 'bg-red-600'}`} />
                 </div>
-                <span className="block text-xl md:text-2xl font-black uppercase tracking-tighter group-hover:translate-x-3 transition-transform duration-500 leading-none">Jacob Kelbert's<br/>Music</span>
+                <span className="block text-xl md:text-2xl font-black uppercase tracking-tighter group-hover:translate-x-3 transition-transform duration-500 leading-none">{t.jacobMusic}</span>
               </button>
 
               <a 
@@ -630,7 +660,7 @@ export const App: React.FC = () => {
                    <span className="text-[10px] font-black uppercase tracking-widest opacity-20 group-hover:opacity-100 transition-opacity">04</span>
                    <div className={`h-px w-0 group-hover:w-4 transition-all duration-300 ${isRenoir ? 'bg-amber-500' : 'bg-red-600'}`} />
                 </div>
-                <span className="block text-xl md:text-2xl font-black uppercase tracking-tighter group-hover:translate-x-3 transition-transform duration-500 leading-none">YouTube<br/>Channel</span>
+                <span className="block text-xl md:text-2xl font-black uppercase tracking-tighter group-hover:translate-x-3 transition-transform duration-500 leading-none">{t.youtubeChannel}</span>
               </a>
             </nav>
           </div>
@@ -656,7 +686,7 @@ export const App: React.FC = () => {
           {/* Hero Quote */}
           <div className="text-center space-y-6 pt-6">
             <h2 className={`text-lg md:text-2xl font-serif leading-relaxed font-medium max-w-2xl mx-auto italic ${isRenoir ? 'text-amber-100' : 'text-black'}`}>
-              "Born in Russia, Jacob is an independent musician raised on the likes of Damien Rice and Leonard Cohen. He's been writing songs since he was 20."
+              {t.musicQuote}
             </h2>
           </div>
 
@@ -702,18 +732,18 @@ export const App: React.FC = () => {
             {/* Links Section */}
             <div className="w-full lg:w-1/2 space-y-8 flex flex-col items-center lg:items-start">
               <div className="space-y-2 text-center lg:text-left">
-                <span className="text-[10px] font-black uppercase tracking-[0.5em] opacity-30">Connect & Support</span>
+                <span className="text-[10px] font-black uppercase tracking-[0.5em] opacity-30">{t.musicConnect}</span>
                 <div className={`h-[1px] w-12 mx-auto lg:mx-0 ${isRenoir ? 'bg-amber-500/30' : 'bg-red-600/30'}`} />
               </div>
               
               <div className="flex flex-col gap-6 items-center lg:items-start w-full">
                 {[
-                  { label: "My Music", url: "https://soundcloud.com/ykelbert" },
-                  { label: "YouTube Profile", url: "https://www.youtube.com/@yashok" },
-                  { label: "Bandcamp support", url: "https://jkelbert.bandcamp.com/" },
-                  { label: "Official Merchandise", url: "https://j-kelbert-shop.fourthwall.com/products/t-shirt-miracle" },
-                  { label: "Streaming Platforms", url: "https://bnd.link/ykelbert" },
-                  { label: "Facebook Page", url: "https://www.facebook.com/share/1B6Xw8Qx5c/" }
+                  { url: "https://soundcloud.com/ykelbert" },
+                  { url: "https://www.youtube.com/@yashok" },
+                  { url: "https://jkelbert.bandcamp.com/" },
+                  { url: "https://j-kelbert-shop.fourthwall.com/products/t-shirt-miracle" },
+                  { url: "https://bnd.link/ykelbert" },
+                  { url: "https://www.facebook.com/share/1B6Xw8Qx5c/" }
                 ].map((link, idx) => (
                   <a 
                     key={idx}
@@ -724,7 +754,7 @@ export const App: React.FC = () => {
                   >
                     <span className="text-[9px] font-mono opacity-20 group-hover:opacity-100 transition-opacity">0{idx + 1}</span>
                     <span className={`text-xs md:text-sm font-black uppercase tracking-[0.3em] transition-colors border-b pb-1 ${isRenoir ? 'group-hover:text-amber-500 border-amber-100/5 group-hover:border-amber-500/30' : 'group-hover:text-red-600 border-black/5 group-hover:border-red-600/30'}`}>
-                      {link.label}
+                      {t.musicLabels[idx] || "Link"}
                     </span>
                   </a>
                 ))}
@@ -755,23 +785,23 @@ export const App: React.FC = () => {
         <div className="w-full max-w-3xl space-y-12">
           <header className="space-y-4">
             <div className={`w-12 h-px mb-8 ${isRenoir ? 'bg-amber-500' : 'bg-red-600'}`} />
-            <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter leading-none animate-in slide-in-from-bottom duration-1000">The Oracle<br/>of Chance</h1>
-            <p className={`text-[10px] md:text-xs uppercase tracking-[0.4em] opacity-40 animate-in slide-in-from-bottom-2 duration-1000 delay-100 ${isRenoir ? '' : 'font-sans font-bold'}`}>Information Engine & Philosophical Council</p>
+            <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter leading-none animate-in slide-in-from-bottom duration-1000 whitespace-pre-line">{t.aboutTitle}</h1>
+            <p className={`text-[10px] md:text-xs uppercase tracking-[0.4em] opacity-40 animate-in slide-in-from-bottom-2 duration-1000 delay-100 ${isRenoir ? '' : 'font-sans font-bold'}`}>{t.aboutSubtitle}</p>
           </header>
 
           <div className="space-y-8 text-sm md:text-lg leading-relaxed animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-300">
             <p className="opacity-80">
-              Oracle of Chance is an engine for knowledge, similar to any search engine, powered by the AI, which is designed to give information, compare entities or give advice on life matters. 
+              {t.aboutPara1}
             </p>
             <p className="opacity-80">
-              Behind the simple surface of the app, there is a council of different philosophical schools, which provides a YES/NO/MAYBE vote to important life matters and whose opinion on any query can be read. 
+              {t.aboutPara2}
             </p>
             <p className="opacity-80">
-              For example, you might search for a famous movie, like the Godfather, and the app will immediately, upon click, provide you with the view on this film of Freud, alongside Nietzsche or Plato. You can compare their input and style, for fun or learning.
+              {t.aboutPara3}
             </p>
             <div className={`p-8 border rounded-3xl ${isRenoir ? 'border-amber-900/20 bg-amber-900/5' : 'border-black/5 bg-black/[0.02]'}`}>
               <p className="opacity-80 italic">
-                The questions can be about knowledge, they can be life questions, such as "Should I quit my job?", in which case the app will act as a crystal ball (DO NOT take it's advice seriously); they can be recommendations of a movie for the night or comparison questions, such as "Coffee or Cake".
+                {t.aboutFooter}
               </p>
             </div>
           </div>
@@ -781,7 +811,7 @@ export const App: React.FC = () => {
               onClick={() => setActivePage('ORACLE')}
               className={`px-8 py-4 rounded-full text-[10px] font-black uppercase tracking-[0.3em] transition-all active:scale-95 ${isRenoir ? 'bg-amber-100 text-[#0f0505] hover:bg-amber-500 hover:text-white shadow-amber-900/20 shadow-xl' : 'bg-black text-white hover:bg-red-600 shadow-black/10 shadow-xl'}`}
             >
-              Consult the Oracle
+              {t.consultBtn}
             </button>
           </footer>
         </div>
