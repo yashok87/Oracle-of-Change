@@ -597,7 +597,7 @@ export const App: React.FC = () => {
   );
 
   const JacobMusicPage = (
-    <div className={`fixed inset-0 z-[1500] overflow-y-auto animate-in fade-in duration-1000 scrollbar-hide ${isRenoir ? 'bg-[#0f0505] text-amber-100 font-serif' : 'bg-white text-black font-sans'}`}>
+    <div className={`fixed inset-0 z-[1500] overflow-y-auto duration-1000 scrollbar-hide transition-all ${isRenoir ? 'bg-[#0f0505] text-amber-100 font-serif' : 'bg-white text-black font-sans'} ${activePage === 'MUSIC' ? 'visible opacity-100 pointer-events-auto' : 'invisible opacity-0 pointer-events-none'}`}>
       <div 
         className="fixed inset-0 bg-cover bg-center opacity-10 grayscale mix-blend-multiply pointer-events-none"
         style={{ backgroundImage: `url('https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=2670&auto=format&fit=crop')` }}
@@ -1247,6 +1247,10 @@ export const App: React.FC = () => {
 
   if (state.status === 'ERROR') return (
     <div className={`h-screen flex flex-col items-center justify-center p-8 text-center ${isRenoir ? 'bg-[#0f0505] text-amber-100 font-serif' : 'bg-white text-black font-sans'}`}>
+       {GlobalUI}
+       {HistorySidebar}
+       {GlassSidebar}
+       {JacobMusicPage}
        <h1 
          onClick={triggerConfetti}
          className="text-2xl font-black uppercase mb-4 tracking-tighter cursor-pointer"
@@ -1259,7 +1263,15 @@ export const App: React.FC = () => {
     </div>
   );
 
-  if (state.status === 'THINKING') return <LoadingScreen theme={theme} language={uiLanguage} />;
+  if (state.status === 'THINKING') return (
+    <>
+      <LoadingScreen theme={theme} language={uiLanguage} />
+      {GlobalUI}
+      {HistorySidebar}
+      {GlassSidebar}
+      {JacobMusicPage}
+    </>
+  );
 
   if (state.status === 'REVEALED' && state.response) {
     const r = state.response;
@@ -1292,6 +1304,8 @@ export const App: React.FC = () => {
 
         {GlobalUI}
         {HistorySidebar}
+        {GlassSidebar}
+        {JacobMusicPage}
 
         <div ref={captureRef} className="max-w-3xl mx-auto flex flex-col items-center space-y-12">
           <h1 
@@ -1655,7 +1669,7 @@ export const App: React.FC = () => {
       {GlobalUI}
       {HistorySidebar}
       {GlassSidebar}
-      {activePage === 'MUSIC' && JacobMusicPage}
+      {JacobMusicPage}
       {showProfilingModal && ProfilingModal}
       {showCalibrationPopup && CalibrationPopup}
 
