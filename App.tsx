@@ -687,43 +687,47 @@ export const App: React.FC = () => {
         <div 
           onMouseEnter={() => setIsPlayerExpanded(true)}
           onMouseLeave={() => setIsPlayerExpanded(false)}
-          className={`flex items-center p-1 transition-all duration-500 ease-in-out overflow-hidden ${isPlayerExpanded ? 'md:max-w-[280px] md:pr-4' : 'max-w-[52px]'}`}
+          className="flex items-center p-1"
         >
           <button 
             onClick={(e) => { e.stopPropagation(); handleMusicToggle(); }}
-            className={`flex-shrink-0 w-11 h-11 rounded-full flex items-center justify-center transition-all shadow-2xl backdrop-blur-3xl border ${isRenoir ? 'bg-amber-950/40 border-amber-900/20' : 'bg-white/40 border-black/5'} ${!isMusicMuted ? (isRenoir ? 'text-amber-500 bg-amber-500/10' : 'text-red-500 bg-red-500/5') : 'opacity-40'}`}
+            className={`flex-shrink-0 w-11 h-11 rounded-full flex items-center justify-center transition-all shadow-xl backdrop-blur-3xl border ${isRenoir ? 'bg-amber-950/40 border-amber-900/20' : 'bg-white/40 border-black/5'} ${!isMusicMuted ? (isRenoir ? 'text-amber-500 bg-amber-500/10' : 'text-red-500 bg-red-500/5') : 'opacity-40'}`}
           >
             <Icons.Speaker muted={isMusicMuted} loading={false}/>
           </button>
           
           <motion.div 
             initial={false}
-            animate={{ width: isPlayerExpanded ? 'auto' : 0, opacity: isPlayerExpanded ? 1 : 0 }}
-            className="hidden md:flex items-center gap-2 whitespace-nowrap overflow-hidden py-1"
+            animate={{ 
+              width: isPlayerExpanded ? 'auto' : 0, 
+              opacity: isPlayerExpanded ? 1 : 0,
+              x: isPlayerExpanded ? 0 : -10
+            }}
+            className="hidden md:flex items-center gap-3 whitespace-nowrap overflow-hidden py-1 px-1"
           >
-            <div className="w-px h-3 bg-current/20 ml-2" />
-            <div className="flex items-center gap-1.5 px-1">
-              <button onClick={(e) => { e.stopPropagation(); handlePrev(); }} className="p-1 hover:scale-110 active:scale-95 transition-transform">
-                <Icons.ArrowLeft className="w-3 h-3 opacity-50" />
+            <div className="w-px h-2.5 bg-current/20 ml-2.5" />
+            <div className="flex items-center gap-1">
+              <button onClick={(e) => { e.stopPropagation(); handlePrev(); }} className="p-1.5 opacity-40 hover:opacity-100 hover:scale-110 active:scale-95 transition-all">
+                <Icons.ArrowLeft className="w-3 h-3" />
               </button>
               <button 
                 onClick={(e) => { e.stopPropagation(); handleMusicToggle(); }}
-                className={`w-6 h-6 rounded-full flex items-center justify-center transition-all hover:scale-110 active:scale-95 shadow-sm ${isRenoir ? 'bg-amber-500 text-[#0f0505]' : 'bg-black text-white'}`}
+                className={`w-6.5 h-6.5 rounded-full flex items-center justify-center transition-all hover:scale-110 active:scale-90 shadow-lg ${isRenoir ? 'bg-amber-500 text-[#0f0505]' : 'bg-black text-white'}`}
               >
                 {isMusicMuted ? (
-                  <svg width="8" height="8" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
                 ) : (
-                  <svg width="8" height="8" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
                 )}
               </button>
-              <button onClick={(e) => { e.stopPropagation(); handleNext(); }} className="p-1 hover:scale-110 active:scale-95 transition-transform rotate-180">
-                <Icons.ArrowLeft className="w-3 h-3 opacity-50" />
+              <button onClick={(e) => { e.stopPropagation(); handleNext(); }} className="p-1.5 opacity-40 hover:opacity-100 hover:scale-110 active:scale-95 transition-all rotate-180">
+                <Icons.ArrowLeft className="w-3 h-3" />
               </button>
             </div>
-            <div className="w-px h-3 bg-current/10 ml-0.5" />
+            <div className="w-px h-2.5 bg-current/10 ml-0.5" />
             <button 
               onClick={(e) => { e.stopPropagation(); setActivePage('MUSIC'); }}
-              className="text-[7px] font-black uppercase tracking-[0.2em] opacity-40 hover:opacity-100 px-2 py-1 rounded-md hover:bg-current/5"
+              className="text-[7.5px] font-black uppercase tracking-[0.25em] opacity-30 hover:opacity-100 px-3 py-1.5 rounded-full transition-all hover:bg-current/5"
             >
               music
             </button>
