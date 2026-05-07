@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion';
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import html2canvas from 'html2canvas';
 import confetti from 'canvas-confetti';
@@ -529,6 +530,7 @@ export const App: React.FC = () => {
   const [activePage, setActivePage] = useState<'ORACLE' | 'MUSIC' | 'ABOUT'>('MUSIC');
   const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
   const [isMusicMuted, setIsMusicMuted] = useState(true);
+  const [isPlayerExpanded, setIsPlayerExpanded] = useState(false);
   const scWidgetRef = useRef<any>(null);
   const [stopAudio] = useState(() => () => {}); // No-op to prevent crashes in history/perspectives
   
@@ -666,13 +668,17 @@ export const App: React.FC = () => {
     });
   };
 
-  const NavButton = ({ onClick, children, className = "" }: any) => (
-    <button onClick={onClick} className={`w-11 h-11 rounded-full border flex items-center justify-center backdrop-blur-xl transition-all shadow-xl active:scale-95 ${isRenoir ? 'bg-amber-950/40 border-amber-900/20 text-amber-100' : 'bg-white/40 border-black/5 text-black'} ${className}`}>{children}</button>
+  const NavButton = ({ onClick, children, className = "", onMouseEnter, onMouseLeave }: any) => (
+    <button onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} onClick={onClick} className={`w-11 h-11 rounded-full border flex items-center justify-center backdrop-blur-xl transition-all shadow-xl active:scale-95 ${isRenoir ? 'bg-amber-950/40 border-amber-900/20 text-amber-100' : 'bg-white/40 border-black/5 text-black'} ${className}`}>{children}</button>
   );
 
-  const GlobalUI = (
-    <>
-      <div className="fixed top-6 left-4 z-[2500] flex gap-3">
+  const CompactMusicPlayer = (
+    <div 
+      className="fixed top-6 left-4 z-[2500] flex items-center"
+      onMouseEnter={() => setIsPlayerExpanded(true)}
+      onMouseLeave={() => setIsPlayerExpanded(false)}
+    >
+      <div className="flex gap-2 items-center">
         {(state.status !== 'IDLE' || activePage !== 'ORACLE') && (
           <NavButton onClick={() => { 
             if (activePage !== 'ORACLE') setActivePage('ORACLE');
@@ -681,13 +687,58 @@ export const App: React.FC = () => {
             <Icons.ArrowLeft />
           </NavButton>
         )}
-        <NavButton 
-          onClick={handleMusicToggle} 
-          className={`${!isMusicMuted ? (isRenoir ? 'ring-1 ring-amber-500' : 'ring-1 ring-red-500') : 'opacity-40'}`}
+        
+        <div 
+          onClick={() => !isPlayerExpanded && setIsPlayerExpanded(true)}
+          className={`flex items-center gap-2 p-1 rounded-full border backdrop-blur-3xl transition-all duration-500 ease-in-out overflow-hidden shadow-2xl cursor-pointer ${isRenoir ? 'bg-amber-950/40 border-amber-900/20' : 'bg-white/40 border-black/5'} ${isPlayerExpanded ? 'max-w-[240px] md:max-w-[280px] px-3' : 'max-w-[52px]'}`}
         >
-          <Icons.Speaker muted={isMusicMuted} loading={false}/>
-        </NavButton>
+          <button 
+            onClick={(e) => { e.stopPropagation(); handleMusicToggle(); }}
+            className={`flex-shrink-0 w-11 h-11 rounded-full flex items-center justify-center transition-all ${!isMusicMuted ? (isRenoir ? 'text-amber-500 bg-amber-500/10' : 'text-red-500 bg-red-500/5') : 'opacity-40'}`}
+          >
+            <Icons.Speaker muted={isMusicMuted} loading={false}/>
+          </button>
+          
+          <motion.div 
+            initial={false}
+            animate={{ width: isPlayerExpanded ? 'auto' : 0, opacity: isPlayerExpanded ? 1 : 0 }}
+            className="flex items-center gap-4 whitespace-nowrap overflow-hidden"
+          >
+            <div className="w-px h-4 bg-current/20 ml-1" />
+            <div className="flex items-center gap-3">
+              <button onClick={(e) => { e.stopPropagation(); handlePrev(); }} className="p-1 hover:scale-110 active:scale-90 transition-transform">
+                <Icons.ArrowLeft className="w-4 h-4 opacity-70" />
+              </button>
+              <button 
+                onClick={(e) => { e.stopPropagation(); handleMusicToggle(); }}
+                className={`w-8 h-8 rounded-full flex items-center justify-center transition-all hover:scale-110 active:scale-90 ${isRenoir ? 'bg-amber-500 text-[#0f0505]' : 'bg-black text-white'}`}
+              >
+                {isMusicMuted ? (
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                ) : (
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                )}
+              </button>
+              <button onClick={(e) => { e.stopPropagation(); handleNext(); }} className="p-1 hover:scale-110 active:scale-90 transition-transform rotate-180">
+                <Icons.ArrowLeft className="w-4 h-4 opacity-70" />
+              </button>
+              <div className="w-px h-4 bg-current/10 ml-1" />
+              <button 
+                onClick={(e) => { e.stopPropagation(); setActivePage('MUSIC'); }}
+                className="text-[8px] font-black uppercase tracking-widest opacity-40 hover:opacity-100 px-2 py-1 rounded-md hover:bg-current/5"
+              >
+                {t.jacobMusic}
+              </button>
+            </div>
+          </motion.div>
+        </div>
       </div>
+    </div>
+  );
+
+  const GlobalUI = (
+    <>
+      {CompactMusicPlayer}
       <div className="fixed top-6 right-4 z-[2500] flex gap-3 items-center">
         <div className={`flex p-1 rounded-full border backdrop-blur-xl ${isRenoir ? 'bg-amber-950/40 border-amber-900/20' : 'bg-white/40 border-black/5'}`}>
           <button onClick={() => setUiLanguage(l => l === 'EN' ? 'RU' : 'EN')} className="w-8 h-8 rounded-full text-[9px] font-black">{uiLanguage}</button>
@@ -1583,59 +1634,75 @@ export const App: React.FC = () => {
     </div>
   );
 
-  if (state.status === 'ERROR') return (
-    <div className={`h-screen flex flex-col items-center justify-center p-8 text-center relative overflow-hidden ${isRenoir ? 'bg-[#0f0505] text-amber-100 font-serif' : 'bg-white text-black font-sans'}`}>
-       <ThemeBackground theme={theme} />
-       {GlobalUI}
-       {HistorySidebar}
-       {GlassSidebar}
-       {JacobMusicPage}
-       {AboutPage}
+  const PerspectivesModal = r && showPerspectivesModal && (
+    <div className="fixed inset-0 z-[1000] bg-black/80 backdrop-blur-3xl overflow-y-auto font-sans flex items-start justify-center p-4 md:p-12 cursor-pointer" onClick={() => { setShowPerspectivesModal(false); stopAudio(); }}>
+      <div className="w-full max-w-4xl min-h-full flex flex-col items-center py-12" onClick={e => e.stopPropagation()}>
+          <div className="w-full flex justify-between items-end mb-24 border-b-2 border-white/20 pb-12">
+            <div className="flex flex-col">
+              <span className="text-white/40 text-[11px] font-black uppercase tracking-[1.2em] mb-4">Council Proceedings</span>
+              <h2 className="text-2xl md:text-6xl font-black text-white uppercase tracking-tighter leading-[0.8]">{(r?.title || "Decree")?.replace(/\[\[|\]\]/g, '')}</h2>
+            </div>
+            <button onClick={() => { setShowPerspectivesModal(false); stopAudio(); }} className="text-white p-4 border-2 border-white rounded-full hover:bg-white hover:text-black transition-all active:scale-90"><Icons.Close /></button>
+          </div>
+          <div className="w-full space-y-32 md:space-y-48">
+            {perspectivesList.map((p, idx) => {
+              const data = (r.perspectives as any)?.[frameworkKeyMap[p.frameworkType]];
+              if (!data) return null;
+              const isLoading = loadingFrameworks.has(frameworkKeyMap[p.frameworkType]);
+              const initials = data?.philosopherName?.split(' ').map((n: string) => n[0]).join('') || '?';
+              return (
+                <div key={p.id} className="relative group p-6 md:p-10 rounded-[40px] border border-white/5 bg-white/5 backdrop-blur-xl">
+                    <div className="flex items-center gap-10 mb-12 border-b border-white/10 pb-8">
+                      <span className="text-5xl md:text-8xl font-black text-white/5 select-none">{(idx + 1).toString().padStart(2, '0')}</span>
+                      <div className="flex flex-col">
+                          <div className="flex items-center gap-4">
+                            <div className="w-16 h-16 rounded-full border-2 border-white/20 flex items-center justify-center text-xl font-black text-white">{initials}</div>
+                            <h3 className="text-xl md:text-3xl font-black text-white uppercase tracking-[0.3em]">{data.philosopherName}</h3>
+                          </div>
+                          <span className="text-white/40 text-[10px] uppercase tracking-widest mt-4 block">Doctrine: {p.label}</span>
+                          <div className="flex flex-wrap gap-2 mt-4">
+                            {data.philosopherThemes?.map((theme: string) => (
+                              <span key={theme} className="px-3 py-1 bg-white/10 border border-white/20 rounded-full text-[9px] font-black uppercase tracking-widest text-white/60">
+                                {theme}
+                              </span>
+                            ))}
+                          </div>
+                          <p className={`text-[12px] md:text-sm font-normal tracking-normal mt-6 px-4 py-2 border border-current inline-block rounded-xl ${isRenoir ? 'text-amber-500 border-amber-600' : 'text-red-600 border-red-600'}`}>
+                              {data.verdict}
+                          </p>
+                      </div>
+                    </div>
+                    <div className="max-w-3xl mx-auto space-y-12">
+                        <TextBlock text={data.analysis} light dropCap isRenoir={isRenoir} isLoading={isLoading} loadingLabel={t.loadingAnalysis} />
+                    </div>
+                </div>
+              );
+            })}
+          </div>
+          <div className="mt-48 mb-32">
+          <button onClick={() => { setShowPerspectivesModal(false); stopAudio(); }} className="px-24 py-6 bg-white text-black font-black uppercase tracking-[0.5em] text-[12px] hover:bg-red-600 hover:text-white transition-all shadow-2xl rounded-full">
+            {t.closeVerdict}
+          </button>
+          </div>
+      </div>
+    </div>
+  );
+  let mainContent = null;
+
+  if (state.status === 'ERROR') {
+    mainContent = (
        <div className="z-10 flex flex-col items-center">
-         <h1 
-           onClick={triggerConfetti}
-           className="text-2xl font-black uppercase mb-4 tracking-tighter cursor-pointer"
-         >
-           Paradox Encountered
-         </h1>
+         <h1 onClick={triggerConfetti} className="text-2xl font-black uppercase mb-4 tracking-tighter cursor-pointer">Paradox Encountered</h1>
          <p className="text-xs opacity-60 mb-8 max-w-xs mx-auto">{state.error || "The void is currently unreadable."}</p>
          <button onClick={() => setState(s => ({ ...s, status: 'IDLE' }))} className="px-8 py-3 border-current font-black uppercase text-[10px] rounded-full">Recalibrate</button>
        </div>
-       {showCalibrationPopup && CalibrationPopup}
-    </div>
-  );
-
-  if (state.status === 'THINKING') return (
-    <div className={`h-screen w-full relative overflow-hidden ${isRenoir ? 'bg-[#0f0505] text-amber-100 font-serif' : 'bg-white text-black font-sans'}`}>
-      <LoadingScreen theme={theme} language={uiLanguage} />
-      {GlobalUI}
-      {HistorySidebar}
-      {GlassSidebar}
-      {JacobMusicPage}
-      {AboutPage}
-    </div>
-  );
-
-  if (state.status === 'REVEALED' && state.response) {
-    const r = state.response;
-    
-    return (
-      <div className={`min-h-screen pt-24 pb-24 px-6 md:px-8 overflow-y-auto relative ${isRenoir ? 'bg-[#0f0505] text-amber-100 font-serif' : 'bg-white text-black font-sans'}`}>
-        
-        {/* <div className={`fixed top-0 left-0 right-0 z-[1000] border-t-[1px] flex flex-col items-center py-0.5 bg-current/[0.05] backdrop-blur-md ${isRenoir ? 'border-amber-600' : 'border-red-600'}`}>
-          <div className={`text-[4px] md:text-[5px] font-black uppercase tracking-[0.2em] leading-none ${isRenoir ? 'text-amber-500/60' : 'text-red-600/60'}`}>
-            {t.backupWarning} | {r.textModelUsed} | {r.imageStyleLabel} ({r.imageModel}) | CHAOS: {state.chaosScore}% | NEURAL: SYNCED
-          </div>
-        </div> */}
-
-        {GlobalUI}
-        {HistorySidebar}
-        {GlassSidebar}
-        {JacobMusicPage}
-        {AboutPage}
-
-        <div ref={captureRef} className="max-w-3xl mx-auto flex flex-col items-center space-y-12">
-          <h1 
+    );
+  } else if (state.status === 'THINKING') {
+    mainContent = <LoadingScreen theme={theme} language={uiLanguage} />;
+  } else if (state.status === 'REVEALED' && r) {
+    mainContent = (
+      <div ref={captureRef} className="max-w-3xl mx-auto flex flex-col items-center space-y-12">
+        <h1 
             onClick={triggerConfetti}
             className="text-3xl md:text-5xl font-black uppercase tracking-tighter leading-[0.8] text-center cursor-pointer"
           >
@@ -1931,76 +1998,9 @@ export const App: React.FC = () => {
             </div>
           </div>
         </div>
-
-        {showPerspectivesModal && (
-          <div className="fixed inset-0 z-[1000] bg-black/80 backdrop-blur-3xl overflow-y-auto font-sans flex items-start justify-center p-4 md:p-12 cursor-pointer" onClick={() => { setShowPerspectivesModal(false); stopAudio(); }}>
-            <div className="w-full max-w-4xl min-h-full flex flex-col items-center py-12" onClick={e => e.stopPropagation()}>
-               <div className="w-full flex justify-between items-end mb-24 border-b-2 border-white/20 pb-12">
-                  <div className="flex flex-col">
-                    <span className="text-white/40 text-[11px] font-black uppercase tracking-[1.2em] mb-4">Council Proceedings</span>
-                    <h2 className="text-2xl md:text-6xl font-black text-white uppercase tracking-tighter leading-[0.8]">{(r?.title || "Decree")?.replace(/\[\[|\]\]/g, '')}</h2>
-                  </div>
-                  <button onClick={() => { setShowPerspectivesModal(false); stopAudio(); }} className="text-white p-4 border-2 border-white rounded-full hover:bg-white hover:text-black transition-all active:scale-90"><Icons.Close /></button>
-               </div>
-               <div className="w-full space-y-32 md:space-y-48">
-                  {perspectivesList.map((p, idx) => {
-                    const data = (r.perspectives as any)?.[frameworkKeyMap[p.frameworkType]];
-                    if (!data) return null;
-                    const isLoading = loadingFrameworks.has(frameworkKeyMap[p.frameworkType]);
-                    const initials = data?.philosopherName?.split(' ').map((n: string) => n[0]).join('') || '?';
-                    return (
-                      <div key={p.id} className="relative group p-6 md:p-10 rounded-[40px] border border-white/5 bg-white/5 backdrop-blur-xl">
-                         <div className="flex items-center gap-10 mb-12 border-b border-white/10 pb-8">
-                            <span className="text-5xl md:text-8xl font-black text-white/5 select-none">{(idx + 1).toString().padStart(2, '0')}</span>
-                            <div className="flex flex-col">
-                               <div className="flex items-center gap-4">
-                                  <div className="w-16 h-16 rounded-full border-2 border-white/20 flex items-center justify-center text-xl font-black text-white">{initials}</div>
-                                  <h3 className="text-xl md:text-3xl font-black text-white uppercase tracking-[0.3em]">{data.philosopherName}</h3>
-                               </div>
-                               <span className="text-white/40 text-[10px] uppercase tracking-widest mt-4 block">Doctrine: {p.label}</span>
-                               <div className="flex flex-wrap gap-2 mt-4">
-                                 {data.philosopherThemes?.map((theme: string) => (
-                                   <span key={theme} className="px-3 py-1 bg-white/10 border border-white/20 rounded-full text-[9px] font-black uppercase tracking-widest text-white/60">
-                                     {theme}
-                                   </span>
-                                 ))}
-                               </div>
-                               <p className={`text-[12px] md:text-sm font-normal tracking-normal mt-6 px-4 py-2 border border-current inline-block rounded-xl ${isRenoir ? 'text-amber-500 border-amber-600' : 'text-red-600 border-red-600'}`}>
-                                  {data.verdict}
-                               </p>
-                            </div>
-                         </div>
-                         <div className="max-w-3xl mx-auto space-y-12">
-                            <TextBlock text={data.analysis} light dropCap isRenoir={isRenoir} isLoading={isLoading} loadingLabel={t.loadingAnalysis} />
-                         </div>
-                      </div>
-                    );
-                  })}
-               </div>
-               <div className="mt-48 mb-32">
-                <button onClick={() => { setShowPerspectivesModal(false); stopAudio(); }} className="px-24 py-6 bg-white text-black font-black uppercase tracking-[0.5em] text-[12px] hover:bg-red-600 hover:text-white transition-all shadow-2xl rounded-full">
-                  {t.closeVerdict}
-                </button>
-               </div>
-            </div>
-          </div>
-        )}
-        {showCalibrationPopup && CalibrationPopup}
-      </div>
     );
-  }
-
-  return (
-    <div className={`h-screen w-full flex flex-col items-center justify-center p-4 relative overflow-hidden ${isRenoir ? 'bg-[#0f0505] text-amber-100 font-serif' : 'bg-white text-black font-sans'}`}>
-      <ThemeBackground theme={theme} />
-      {GlobalUI}
-      {HistorySidebar}
-      {GlassSidebar}
-      {JacobMusicPage}
-      {AboutPage}
-      {showProfilingModal && ProfilingModal}
-      {showCalibrationPopup && CalibrationPopup}
-
+  } else {
+    mainContent = (
       <div className="z-10 w-full max-w-2xl flex flex-col items-center justify-center space-y-4 md:space-y-6 h-full">
         <div className="space-y-1 text-center">
           <h1 
@@ -2115,7 +2115,24 @@ export const App: React.FC = () => {
           </button>
         )}
       </div>
-      <footer className="absolute bottom-6 text-[8px] opacity-10 tracking-1em font-black select-none uppercase">{t.footer}</footer>
+    );
+  }
+
+  const isRevealed = state.status === 'REVEALED';
+
+  return (
+    <div className={`relative ${isRevealed ? 'min-h-screen pt-24 pb-24 px-6 md:px-8 overflow-y-auto' : 'h-screen w-full flex flex-col items-center justify-center p-4 overflow-hidden'} ${isRenoir ? 'bg-[#0f0505] text-amber-100 font-serif' : 'bg-white text-black font-sans'}`}>
+       <ThemeBackground theme={theme} />
+       {GlobalUI}
+       {HistorySidebar}
+       {GlassSidebar}
+       {JacobMusicPage}
+       {AboutPage}
+       {showProfilingModal && ProfilingModal}
+       {showCalibrationPopup && CalibrationPopup}
+       {PerspectivesModal}
+       {mainContent}
+       {state.status === 'IDLE' && <footer className="absolute bottom-6 text-[8px] opacity-10 tracking-1em font-black select-none uppercase">{t.footer}</footer>}
     </div>
   );
 };
