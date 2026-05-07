@@ -1441,8 +1441,26 @@ export const App: React.FC = () => {
     setShowSaveMenu(false);
   };
 
+  const r = state.response;
+
+  // Analysis Data & Labels
+  const modeLabel = r ? ((t.modes as any)[r.type] || t.modes.KNOWLEDGE) : '';
+  const genre = theme === 'SUPREMATIST' ? 'SUPREMATISM' : 'IMPRESSIONISM';
+  
+  let verdictTypeLabel = t.decree;
+  if (r?.type === 'COMPARISON') verdictTypeLabel = t.winner;
+  else if (r?.type === 'KNOWLEDGE') verdictTypeLabel = t.essence;
+  else if (r?.type === 'PERSONAL') verdictTypeLabel = t.mantra;
+  else if (r?.type === 'PREDICTION') verdictTypeLabel = t.forecast;
+  else if (r?.type === 'RECOMMENDATION') verdictTypeLabel = t.recommendation;
+
+  let tallyLabel = t.councilTally;
+  if (r?.type === 'KNOWLEDGE') tallyLabel = t.councilConsensus;
+  else if (r?.type === 'PERSONAL') tallyLabel = t.existentialResonance;
+  else if (r?.type === 'PREDICTION') tallyLabel = t.probabilityOccurrence;
+  else if (r?.type === 'DECISION') tallyLabel = t.councilResolve;
+
   const activeAnalysisData = (() => {
-    const r = state.response;
     if (!r) return null;
     if (activeFramework === 'DEFAULT') return { 
       verdict: r.verdict, 
@@ -1600,24 +1618,7 @@ export const App: React.FC = () => {
 
   if (state.status === 'REVEALED' && state.response) {
     const r = state.response;
-    const modeLabel = (t.modes as any)[r.type] || t.modes.KNOWLEDGE;
-    const genre = theme === 'SUPREMATIST' ? 'SUPREMATISM' : 'IMPRESSIONISM';
-    const displayLabel = `${genre} — ${modeLabel}`;
     
-    let verdictTypeLabel = t.decree;
-    if (r.type === 'COMPARISON') verdictTypeLabel = t.winner;
-    else if (r.type === 'KNOWLEDGE') verdictTypeLabel = t.essence;
-    else if (r.type === 'PERSONAL') verdictTypeLabel = t.mantra;
-    else if (r.type === 'PREDICTION') verdictTypeLabel = t.forecast;
-    else if (r.type === 'DECISION') verdictTypeLabel = t.decree;
-    else if (r.type === 'RECOMMENDATION') verdictTypeLabel = t.recommendation;
-
-    let tallyLabel = t.councilTally;
-    if (r.type === 'KNOWLEDGE') tallyLabel = t.councilConsensus;
-    else if (r.type === 'PERSONAL') tallyLabel = t.existentialResonance;
-    else if (r.type === 'PREDICTION') tallyLabel = t.probabilityOccurrence;
-    else if (r.type === 'DECISION') tallyLabel = t.councilResolve;
-
     return (
       <div className={`min-h-screen pt-24 pb-24 px-6 md:px-8 overflow-y-auto relative ${isRenoir ? 'bg-[#0f0505] text-amber-100 font-serif' : 'bg-white text-black font-sans'}`}>
         
