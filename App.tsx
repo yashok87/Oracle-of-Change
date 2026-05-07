@@ -688,7 +688,7 @@ export const App: React.FC = () => {
           <div 
             onMouseEnter={() => setIsPlayerExpanded(true)}
             onMouseLeave={() => setIsPlayerExpanded(false)}
-            className={`flex flex-col items-center p-1 rounded-[26px] border backdrop-blur-3xl transition-all duration-500 ease-in-out overflow-hidden shadow-2xl ${isRenoir ? 'bg-amber-950/40 border-amber-900/20' : 'bg-white/40 border-black/5'} ${isPlayerExpanded ? 'max-h-[220px]' : 'max-h-[52px]'}`}
+            className={`flex items-center p-1 rounded-full border backdrop-blur-3xl transition-all duration-500 ease-in-out overflow-hidden shadow-2xl ${isRenoir ? 'bg-amber-950/40 border-amber-900/20' : 'bg-white/40 border-black/5'} ${isPlayerExpanded ? 'md:max-w-[300px] md:px-3 max-w-[52px]' : 'max-w-[52px]'}`}
           >
             <button 
               onClick={(e) => { e.stopPropagation(); handleMusicToggle(); }}
@@ -699,10 +699,10 @@ export const App: React.FC = () => {
             
             <motion.div 
               initial={false}
-              animate={{ height: isPlayerExpanded ? 'auto' : 0, opacity: isPlayerExpanded ? 1 : 0 }}
-              className="flex flex-col items-center gap-3 whitespace-nowrap overflow-hidden px-1"
+              animate={{ width: isPlayerExpanded ? 'auto' : 0, opacity: isPlayerExpanded ? 1 : 0 }}
+              className="hidden md:flex items-center gap-4 whitespace-nowrap overflow-hidden px-1"
             >
-              <div className="w-8 h-px bg-current/10 my-1" />
+              <div className="w-px h-4 bg-current/20 ml-1" />
               <div className="flex items-center gap-2">
                 <button onClick={(e) => { e.stopPropagation(); handlePrev(); }} className="p-1 hover:scale-110 active:scale-90 transition-transform">
                   <Icons.ArrowLeft className="w-3 h-3 opacity-50" />
@@ -721,9 +721,10 @@ export const App: React.FC = () => {
                   <Icons.ArrowLeft className="w-3 h-3 opacity-50" />
                 </button>
               </div>
+              <div className="w-px h-4 bg-current/10 ml-1" />
               <button 
                 onClick={(e) => { e.stopPropagation(); setActivePage('MUSIC'); }}
-                className="text-[7px] font-black uppercase tracking-[0.2em] opacity-40 hover:opacity-100 py-2 border-t border-current/5 w-full text-center hover:bg-current/5"
+                className="text-[7px] font-black uppercase tracking-[0.2em] opacity-40 hover:opacity-100 px-2 py-1 rounded-md hover:bg-current/5"
               >
                 music
               </button>
