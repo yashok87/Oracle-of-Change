@@ -687,11 +687,11 @@ export const App: React.FC = () => {
         <div 
           onMouseEnter={() => setIsPlayerExpanded(true)}
           onMouseLeave={() => setIsPlayerExpanded(false)}
-          className={`flex items-center p-1 rounded-full border backdrop-blur-3xl transition-all duration-500 ease-in-out overflow-hidden shadow-2xl ${isRenoir ? 'bg-amber-950/40 border-amber-900/20' : 'bg-white/40 border-black/5'} ${isPlayerExpanded ? 'md:max-w-[280px] md:pr-4' : 'max-w-[52px]'}`}
+          className={`flex items-center p-1 transition-all duration-500 ease-in-out overflow-hidden ${isPlayerExpanded ? 'md:max-w-[280px] md:pr-4' : 'max-w-[52px]'}`}
         >
           <button 
             onClick={(e) => { e.stopPropagation(); handleMusicToggle(); }}
-            className={`flex-shrink-0 w-11 h-11 rounded-full flex items-center justify-center transition-all ${!isMusicMuted ? (isRenoir ? 'text-amber-500 bg-amber-500/10' : 'text-red-500 bg-red-500/5') : 'opacity-40'}`}
+            className={`flex-shrink-0 w-11 h-11 rounded-full flex items-center justify-center transition-all shadow-2xl backdrop-blur-3xl border ${isRenoir ? 'bg-amber-950/40 border-amber-900/20' : 'bg-white/40 border-black/5'} ${!isMusicMuted ? (isRenoir ? 'text-amber-500 bg-amber-500/10' : 'text-red-500 bg-red-500/5') : 'opacity-40'}`}
           >
             <Icons.Speaker muted={isMusicMuted} loading={false}/>
           </button>
