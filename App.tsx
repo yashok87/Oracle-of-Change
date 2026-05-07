@@ -673,12 +673,8 @@ export const App: React.FC = () => {
   );
 
   const CompactMusicPlayer = (
-    <div 
-      className="fixed top-6 left-4 z-[2500] flex items-center"
-      onMouseEnter={() => setIsPlayerExpanded(true)}
-      onMouseLeave={() => setIsPlayerExpanded(false)}
-    >
-      <div className="flex gap-2 items-center">
+    <div className="fixed top-6 left-4 z-[2500]">
+      <div className="flex gap-2 items-start">
         {(state.status !== 'IDLE' || activePage !== 'ORACLE') && (
           <NavButton onClick={() => { 
             if (activePage !== 'ORACLE') setActivePage('ORACLE');
@@ -688,50 +684,52 @@ export const App: React.FC = () => {
           </NavButton>
         )}
         
-        <div 
-          onClick={() => !isPlayerExpanded && setIsPlayerExpanded(true)}
-          className={`flex items-center gap-2 p-1 rounded-full border backdrop-blur-3xl transition-all duration-500 ease-in-out overflow-hidden shadow-2xl cursor-pointer ${isRenoir ? 'bg-amber-950/40 border-amber-900/20' : 'bg-white/40 border-black/5'} ${isPlayerExpanded ? 'max-w-[240px] md:max-w-[280px] px-3' : 'max-w-[52px]'}`}
-        >
-          <button 
-            onClick={(e) => { e.stopPropagation(); handleMusicToggle(); }}
-            className={`flex-shrink-0 w-11 h-11 rounded-full flex items-center justify-center transition-all ${!isMusicMuted ? (isRenoir ? 'text-amber-500 bg-amber-500/10' : 'text-red-500 bg-red-500/5') : 'opacity-40'}`}
+        {!isSideMenuOpen && (
+          <div 
+            onMouseEnter={() => setIsPlayerExpanded(true)}
+            onMouseLeave={() => setIsPlayerExpanded(false)}
+            className={`flex flex-col items-center p-1 rounded-[26px] border backdrop-blur-3xl transition-all duration-500 ease-in-out overflow-hidden shadow-2xl ${isRenoir ? 'bg-amber-950/40 border-amber-900/20' : 'bg-white/40 border-black/5'} ${isPlayerExpanded ? 'max-h-[220px]' : 'max-h-[52px]'}`}
           >
-            <Icons.Speaker muted={isMusicMuted} loading={false}/>
-          </button>
-          
-          <motion.div 
-            initial={false}
-            animate={{ width: isPlayerExpanded ? 'auto' : 0, opacity: isPlayerExpanded ? 1 : 0 }}
-            className="flex items-center gap-4 whitespace-nowrap overflow-hidden"
-          >
-            <div className="w-px h-4 bg-current/20 ml-1" />
-            <div className="flex items-center gap-3">
-              <button onClick={(e) => { e.stopPropagation(); handlePrev(); }} className="p-1 hover:scale-110 active:scale-90 transition-transform">
-                <Icons.ArrowLeft className="w-4 h-4 opacity-70" />
-              </button>
-              <button 
-                onClick={(e) => { e.stopPropagation(); handleMusicToggle(); }}
-                className={`w-8 h-8 rounded-full flex items-center justify-center transition-all hover:scale-110 active:scale-90 ${isRenoir ? 'bg-amber-500 text-[#0f0505]' : 'bg-black text-white'}`}
-              >
-                {isMusicMuted ? (
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-                ) : (
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
-                )}
-              </button>
-              <button onClick={(e) => { e.stopPropagation(); handleNext(); }} className="p-1 hover:scale-110 active:scale-90 transition-transform rotate-180">
-                <Icons.ArrowLeft className="w-4 h-4 opacity-70" />
-              </button>
-              <div className="w-px h-4 bg-current/10 ml-1" />
+            <button 
+              onClick={(e) => { e.stopPropagation(); handleMusicToggle(); }}
+              className={`flex-shrink-0 w-11 h-11 rounded-full flex items-center justify-center transition-all ${!isMusicMuted ? (isRenoir ? 'text-amber-500 bg-amber-500/10' : 'text-red-500 bg-red-500/5') : 'opacity-40'}`}
+            >
+              <Icons.Speaker muted={isMusicMuted} loading={false}/>
+            </button>
+            
+            <motion.div 
+              initial={false}
+              animate={{ height: isPlayerExpanded ? 'auto' : 0, opacity: isPlayerExpanded ? 1 : 0 }}
+              className="flex flex-col items-center gap-3 whitespace-nowrap overflow-hidden px-1"
+            >
+              <div className="w-8 h-px bg-current/10 my-1" />
+              <div className="flex items-center gap-2">
+                <button onClick={(e) => { e.stopPropagation(); handlePrev(); }} className="p-1 hover:scale-110 active:scale-90 transition-transform">
+                  <Icons.ArrowLeft className="w-3 h-3 opacity-50" />
+                </button>
+                <button 
+                  onClick={(e) => { e.stopPropagation(); handleMusicToggle(); }}
+                  className={`w-7 h-7 rounded-full flex items-center justify-center transition-all hover:scale-110 active:scale-90 ${isRenoir ? 'bg-amber-500 text-[#0f0505]' : 'bg-black text-white'}`}
+                >
+                  {isMusicMuted ? (
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                  ) : (
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                  )}
+                </button>
+                <button onClick={(e) => { e.stopPropagation(); handleNext(); }} className="p-1 hover:scale-110 active:scale-90 transition-transform rotate-180">
+                  <Icons.ArrowLeft className="w-3 h-3 opacity-50" />
+                </button>
+              </div>
               <button 
                 onClick={(e) => { e.stopPropagation(); setActivePage('MUSIC'); }}
-                className="text-[8px] font-black uppercase tracking-widest opacity-40 hover:opacity-100 px-2 py-1 rounded-md hover:bg-current/5"
+                className="text-[7px] font-black uppercase tracking-[0.2em] opacity-40 hover:opacity-100 py-2 border-t border-current/5 w-full text-center hover:bg-current/5"
               >
-                {t.jacobMusic}
+                music
               </button>
-            </div>
-          </motion.div>
-        </div>
+            </motion.div>
+          </div>
+        )}
       </div>
     </div>
   );

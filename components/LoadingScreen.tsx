@@ -85,7 +85,7 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ theme = 'SUPREMATI
 
   if (theme === 'IMPRESSIONIST') {
      return (
-        <div className="flex flex-col items-center justify-center min-h-screen w-full relative overflow-hidden bg-[#0f0505]">
+        <div className="flex flex-col items-center justify-center h-full w-full relative">
            <div className="absolute top-1/3 left-1/4 w-64 h-64 bg-[#7c2d12] rounded-full blur-[80px] opacity-40 animate-pulse" />
            <div className="absolute bottom-1/3 right-1/4 w-48 h-48 bg-[#1e1b4b] rounded-full blur-[60px] opacity-50 animate-bounce" style={{ animationDuration: '3s' }} />
            
@@ -101,7 +101,7 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ theme = 'SUPREMATI
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen w-full relative overflow-hidden bg-white">
+    <div className="flex flex-col items-center justify-center h-full w-full relative">
       <div 
         className="w-24 h-24 bg-black mb-8 transition-transform duration-700 ease-in-out"
         style={{ transform: `rotate(${rotation}deg)` }}
