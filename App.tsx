@@ -699,16 +699,16 @@ export const App: React.FC = () => {
           <motion.div 
             initial={false}
             animate={{ width: isPlayerExpanded ? 'auto' : 0, opacity: isPlayerExpanded ? 1 : 0 }}
-            className="hidden md:flex items-center gap-2 whitespace-nowrap overflow-hidden"
+            className="hidden md:flex items-center gap-2 whitespace-nowrap overflow-hidden py-1"
           >
-            <div className="w-px h-3 bg-current/20 ml-1.5" />
-            <div className="flex items-center gap-1.5">
+            <div className="w-px h-3 bg-current/20 ml-2" />
+            <div className="flex items-center gap-1.5 px-1">
               <button onClick={(e) => { e.stopPropagation(); handlePrev(); }} className="p-1 hover:scale-110 active:scale-95 transition-transform">
                 <Icons.ArrowLeft className="w-3 h-3 opacity-50" />
               </button>
               <button 
                 onClick={(e) => { e.stopPropagation(); handleMusicToggle(); }}
-                className={`w-6 h-6 rounded-full flex items-center justify-center transition-all hover:scale-110 active:scale-95 ${isRenoir ? 'bg-amber-500 text-[#0f0505]' : 'bg-black text-white'}`}
+                className={`w-6 h-6 rounded-full flex items-center justify-center transition-all hover:scale-110 active:scale-95 shadow-sm ${isRenoir ? 'bg-amber-500 text-[#0f0505]' : 'bg-black text-white'}`}
               >
                 {isMusicMuted ? (
                   <svg width="8" height="8" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
@@ -720,7 +720,7 @@ export const App: React.FC = () => {
                 <Icons.ArrowLeft className="w-3 h-3 opacity-50" />
               </button>
             </div>
-            <div className="w-px h-3 bg-current/10" />
+            <div className="w-px h-3 bg-current/10 ml-0.5" />
             <button 
               onClick={(e) => { e.stopPropagation(); setActivePage('MUSIC'); }}
               className="text-[7px] font-black uppercase tracking-[0.2em] opacity-40 hover:opacity-100 px-2 py-1 rounded-md hover:bg-current/5"
