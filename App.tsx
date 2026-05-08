@@ -691,7 +691,7 @@ export const App: React.FC = () => {
         >
           <button 
             onClick={(e) => { e.stopPropagation(); handleMusicToggle(); }}
-            className={`flex-shrink-0 w-11 h-11 rounded-full flex items-center justify-center transition-all shadow-xl backdrop-blur-3xl border ${isRenoir ? 'bg-amber-950/40 border-amber-900/40' : 'bg-white/40 border-black/10'} ${!isMusicMuted ? (isRenoir ? 'text-amber-500 bg-amber-500/10' : 'text-red-500 bg-red-500/5') : 'opacity-40'}`}
+            className={`flex-shrink-0 w-11 h-11 rounded-full flex items-center justify-center transition-all shadow-xl backdrop-blur-3xl border ${isRenoir ? 'bg-amber-950/90 border-amber-900/40' : 'bg-white/90 border-black/10'} ${!isMusicMuted ? (isRenoir ? 'text-amber-500 bg-amber-500/10' : 'text-red-500 bg-red-500/5') : 'opacity-40'}`}
           >
             <Icons.Speaker muted={isMusicMuted} loading={false}/>
           </button>
@@ -703,7 +703,7 @@ export const App: React.FC = () => {
               opacity: isPlayerExpanded ? 1 : 0,
               x: isPlayerExpanded ? 0 : -10
             }}
-            className={`hidden md:flex items-center gap-3 whitespace-nowrap overflow-hidden py-1.5 px-3 rounded-full border backdrop-blur-3xl shadow-lg transition-colors duration-500 ${isRenoir ? 'bg-amber-950/30 border-amber-900/40 text-amber-200/60' : 'bg-white/30 border-black/10 text-black/60'}`}
+            className={`hidden md:flex items-center gap-3 whitespace-nowrap overflow-hidden py-1.5 px-3 rounded-full border backdrop-blur-3xl shadow-lg transition-colors duration-500 ${isRenoir ? 'bg-amber-950/5 border-amber-900/40 text-amber-200/60' : 'bg-white/5 border-black/10 text-black/60'}`}
           >
             <div className="flex items-center gap-1">
               <button onClick={(e) => { e.stopPropagation(); handlePrev(); }} className="p-1 hover:opacity-100 hover:scale-110 active:scale-95 transition-all">
