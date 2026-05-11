@@ -940,7 +940,7 @@ export const App: React.FC = () => {
                   { url: "https://soundcloud.com/ykelbert" },
                   { url: "https://www.youtube.com/@yashok" },
                   { url: "https://jkelbert.bandcamp.com/" },
-                  { url: "https://j-kelbert-shop.fourthwall.com/products/t-shirt-miracle" },
+                  { url: "https://j-kelbert-shop.fourthwall.com/" },
                   { url: "https://bnd.link/ykelbert" },
                   { url: "https://www.facebook.com/share/1B6Xw8Qx5c/" }
                 ].map((link, idx) => (
