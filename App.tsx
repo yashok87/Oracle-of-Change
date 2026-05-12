@@ -133,7 +133,7 @@ const TRANSLATIONS = {
     consultBtn: "Consult the Oracle",
     musicQuote: "\"Born in Russia, Jacob is an independent musician raised on the likes of Damien Rice and Leonard Cohen. He's been writing songs since he was 20.\"",
     musicConnect: "Connect & Support",
-    musicLabels: ["My Music", "YouTube Profile", "Bandcamp support", "Official Merchandise", "Streaming Platforms", "Facebook Page"],
+    musicLabels: ["My Music", "YouTube Profile", "Bandcamp support", "Official Merchandise", "Streaming Platforms", "Guestbook page"],
     goToOracle: "Go to Oracle",
     oracleDescription: "Oracle of Chance is an engine for knowledge, similar to any search engine, powered by the AI, which is designed to give information, compare entities or give advice on life matters.",
     seeInstructions: "See Instructions",
@@ -177,7 +177,7 @@ const TRANSLATIONS = {
     consultBtn: "Консультация Оракула",
     musicQuote: "\"Яков — независимый музыкант, родившийся в России и воспитанный на творчестве Дамьена Райса и Леонарда Коэна. Пишет песни с 20 лет.\"",
     musicConnect: "Связь и поддержка",
-    musicLabels: ["Моя музыка", "YouTube профиль", "Поддержка на Bandcamp", "Мерч", "Стриминг", "Facebook"],
+    musicLabels: ["Моя музыка", "YouTube профиль", "Поддержка на Bandcamp", "Мерч", "Стриминг", "Гостевая книга"],
     goToOracle: "Перейти к Оракулу",
     oracleDescription: "Оракул Шанса — это поисковая система знаний, подобная любой другой, работающая на базе ИИ и предназначенная для предоставления информации, сравнений или жизненных советов.",
     seeInstructions: "Инструкции",
@@ -942,7 +942,7 @@ export const App: React.FC = () => {
                   { url: "https://jkelbert.bandcamp.com/" },
                   { url: "https://j-kelbert-shop.fourthwall.com/" },
                   { url: "https://bnd.link/ykelbert" },
-                  { url: "https://www.facebook.com/share/1B6Xw8Qx5c/" }
+                  { url: "https://dramatise.atabook.org/" }
                 ].map((link, idx) => (
                   <a 
                     key={idx}
