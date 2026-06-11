@@ -526,7 +526,19 @@ export async function regenerateOracleImage(response: OracleResponse, theme: 'SU
 
   // Pollinations is main API
   const seed = Math.floor(Math.random() * 1000000);
-  const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(divinePrompt)}?width=1024&height=1024&nologo=true&seed=${seed}&model=${model}`;
+  
+  // Map custom model IDs to verified, active Pollinations image engine model strings
+  // to avoid HTTP 404/500 failures that trigger "vision is exhausted".
+  let apiModel = 'flux';
+  if (model === 'zimage') {
+    apiModel = 'flux-realism';
+  } else if (model === 'nanobanana') {
+    apiModel = 'turbo';
+  } else if (model) {
+    apiModel = model;
+  }
+
+  const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(divinePrompt)}?width=1024&height=1024&nologo=true&seed=${seed}&model=${apiModel}`;
   
   // If force is true, we skip Pollinations and go straight to CogView (silent fallback)
   if (force) {

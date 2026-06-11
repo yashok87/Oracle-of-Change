@@ -42,7 +42,7 @@ const perspectivesList = [
 const IMAGE_MODELS = [
   { id: 'flux', label: 'Flux (Default)' },
   { id: 'zimage', label: 'Z-Image (Artistic)' },
-  { id: 'klein', label: 'Klein (Vibrant)' }
+  { id: 'nanobanana', label: 'Nanobanana (Vibrant)' }
 ];
 
 const SUGGESTIONS_POOLS = {
