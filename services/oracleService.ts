@@ -490,42 +490,13 @@ Respond ONLY with JSON. No meta-commentary.`;
   }
 }
 
-export function sanitizePromptForSafety(text: string): string {
-  let sanitized = text;
-  const directReplacements: Record<string, string> = {
-    "phallic": "sculptural column",
-    "anal": "meticulous order",
-    "oedipal": "familial archetype",
-    "fetishism": "symbolic reverence",
-    "fetish": "symbolic object",
-    "lustful": "passionate",
-    "lust": "passion",
-    "erotic": "sensory",
-    "sexual": "intimate",
-    "repressed": "veiled shadowed",
-    "repression": "containment",
-    "oral satisfaction": "sensory fullness",
-    "taboo": "mysterious tradition",
-    "sensual": "tactile",
-    "flesh": "material form",
-    "nudity": "stark beauty"
-  };
-
-  // Perform case-insensitive replacements
-  for (const [key, replacement] of Object.entries(directReplacements)) {
-    const regex = new RegExp(`\\b${key}\\b`, 'gi');
-    sanitized = sanitized.replace(regex, replacement);
-  }
-  return sanitized;
-}
-
 export async function regenerateOracleImage(response: OracleResponse, theme: 'SUPREMATIST' | 'IMPRESSIONIST', chaosScore: number, originalQuery?: string, force = false, model = 'flux') {
   const isSuprematist = theme === 'SUPREMATIST';
   
   // Defensive access to title to prevent "undefined (reading title)"
   const titleVal = response?.title || "Decree";
-  const cleanTitle = sanitizePromptForSafety(ensureString(titleVal).replace(/\[\[|\]\]/g, '').replace(/[^a-zA-Z0-9\s]/g, ' ').trim());
-  const cleanQuery = originalQuery ? sanitizePromptForSafety(originalQuery.replace(/[^a-zA-Z0-9\s]/g, ' ').trim().slice(0, 150)) : "";
+  const cleanTitle = ensureString(titleVal).replace(/\[\[|\]\]/g, '').replace(/[^a-zA-Z0-9\s]/g, ' ').trim();
+  const cleanQuery = originalQuery ? originalQuery.replace(/[^a-zA-Z0-9\s]/g, ' ').trim().slice(0, 150) : "";
   
   let style = '';
   if (isSuprematist) {
@@ -555,19 +526,7 @@ export async function regenerateOracleImage(response: OracleResponse, theme: 'SU
 
   // Pollinations is main API
   const seed = Math.floor(Math.random() * 1000000);
-  
-  // Map custom model IDs to verified, active Pollinations image engine model strings
-  // to avoid HTTP 404/500 failures that trigger "vision is exhausted".
-  let apiModel = 'flux';
-  if (model === 'zimage') {
-    apiModel = 'flux-realism';
-  } else if (model === 'nanobanana') {
-    apiModel = 'turbo';
-  } else if (model) {
-    apiModel = model;
-  }
-
-  const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(divinePrompt)}?width=1024&height=1024&nologo=true&seed=${seed}&model=${apiModel}`;
+  const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(divinePrompt)}?width=1024&height=1024&nologo=true&seed=${seed}&model=${model}`;
   
   // If force is true, we skip Pollinations and go straight to CogView (silent fallback)
   if (force) {

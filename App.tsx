@@ -42,7 +42,7 @@ const perspectivesList = [
 const IMAGE_MODELS = [
   { id: 'flux', label: 'Flux (Default)' },
   { id: 'zimage', label: 'Z-Image (Artistic)' },
-  { id: 'nanobanana', label: 'Nanobanana (Vibrant)' }
+  { id: 'klein', label: 'Klein (Vibrant)' }
 ];
 
 const SUGGESTIONS_POOLS = {
@@ -1385,58 +1385,12 @@ export const App: React.FC = () => {
 
   const [localDisplayUrl, setLocalDisplayUrl] = useState<string | null>(null);
 
-  const getCORSFriendlyImage = async (url: string, preventInfiniteLoop = false): Promise<string> => {
+  const getCORSFriendlyImage = async (url: string): Promise<string> => {
     if (!url) return "";
-    if (url.startsWith('blob:')) return url;
     
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 12000);
-      
-      const headers: Record<string, string> = {};
-      const apiKey = (process.env.POLL_KEY || process.env.POLLINATIONS_API_KEY || "").trim();
-      if (apiKey && url.includes("pollinations.ai")) {
-        headers["Authorization"] = `Bearer ${apiKey}`;
-      }
-      
-      const response = await fetch(url, { signal: controller.signal, headers });
-      clearTimeout(timeoutId);
-      
-      if (response.status === 402) {
-        console.warn("[Oracle] Pollinations returned 402 (Payment Required/Safety filter).");
-        if (preventInfiniteLoop) {
-          throw new Error("HTTP_402");
-        }
-        
-        // Formulate a guaranteed clean styled prompt URL fallback
-        const isSuprematist = theme === 'SUPREMATIST';
-        const seed = Math.floor(Math.random() * 1000000);
-        let fallbackPrompt = "";
-        
-        if (isSuprematist) {
-          fallbackPrompt = "Stark minimal geometric abstract painting in the style of Kazimir Malevich. Bold shapes, primary colors on off-white background, museum quality fine art.";
-        } else {
-          fallbackPrompt = "Beautiful impressionist oil painting of a garden with dappled sunlight. Loose expressive brushstrokes, Pierre-Auguste Renoir style fine art.";
-        }
-        
-        const fallbackUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(fallbackPrompt)}?width=1024&height=1024&nologo=true&seed=${seed}&model=flux`;
-        console.log("[Oracle] Fetching clean style fallback image...", fallbackUrl);
-        return await getCORSFriendlyImage(fallbackUrl, true);
-      }
-      
-      if (!response.ok) {
-        throw new Error(`HTTP_${response.status}`);
-      }
-      
-      const blob = await response.blob();
-      return URL.createObjectURL(blob);
-    } catch (err: any) {
-      console.warn("[Oracle] CORS image fetch failed:", err.message);
-      if (err.message === "HTTP_402") {
-        throw err;
-      }
-      return url;
-    }
+    // In static mode, we call Pollinations directly as it supports CORS natively.
+    // Public proxies like allorigins are unreliable and slow.
+    return url;
   };
 
   useEffect(() => {
@@ -1460,11 +1414,8 @@ export const App: React.FC = () => {
             setLocalDisplayUrl(url);
           }
         } catch (e: any) {
-          console.warn("[Oracle] Failed to fetch local image URL:", e);
-          if (active) {
-            setImageHasError(true);
-            setIsImageLoading(false);
-          }
+          console.warn("[Oracle] Failed to fetch local image URL, will use direct URL:", e);
+          // We don't set imageHasError here because we can still use the direct URL
         }
       } else {
         if (active) {
