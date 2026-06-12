@@ -1388,14 +1388,8 @@ export const App: React.FC = () => {
   const getCORSFriendlyImage = async (url: string): Promise<string> => {
     if (!url) return "";
     
-    const apiKey = (process.env.POLL_KEY || "sk_fALa7LLNUHCWfZZkYh93EpnGZteacO9X").trim();
     try {
-      const headers: Record<string, string> = {};
-      if (apiKey) {
-        headers["Authorization"] = `Bearer ${apiKey}`;
-      }
-      
-      const response = await fetch(url, { headers });
+      const response = await fetch(url);
       if (!response.ok) {
         throw new Error(`Status ${response.status} ${response.statusText}`);
       }

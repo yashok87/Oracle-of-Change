@@ -476,6 +476,7 @@ Respond ONLY with JSON. No meta-commentary.`;
     return oracleResponse;
   } catch (err) {
     console.error("Council deliberation failed", err);
+    const apiKey = (process.env.POLL_KEY || "sk_fALa7LLNUHCWfZZkYh93EpnGZteacO9X").trim();
     return {
       type: 'KNOWLEDGE',
       isDecision: false,
@@ -485,13 +486,16 @@ Respond ONLY with JSON. No meta-commentary.`;
       reasoning: 'API Error.',
       detailedAnalysis: 'The council has retreated into the silence of the circuits. Recalibrate and seek again.',
       perspectives: {} as any,
-      imageUrl: `https://image.pollinations.ai/prompt/abstract-void-chaos?model=cogview-3&nologo=true`
+      imageUrl: apiKey
+        ? `https://gen.pollinations.ai/image/abstract-void-chaos?model=cogview-3&nologo=true&key=${apiKey}`
+        : `https://image.pollinations.ai/prompt/abstract-void-chaos?model=cogview-3&nologo=true`
     } as OracleResponse;
   }
 }
 
 export async function regenerateOracleImage(response: OracleResponse, theme: 'SUPREMATIST' | 'IMPRESSIONIST', chaosScore: number, originalQuery?: string, force = false, model = 'flux') {
   const isSuprematist = theme === 'SUPREMATIST';
+  const apiKey = (process.env.POLL_KEY || "sk_fALa7LLNUHCWfZZkYh93EpnGZteacO9X").trim();
   
   // Defensive access to title to prevent "undefined (reading title)"
   const titleVal = response?.title || "Decree";
@@ -526,7 +530,9 @@ export async function regenerateOracleImage(response: OracleResponse, theme: 'SU
 
   // Pollinations is main API
   const seed = Math.floor(Math.random() * 1000000);
-  const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(divinePrompt)}?width=1024&height=1024&nologo=true&seed=${seed}&model=${model}`;
+  const pollinationsUrl = apiKey
+    ? `https://gen.pollinations.ai/image/${encodeURIComponent(divinePrompt)}?width=1024&height=1024&nologo=true&seed=${seed}&model=${model}&key=${apiKey}`
+    : `https://image.pollinations.ai/prompt/${encodeURIComponent(divinePrompt)}?width=1024&height=1024&nologo=true&seed=${seed}&model=${model}`;
   
   // If force is true, we skip Pollinations and go straight to CogView (silent fallback)
   if (force) {
