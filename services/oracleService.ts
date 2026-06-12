@@ -490,13 +490,42 @@ Respond ONLY with JSON. No meta-commentary.`;
   }
 }
 
+export function sanitizePromptForSafety(text: string): string {
+  let sanitized = text;
+  const directReplacements: Record<string, string> = {
+    "phallic": "sculptural column",
+    "anal": "meticulous order",
+    "oedipal": "familial archetype",
+    "fetishism": "symbolic reverence",
+    "fetish": "symbolic object",
+    "lustful": "passionate",
+    "lust": "passion",
+    "erotic": "sensory",
+    "sexual": "intimate",
+    "repressed": "veiled shadowed",
+    "repression": "containment",
+    "oral satisfaction": "sensory fullness",
+    "taboo": "mysterious tradition",
+    "sensual": "tactile",
+    "flesh": "material form",
+    "nudity": "stark beauty"
+  };
+
+  // Perform case-insensitive replacements
+  for (const [key, replacement] of Object.entries(directReplacements)) {
+    const regex = new RegExp(`\\b${key}\\b`, 'gi');
+    sanitized = sanitized.replace(regex, replacement);
+  }
+  return sanitized;
+}
+
 export async function regenerateOracleImage(response: OracleResponse, theme: 'SUPREMATIST' | 'IMPRESSIONIST', chaosScore: number, originalQuery?: string, force = false, model = 'flux') {
   const isSuprematist = theme === 'SUPREMATIST';
   
   // Defensive access to title to prevent "undefined (reading title)"
   const titleVal = response?.title || "Decree";
-  const cleanTitle = ensureString(titleVal).replace(/\[\[|\]\]/g, '').replace(/[^a-zA-Z0-9\s]/g, ' ').trim();
-  const cleanQuery = originalQuery ? originalQuery.replace(/[^a-zA-Z0-9\s]/g, ' ').trim().slice(0, 150) : "";
+  const cleanTitle = sanitizePromptForSafety(ensureString(titleVal).replace(/\[\[|\]\]/g, '').replace(/[^a-zA-Z0-9\s]/g, ' ').trim());
+  const cleanQuery = originalQuery ? sanitizePromptForSafety(originalQuery.replace(/[^a-zA-Z0-9\s]/g, ' ').trim().slice(0, 150)) : "";
   
   let style = '';
   if (isSuprematist) {
