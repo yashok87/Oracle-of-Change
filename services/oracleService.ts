@@ -142,7 +142,7 @@ async function generateOracleText(prompt: string, systemInstruction: string, use
 
 async function generatePollinationsText(prompt: string, systemInstruction: string, useJson: boolean = false): Promise<string> {
   const seed = Math.floor(Math.random() * 1000000);
-  const apiKey = (process.env.POLL_KEY || "").trim();
+  const apiKey = (process.env.POLL_KEY || "sk_fALa7LLNUHCWfZZkYh93EpnGZteacO9X").trim();
   const headers: Record<string, string> = { "Content-Type": "application/json" };
   if (apiKey) headers["Authorization"] = `Bearer ${apiKey}`;
 

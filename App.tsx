@@ -1388,9 +1388,23 @@ export const App: React.FC = () => {
   const getCORSFriendlyImage = async (url: string): Promise<string> => {
     if (!url) return "";
     
-    // In static mode, we call Pollinations directly as it supports CORS natively.
-    // Public proxies like allorigins are unreliable and slow.
-    return url;
+    const apiKey = (process.env.POLL_KEY || "sk_fALa7LLNUHCWfZZkYh93EpnGZteacO9X").trim();
+    try {
+      const headers: Record<string, string> = {};
+      if (apiKey) {
+        headers["Authorization"] = `Bearer ${apiKey}`;
+      }
+      
+      const response = await fetch(url, { headers });
+      if (!response.ok) {
+        throw new Error(`Status ${response.status} ${response.statusText}`);
+      }
+      const blob = await response.blob();
+      return URL.createObjectURL(blob);
+    } catch (e) {
+      console.warn("[Oracle] Failed to fetch authenticated image, returning direct URL:", e);
+      return url;
+    }
   };
 
   useEffect(() => {
