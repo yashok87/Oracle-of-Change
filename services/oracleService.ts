@@ -142,7 +142,7 @@ async function generateOracleText(prompt: string, systemInstruction: string, use
 
 async function generatePollinationsText(prompt: string, systemInstruction: string, useJson: boolean = false): Promise<string> {
   const seed = Math.floor(Math.random() * 1000000);
-  const apiKey = (process.env.POLL_KEY || "sk_fALa7LLNUHCWfZZkYh93EpnGZteacO9X").trim();
+  const apiKey = (process.env.POLL_KEY || "pk_jcfg5Q1xs8BU8pgq").trim();
   const headers: Record<string, string> = { "Content-Type": "application/json" };
   if (apiKey) headers["Authorization"] = `Bearer ${apiKey}`;
 
@@ -476,7 +476,7 @@ Respond ONLY with JSON. No meta-commentary.`;
     return oracleResponse;
   } catch (err) {
     console.error("Council deliberation failed", err);
-    const apiKey = (process.env.POLL_KEY || "sk_fALa7LLNUHCWfZZkYh93EpnGZteacO9X").trim();
+    const apiKey = (process.env.POLL_KEY || "pk_jcfg5Q1xs8BU8pgq").trim();
     return {
       type: 'KNOWLEDGE',
       isDecision: false,
@@ -495,7 +495,7 @@ Respond ONLY with JSON. No meta-commentary.`;
 
 export async function regenerateOracleImage(response: OracleResponse, theme: 'SUPREMATIST' | 'IMPRESSIONIST', chaosScore: number, originalQuery?: string, force = false, model = 'flux') {
   const isSuprematist = theme === 'SUPREMATIST';
-  const apiKey = (process.env.POLL_KEY || "sk_fALa7LLNUHCWfZZkYh93EpnGZteacO9X").trim();
+  const apiKey = (process.env.POLL_KEY || "pk_jcfg5Q1xs8BU8pgq").trim();
   
   // Defensive access to title to prevent "undefined (reading title)"
   const titleVal = response?.title || "Decree";
