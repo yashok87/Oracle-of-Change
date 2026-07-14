@@ -476,6 +476,7 @@ Respond ONLY with JSON. No meta-commentary.`;
     return oracleResponse;
   } catch (err) {
     console.error("Council deliberation failed", err);
+    const apiKey = (process.env.POLL_KEY || "pk_jcfg5Q1xs8BU8pgq").trim();
     return {
       type: 'KNOWLEDGE',
       isDecision: false,
@@ -485,7 +486,9 @@ Respond ONLY with JSON. No meta-commentary.`;
       reasoning: 'API Error.',
       detailedAnalysis: 'The council has retreated into the silence of the circuits. Recalibrate and seek again.',
       perspectives: {} as any,
-      imageUrl: `https://image.pollinations.ai/prompt/abstract-void-chaos?model=turbo&nologo=true`
+      imageUrl: apiKey
+        ? `https://gen.pollinations.ai/image/abstract-void-chaos?model=cogview-3&nologo=true&key=${apiKey}`
+        : `https://image.pollinations.ai/prompt/abstract-void-chaos?model=cogview-3&nologo=true`
     } as OracleResponse;
   }
 }
@@ -527,41 +530,9 @@ export async function regenerateOracleImage(response: OracleResponse, theme: 'SU
 
   // Pollinations is main API
   const seed = Math.floor(Math.random() * 1000000);
-  const pollinationsUrlFallback = `https://image.pollinations.ai/prompt/${encodeURIComponent(divinePrompt)}?width=1024&height=1024&nologo=true&seed=${seed}&model=${model}`;
-
-  if (apiKey) {
-    try {
-      console.log("[Oracle] Pre-generating image via gen.pollinations.ai using provided API key...");
-      const genResponse = await fetch("https://gen.pollinations.ai/v1/images/generations", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${apiKey}`
-        },
-        body: JSON.stringify({
-          prompt: divinePrompt,
-          model: model,
-          width: 1024,
-          height: 1024,
-          nologo: true,
-          seed: seed,
-          response_format: "url"
-        })
-      });
-
-      if (genResponse.ok) {
-        const data = await genResponse.json() as any;
-        if (data.data && data.data[0] && data.data[0].url) {
-          console.log("[Oracle] Pre-generated image URL successfully obtained:", data.data[0].url);
-          return { url: data.data[0].url, label: 'Pollinations-Vision', isFallback: false };
-        }
-      } else {
-        console.warn(`[Oracle] Image pre-generation POST failed with status ${genResponse.status}. Falling back to GET URL.`);
-      }
-    } catch (e) {
-      console.warn("[Oracle] Error during image pre-generation POST, falling back to GET URL:", e);
-    }
-  }
+  const pollinationsUrl = apiKey
+    ? `https://gen.pollinations.ai/image/${encodeURIComponent(divinePrompt)}?width=1024&height=1024&nologo=true&seed=${seed}&model=${model}&key=${apiKey}`
+    : `https://image.pollinations.ai/prompt/${encodeURIComponent(divinePrompt)}?width=1024&height=1024&nologo=true&seed=${seed}&model=${model}`;
   
   // If force is true, we skip Pollinations and go straight to CogView (silent fallback)
   if (force) {
@@ -569,11 +540,11 @@ export async function regenerateOracleImage(response: OracleResponse, theme: 'SU
       const cogViewUrl = await callOracleVision(divinePrompt);
       return { url: cogViewUrl, label: 'CogView-3-Flash', isFallback: true };
     } catch (e) {
-      return { url: pollinationsUrlFallback, label: 'Pollinations-Vision', isFallback: false };
+      return { url: pollinationsUrl, label: 'Pollinations-Vision', isFallback: false };
     }
   }
   
-  return { url: pollinationsUrlFallback, label: 'Pollinations-Vision', isFallback: false };
+  return { url: pollinationsUrl, label: 'Pollinations-Vision', isFallback: false };
 }
 
 export async function translateOracleResponse(response: OracleResponse, targetLanguage: 'EN' | 'RU'): Promise<OracleResponse> {
