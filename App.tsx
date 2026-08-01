@@ -1943,11 +1943,11 @@ export const App: React.FC = () => {
             </div>
 
             <div data-html2canvas-ignore className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full">
-               <button onClick={loadAllPerspectives} className={`py-5 px-4 text-[11px] font-black uppercase tracking-[0.2em] rounded-3xl transition-all active:scale-95 shadow-xl border-2 ${isRenoir ? 'bg-amber-600 border-amber-500 text-white hover:bg-amber-500' : 'bg-black border-black text-white hover:bg-zinc-800'}`}>
+               <button onClick={loadAllPerspectives} className={`py-6 text-[11px] font-black uppercase tracking-[0.3em] rounded-3xl transition-all active:scale-95 shadow-xl ${isRenoir ? 'bg-amber-900 border border-amber-700/60 text-amber-100 hover:bg-amber-800' : 'bg-black text-white hover:bg-zinc-800'}`}>
                 {t.readPerspectives}
                </button>
                <div className="relative">
-                 <button onClick={() => setShowSaveMenu(!showSaveMenu)} className={`w-full py-5 px-4 text-[11px] border-2 font-black uppercase tracking-[0.2em] rounded-3xl transition-all active:scale-95 flex items-center justify-center gap-2 shadow-xl ${isRenoir ? 'bg-amber-950/80 border-amber-500/80 text-amber-100 hover:bg-amber-900' : 'bg-white border-black text-black hover:bg-zinc-50'}`}>
+                 <button onClick={() => setShowSaveMenu(!showSaveMenu)} className={`w-full py-6 text-[11px] border-2 font-black uppercase tracking-[0.2em] rounded-3xl transition-all active:scale-95 flex items-center justify-center gap-2 ${isRenoir ? 'bg-amber-950/60 border-amber-800/60 text-amber-100 hover:bg-amber-900/80' : 'bg-white border-black/10 text-black hover:bg-zinc-50'}`}>
                   <Icons.Download /> {t.saveArtifact}
                  </button>
                  {showSaveMenu && (
@@ -1960,24 +1960,21 @@ export const App: React.FC = () => {
                    </>
                  )}
                </div>
-               <button onClick={() => setState(s => ({ ...s, status: 'IDLE' }))} className={`py-5 px-4 text-[11px] border-2 font-black uppercase tracking-[0.2em] rounded-3xl transition-all active:scale-95 shadow-xl ${isRenoir ? 'bg-amber-500 border-amber-400 text-amber-950 hover:bg-amber-400 hover:text-black' : 'bg-zinc-900 border-zinc-900 text-white hover:bg-red-600 hover:border-red-600'}`}>
+               <button onClick={() => setState(s => ({ ...s, status: 'IDLE' }))} className={`py-6 text-[11px] border-2 font-black uppercase tracking-[0.2em] rounded-3xl transition-all active:scale-95 ${isRenoir ? 'bg-amber-950/60 border-amber-500 text-amber-300 hover:bg-amber-600 hover:text-white hover:border-amber-600' : 'bg-white border-black text-black hover:bg-red-600 hover:text-white hover:border-red-600'}`}>
                 {t.newQuery}
                </button>
             </div>
 
-            <div data-html2canvas-ignore className="flex flex-wrap justify-center items-center gap-4 mt-6 z-10 relative w-full">
+            <div data-html2canvas-ignore className="flex justify-center -mt-6 gap-4">
               <button 
                 onClick={() => setShowCalibrationPopup(true)} 
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest border-2 transition-all hover:scale-105 active:scale-95 group shadow-md ${isRenoir ? 'bg-amber-950/90 border-amber-500/60 text-amber-300 hover:bg-amber-900 hover:text-amber-100' : 'bg-white border-red-600/30 text-red-600 hover:border-red-600 hover:bg-red-50'}`}
+                className={`flex items-center gap-1.5 px-4 py-1 text-[10px] font-black uppercase tracking-widest transition-all hover:scale-105 active:scale-95 group ${isRenoir ? 'text-amber-500' : 'text-red-600'}`}
               >
                 <Icons.Refresh />
                 <span className="underline underline-offset-4 decoration-2 group-hover:decoration-current">{t.askAgain}</span>
               </button>
-              <button 
-                onClick={handleRandomRequest} 
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest border-2 transition-all hover:scale-105 active:scale-95 group shadow-md ${isRenoir ? 'bg-amber-950/90 border-amber-500/60 text-amber-300 hover:bg-amber-900 hover:text-amber-100' : 'bg-white border-black/20 text-black hover:border-black hover:bg-zinc-50'}`}
-              >
-                <Icons.Sparkle />
+              <button onClick={handleRandomRequest} className={`flex items-center gap-1.5 px-4 py-1 text-[10px] font-black uppercase tracking-widest transition-all hover:scale-105 active:scale-95 group ${isRenoir ? 'text-amber-500' : 'text-black hover:text-red-600'}`}>
+                <Icons.Refresh />
                 <span className="underline underline-offset-4 decoration-2 group-hover:decoration-current">{t.randomRequest}</span>
               </button>
             </div>
