@@ -767,9 +767,9 @@ export const App: React.FC = () => {
         className={`fixed left-0 top-0 bottom-0 z-[2000] group cursor-pointer transition-all duration-500 ${!isSideMenuOpen && activePage === 'MUSIC' ? 'w-12 bg-gradient-to-r from-black/5 to-transparent' : 'w-6 md:w-4'}`}
       >
         {!isSideMenuOpen && (
-          <div className={`absolute top-1/2 -translate-y-1/2 flex items-center gap-3 pointer-events-none transition-all duration-700 ${activePage === 'MUSIC' ? 'left-4 opacity-70' : 'left-2 md:left-4 opacity-30 group-hover:opacity-100'}`}>
-            <div className={`w-px h-16 transition-all duration-700 ${activePage === 'MUSIC' ? 'animate-bounce' : 'animate-pulse'} ${isRenoir ? 'bg-amber-500/40 group-hover:bg-amber-500/80' : 'bg-red-600/40 group-hover:bg-red-600/80'}`} />
-            <span className={`text-[8px] md:text-[10px] font-black uppercase tracking-[0.4em] origin-left -rotate-90 transition-all duration-700 ${isRenoir ? 'text-amber-500/50 group-hover:text-amber-500' : 'text-red-900/50 group-hover:text-red-900 font-sans'}`}>
+          <div className={`absolute top-1/2 -translate-y-1/2 flex items-center gap-3 pointer-events-none transition-all duration-700 ${activePage === 'MUSIC' ? 'left-4 opacity-90' : 'left-2 md:left-4 opacity-80 group-hover:opacity-100'}`}>
+            <div className={`w-px h-16 transition-all duration-700 ${activePage === 'MUSIC' ? 'animate-bounce' : 'animate-pulse'} ${isRenoir ? 'bg-amber-500/70 group-hover:bg-amber-500' : 'bg-red-600/70 group-hover:bg-red-600'}`} />
+            <span className={`text-[8px] md:text-[10px] font-black uppercase tracking-[0.4em] origin-left -rotate-90 transition-all duration-700 ${isRenoir ? 'text-amber-400 group-hover:text-amber-300' : 'text-red-900 group-hover:text-red-600 font-sans'}`}>
               menu
             </span>
           </div>
@@ -1817,12 +1817,12 @@ export const App: React.FC = () => {
                             <button
                               key={p.id}
                               onClick={() => { setActiveFramework(p.frameworkType); scrollToAnalysis(); }}
-                              className={`group relative flex flex-col items-center transition-all duration-300 ${isActive ? 'scale-110' : 'opacity-40 hover:opacity-100'}`}
+                              className={`group relative flex flex-col items-center transition-all duration-300 ${isActive ? 'scale-110 opacity-100' : 'opacity-85 hover:opacity-100'}`}
                             >
-                              <div className={`w-10 h-10 md:w-12 md:h-12 rounded-full border-2 flex items-center justify-center text-[10px] font-black overflow-hidden transition-all ${isActive ? (isRenoir ? 'border-amber-500 bg-amber-500/20 text-amber-500' : 'border-red-600 bg-red-600/10 text-red-600') : 'border-current/20'}`}>
+                              <div className={`w-10 h-10 md:w-12 md:h-12 rounded-full border-2 flex items-center justify-center text-[10px] font-black overflow-hidden transition-all ${isActive ? (isRenoir ? 'border-amber-500 bg-amber-500/20 text-amber-500 shadow-md shadow-amber-500/20' : 'border-red-600 bg-red-600/10 text-red-600 shadow-md shadow-red-600/20') : (isRenoir ? 'border-amber-700/50 bg-amber-950/40 text-amber-200' : 'border-black/30 bg-black/5 text-black')}`}>
                                 {initials}
                               </div>
-                              <span className="mt-2 text-[8px] font-black uppercase tracking-tighter max-w-[60px] text-center leading-[0.8]">{data?.philosopherName}</span>
+                              <span className="mt-2 text-[8.5px] font-black uppercase tracking-tighter max-w-[65px] text-center leading-[0.9] opacity-90">{data?.philosopherName}</span>
                             </button>
                           );
                         })}
@@ -1942,10 +1942,10 @@ export const App: React.FC = () => {
           </div>
           <div className="flex flex-col items-center gap-4 w-full">
             <div className="flex gap-3">
-              <button type="button" onClick={() => { if(isManual) setState(s => ({ ...s, chaosScore: 50, logicScore: 50 })); setIsManual(!isManual); }} className={`flex items-center gap-2 px-5 py-2 rounded-full text-[8px] md:text-[9px] font-black uppercase tracking-widest border-2 transition-all shadow-xl ${isManual ? (isRenoir ? 'bg-amber-100/15 border-amber-100/40 text-amber-100 ring-1 ring-red-500' : 'bg-zinc-100 border-black/40 text-black ring-1 ring-red-600') : 'opacity-40 border-current hover:opacity-100'}`}>
+              <button type="button" onClick={() => { if(isManual) setState(s => ({ ...s, chaosScore: 50, logicScore: 50 })); setIsManual(!isManual); }} className={`flex items-center gap-2 px-5 py-2 rounded-full text-[8px] md:text-[9px] font-black uppercase tracking-widest border-2 transition-all shadow-xl ${isManual ? (isRenoir ? 'bg-amber-500 border-amber-500 text-amber-950 font-bold' : 'bg-black border-black text-white font-bold') : (isRenoir ? 'border-amber-700/50 bg-amber-950/30 text-amber-200 opacity-90 hover:opacity-100 hover:bg-amber-900/40' : 'border-black/30 bg-black/5 text-black opacity-90 hover:opacity-100 hover:bg-black/10')}`}>
                 <Icons.Settings /> {isManual ? t.cancelManual : t.manualCalibration}
               </button>
-              <button type="button" onClick={handleRandomRequest} className={`flex items-center gap-2 px-5 py-2 rounded-full text-[8px] md:text-[9px] font-black uppercase tracking-widest border-2 transition-all shadow-xl border-amber-500/50 text-amber-600 hover:bg-amber-500 hover:text-white`}>
+              <button type="button" onClick={handleRandomRequest} className={`flex items-center gap-2 px-5 py-2 rounded-full text-[8px] md:text-[9px] font-black uppercase tracking-widest border-2 transition-all shadow-xl ${isRenoir ? 'border-amber-600/50 bg-amber-950/30 text-amber-300 hover:bg-amber-500 hover:text-amber-950' : 'border-black/30 bg-black/5 text-black hover:bg-black hover:text-white'}`}>
                 <Icons.Sparkle /> {t.randomRequest}
               </button>
             </div>
