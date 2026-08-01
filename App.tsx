@@ -669,7 +669,7 @@ export const App: React.FC = () => {
   };
 
   const NavButton = ({ onClick, children, className = "", onMouseEnter, onMouseLeave }: any) => (
-    <button onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} onClick={onClick} className={`w-11 h-11 rounded-full border flex items-center justify-center backdrop-blur-3xl transition-all shadow-xl active:scale-95 ${isRenoir ? 'bg-amber-950/40 border-amber-900/40 text-amber-100' : 'bg-white/40 border-black/10 text-black'} ${className}`}>{children}</button>
+    <button onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} onClick={onClick} className={`w-11 h-11 rounded-full border-2 flex items-center justify-center backdrop-blur-3xl transition-all shadow-xl active:scale-95 ${isRenoir ? 'bg-amber-950/90 border-amber-600/70 text-amber-300 hover:bg-amber-900 hover:border-amber-400' : 'bg-white/90 border-black/10 text-black'} ${className}`}>{children}</button>
   );
 
   const CompactMusicPlayer = (
@@ -691,7 +691,7 @@ export const App: React.FC = () => {
         >
           <button 
             onClick={(e) => { e.stopPropagation(); handleMusicToggle(); }}
-            className={`flex-shrink-0 w-11 h-11 rounded-full flex items-center justify-center transition-all shadow-xl backdrop-blur-3xl border ${isRenoir ? 'bg-amber-950/90 border-amber-900/40' : 'bg-white/90 border-black/10'} ${!isMusicMuted ? (isRenoir ? 'text-amber-500 bg-amber-500/10' : 'text-red-500 bg-red-500/5') : 'opacity-40'}`}
+            className={`flex-shrink-0 w-11 h-11 rounded-full flex items-center justify-center transition-all shadow-xl backdrop-blur-3xl border-2 ${isRenoir ? 'bg-amber-950/90 border-amber-600/70 text-amber-300 hover:border-amber-400' : 'bg-white/90 border-black/10 text-black'} ${!isMusicMuted ? (isRenoir ? 'text-amber-400 bg-amber-500/20' : 'text-red-500 bg-red-500/5') : 'opacity-90'}`}
           >
             <Icons.Speaker muted={isMusicMuted} loading={false}/>
           </button>
@@ -703,7 +703,7 @@ export const App: React.FC = () => {
               opacity: isPlayerExpanded ? 1 : 0,
               x: isPlayerExpanded ? 0 : -10
             }}
-            className={`hidden md:flex items-center gap-3 whitespace-nowrap overflow-hidden py-1.5 px-3 rounded-full border backdrop-blur-3xl shadow-lg transition-colors duration-500 ${isRenoir ? 'bg-amber-950/5 border-amber-900/40 text-amber-200/60' : 'bg-white/5 border-black/10 text-black/60'}`}
+            className={`hidden md:flex items-center gap-3 whitespace-nowrap overflow-hidden py-1.5 px-3 rounded-full border-2 backdrop-blur-3xl shadow-lg transition-colors duration-500 ${isRenoir ? 'bg-amber-950/90 border-amber-600/70 text-amber-200' : 'bg-white/90 border-black/10 text-black/80'}`}
           >
             <div className="flex items-center gap-1">
               <button onClick={(e) => { e.stopPropagation(); handlePrev(); }} className="p-1 hover:opacity-100 hover:scale-110 active:scale-95 transition-all">
@@ -711,7 +711,7 @@ export const App: React.FC = () => {
               </button>
               <button 
                 onClick={(e) => { e.stopPropagation(); handleMusicToggle(); }}
-                className={`w-6.5 h-6.5 rounded-full flex items-center justify-center transition-all hover:scale-110 active:scale-90 shadow-md ${isRenoir ? 'bg-amber-500 text-amber-950' : 'bg-black text-white'}`}
+                className={`w-6.5 h-6.5 rounded-full flex items-center justify-center transition-all hover:scale-110 active:scale-90 shadow-md ${isRenoir ? 'bg-amber-500 text-amber-950 font-bold' : 'bg-black text-white'}`}
               >
                 {isMusicMuted ? (
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
@@ -723,7 +723,7 @@ export const App: React.FC = () => {
                 <Icons.ArrowLeft className="w-3 h-3" />
               </button>
             </div>
-            <div className={`w-px h-3 ${isRenoir ? 'bg-amber-900/20' : 'bg-black/10'}`} />
+            <div className={`w-px h-3 ${isRenoir ? 'bg-amber-600/40' : 'bg-black/10'}`} />
             <button 
               onClick={(e) => { e.stopPropagation(); setActivePage('MUSIC'); }}
               className="text-[7.5px] font-black uppercase tracking-[0.25em] hover:opacity-100 px-2 transition-all"
@@ -740,9 +740,9 @@ export const App: React.FC = () => {
     <>
       {CompactMusicPlayer}
       <div className="fixed top-6 right-4 z-[2500] flex gap-3 items-center">
-        <div className={`flex p-1 rounded-full border backdrop-blur-xl ${isRenoir ? 'bg-amber-950/40 border-amber-900/20' : 'bg-white/40 border-black/5'}`}>
-          <button onClick={() => setUiLanguage(l => l === 'EN' ? 'RU' : 'EN')} className="w-8 h-8 rounded-full text-[9px] font-black">{uiLanguage}</button>
-          <button onClick={() => setTheme(t => t === 'SUPREMATIST' ? 'IMPRESSIONIST' : 'SUPREMATIST')} className={`px-3 h-8 rounded-full text-[9px] font-black ${isRenoir ? 'bg-amber-700 text-white' : 'bg-black text-white'}`}>
+        <div className={`flex p-1 rounded-full border-2 backdrop-blur-xl ${isRenoir ? 'bg-amber-950/90 border-amber-600/70 text-amber-100' : 'bg-white/90 border-black/10'}`}>
+          <button onClick={() => setUiLanguage(l => l === 'EN' ? 'RU' : 'EN')} className={`w-8 h-8 rounded-full text-[9px] font-black transition-colors ${isRenoir ? 'text-amber-300 hover:bg-amber-900/60' : 'text-black hover:bg-black/5'}`}>{uiLanguage}</button>
+          <button onClick={() => setTheme(t => t === 'SUPREMATIST' ? 'IMPRESSIONIST' : 'SUPREMATIST')} className={`px-3 h-8 rounded-full text-[9px] font-black transition-colors ${isRenoir ? 'bg-amber-500 text-amber-950 font-bold hover:bg-amber-400' : 'bg-black text-white hover:bg-zinc-800'}`}>
             {theme === 'SUPREMATIST' ? 'Mode A' : 'Mode B'}
           </button>
         </div>
@@ -1444,50 +1444,58 @@ export const App: React.FC = () => {
   }, [state.response?.imageUrl, state.attempts]);
 
   const saveArtifactAsImage = async () => {
-    if (!captureRef.current || !state.response?.imageUrl) return;
+    if (!captureRef.current) return;
     
-    const originalSrc = state.response.imageUrl;
+    const originalSrc = state.response?.imageUrl;
     let localUrl: string | null = null;
     
     try {
-      // Use CORS-friendly image to avoid tainting the canvas
-      localUrl = await getCORSFriendlyImage(originalSrc);
-      if (resultImageRef.current) {
-        resultImageRef.current.src = localUrl;
-        await new Promise(resolve => {
-          if (resultImageRef.current?.complete) resolve(true);
-          else {
-            resultImageRef.current!.onload = () => resolve(true);
-            resultImageRef.current!.onerror = () => resolve(false);
+      if (originalSrc && resultImageRef.current) {
+        try {
+          localUrl = await getCORSFriendlyImage(originalSrc);
+          if (localUrl && localUrl !== originalSrc) {
+            resultImageRef.current.src = localUrl;
+            await new Promise(resolve => {
+              if (resultImageRef.current?.complete) resolve(true);
+              else {
+                resultImageRef.current!.onload = () => resolve(true);
+                resultImageRef.current!.onerror = () => resolve(false);
+              }
+            });
+            if (resultImageRef.current?.decode) {
+              try { await resultImageRef.current.decode(); } catch (e) {}
+            }
           }
-        });
-        if (resultImageRef.current?.decode) {
-          try { await resultImageRef.current.decode(); } catch (e) {}
+        } catch (imgErr) {
+          console.warn("[Oracle] Pre-fetching CORS image failed, proceeding with direct capture:", imgErr);
         }
       }
 
       const canvas = await html2canvas(captureRef.current, { 
         backgroundColor: isRenoir ? '#0f0505' : '#ffffff', 
         useCORS: true, 
+        allowTaint: true,
         scale: 2,
-        logging: false,
-        allowTaint: false,
-        scrollX: 0,
-        scrollY: -window.scrollY, // Fix for scrolled content
-        windowWidth: document.documentElement.offsetWidth,
-        windowHeight: document.documentElement.offsetHeight
+        logging: false
       });
 
+      const dataUrl = canvas.toDataURL('image/png');
       const link = document.createElement('a');
       link.download = `oracle-decree-${Date.now()}.png`;
-      link.href = canvas.toDataURL('image/png');
+      link.href = dataUrl;
+      document.body.appendChild(link);
       link.click();
+      document.body.removeChild(link);
       setShowSaveMenu(false);
     } catch (e) { 
-      console.error("Export failure", e); 
+      console.error("[Oracle] Export failure", e); 
     } finally {
-      if (resultImageRef.current) resultImageRef.current.src = originalSrc;
-      if (localUrl && localUrl.startsWith('blob:')) URL.revokeObjectURL(localUrl);
+      if (originalSrc && resultImageRef.current) {
+        resultImageRef.current.src = originalSrc;
+      }
+      if (localUrl && localUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(localUrl);
+      }
     }
   };
 
@@ -1819,7 +1827,7 @@ export const App: React.FC = () => {
                               onClick={() => { setActiveFramework(p.frameworkType); scrollToAnalysis(); }}
                               className={`group relative flex flex-col items-center transition-all duration-300 ${isActive ? 'scale-110 opacity-100' : 'opacity-85 hover:opacity-100'}`}
                             >
-                              <div className={`w-10 h-10 md:w-12 md:h-12 rounded-full border-2 flex items-center justify-center text-[10px] font-black overflow-hidden transition-all ${isActive ? (isRenoir ? 'border-amber-500 bg-amber-500/20 text-amber-500 shadow-md shadow-amber-500/20' : 'border-red-600 bg-red-600/10 text-red-600 shadow-md shadow-red-600/20') : (isRenoir ? 'border-amber-700/50 bg-amber-950/40 text-amber-200' : 'border-black/30 bg-black/5 text-black')}`}>
+                              <div className={`w-10 h-10 md:w-12 md:h-12 rounded-full border-2 flex items-center justify-center text-[10px] font-black overflow-hidden transition-all ${isActive ? (isRenoir ? 'border-amber-400 bg-amber-500/30 text-amber-300 shadow-lg shadow-amber-500/30' : 'border-red-600 bg-red-600/10 text-red-600 shadow-md shadow-red-600/20') : (isRenoir ? 'border-amber-600/70 bg-amber-950/90 text-amber-200 hover:border-amber-400 hover:bg-amber-900' : 'border-black/30 bg-black/5 text-black')}`}>
                                 {initials}
                               </div>
                               <span className="mt-2 text-[8.5px] font-black uppercase tracking-tighter max-w-[65px] text-center leading-[0.9] opacity-90">{data?.philosopherName}</span>
@@ -1836,24 +1844,24 @@ export const App: React.FC = () => {
                    </div>
 
             <div data-html2canvas-ignore className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full">
-               <button onClick={loadAllPerspectives} className={`py-6 text-[11px] font-black uppercase tracking-[0.3em] rounded-3xl transition-all active:scale-95 shadow-xl ${isRenoir ? 'bg-amber-900 border border-amber-700/60 text-amber-100 hover:bg-amber-800' : 'bg-black text-white hover:bg-zinc-800'}`}>
+               <button onClick={loadAllPerspectives} className={`py-6 text-[11px] font-black uppercase tracking-[0.3em] rounded-3xl transition-all active:scale-95 shadow-xl ${isRenoir ? 'bg-amber-900/90 border-2 border-amber-600/70 text-amber-100 hover:bg-amber-800 hover:border-amber-400' : 'bg-black text-white hover:bg-zinc-800'}`}>
                 {t.readPerspectives}
                </button>
                <div className="relative">
-                 <button onClick={() => setShowSaveMenu(!showSaveMenu)} className={`w-full py-6 text-[11px] border-2 font-black uppercase tracking-[0.2em] rounded-3xl transition-all active:scale-95 flex items-center justify-center gap-2 ${isRenoir ? 'bg-amber-950/60 border-amber-800/60 text-amber-100 hover:bg-amber-900/80' : 'bg-white border-black/10 text-black hover:bg-zinc-50'}`}>
+                 <button onClick={() => setShowSaveMenu(!showSaveMenu)} className={`w-full py-6 text-[11px] border-2 font-black uppercase tracking-[0.2em] rounded-3xl transition-all active:scale-95 flex items-center justify-center gap-2 ${isRenoir ? 'bg-amber-950/90 border-amber-600/70 text-amber-100 hover:bg-amber-900 hover:border-amber-400' : 'bg-white border-black/10 text-black hover:bg-zinc-50'}`}>
                   <Icons.Download /> {t.saveArtifact}
                  </button>
                  {showSaveMenu && (
                    <>
                      <div className="fixed inset-0 z-[590] cursor-pointer" onClick={() => setShowSaveMenu(false)} />
-                     <div className={`absolute bottom-full left-0 w-full mb-2 p-2 rounded-3xl border shadow-2xl z-[600] flex flex-col gap-1 backdrop-blur-2xl animate-in slide-in-from-bottom-2 ${isRenoir ? 'bg-amber-950/95 border-amber-900/60 text-amber-100' : 'bg-white/95 border-black/10 text-black'}`}>
-                        <button onClick={saveArtifactAsImage} className="w-full p-4 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-current/10 text-left flex justify-between items-center group">{t.saveCard} <Icons.Download /></button>
-                        <button onClick={savePictureOnly} className="w-full p-4 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-current/10 text-left flex justify-between items-center group">{t.saveImage} <Icons.Download /></button>
+                     <div className={`absolute bottom-full left-0 w-full mb-2 p-2 rounded-3xl border-2 shadow-2xl z-[600] flex flex-col gap-1 backdrop-blur-2xl animate-in slide-in-from-bottom-2 ${isRenoir ? 'bg-[#1e0a0a] border-amber-600/80 text-amber-100' : 'bg-white/95 border-black/10 text-black'}`}>
+                        <button onClick={saveArtifactAsImage} className={`w-full p-4 rounded-2xl text-[10px] font-black uppercase tracking-widest text-left flex justify-between items-center group ${isRenoir ? 'hover:bg-amber-900/60 text-amber-100' : 'hover:bg-current/10'}`}>{t.saveCard} <Icons.Download /></button>
+                        <button onClick={savePictureOnly} className={`w-full p-4 rounded-2xl text-[10px] font-black uppercase tracking-widest text-left flex justify-between items-center group ${isRenoir ? 'hover:bg-amber-900/60 text-amber-100' : 'hover:bg-current/10'}`}>{t.saveImage} <Icons.Download /></button>
                      </div>
                    </>
                  )}
                </div>
-               <button onClick={() => setState(s => ({ ...s, status: 'IDLE' }))} className={`py-6 text-[11px] border-2 font-black uppercase tracking-[0.2em] rounded-3xl transition-all active:scale-95 ${isRenoir ? 'bg-amber-950/60 border-amber-500 text-amber-300 hover:bg-amber-600 hover:text-white hover:border-amber-600' : 'bg-white border-black text-black hover:bg-red-600 hover:text-white hover:border-red-600'}`}>
+               <button onClick={() => setState(s => ({ ...s, status: 'IDLE' }))} className={`py-6 text-[11px] border-2 font-black uppercase tracking-[0.2em] rounded-3xl transition-all active:scale-95 ${isRenoir ? 'bg-amber-950/90 border-amber-500 text-amber-300 hover:bg-amber-500 hover:text-amber-950 hover:border-amber-400 font-bold' : 'bg-white border-black text-black hover:bg-red-600 hover:text-white hover:border-red-600'}`}>
                 {t.newQuery}
                </button>
             </div>
@@ -1942,10 +1950,10 @@ export const App: React.FC = () => {
           </div>
           <div className="flex flex-col items-center gap-4 w-full">
             <div className="flex gap-3">
-              <button type="button" onClick={() => { if(isManual) setState(s => ({ ...s, chaosScore: 50, logicScore: 50 })); setIsManual(!isManual); }} className={`flex items-center gap-2 px-5 py-2 rounded-full text-[8px] md:text-[9px] font-black uppercase tracking-widest border-2 transition-all shadow-xl ${isManual ? (isRenoir ? 'bg-amber-500 border-amber-500 text-amber-950 font-bold' : 'bg-black border-black text-white font-bold') : (isRenoir ? 'border-amber-700/50 bg-amber-950/30 text-amber-200 opacity-90 hover:opacity-100 hover:bg-amber-900/40' : 'border-black/30 bg-black/5 text-black opacity-90 hover:opacity-100 hover:bg-black/10')}`}>
+              <button type="button" onClick={() => { if(isManual) setState(s => ({ ...s, chaosScore: 50, logicScore: 50 })); setIsManual(!isManual); }} className={`flex items-center gap-2 px-5 py-2 rounded-full text-[8px] md:text-[9px] font-black uppercase tracking-widest border-2 transition-all shadow-xl ${isManual ? (isRenoir ? 'bg-amber-500 border-amber-500 text-amber-950 font-bold' : 'bg-black border-black text-white font-bold') : (isRenoir ? 'border-amber-600/70 bg-amber-950/90 text-amber-200 hover:border-amber-400 hover:bg-amber-900' : 'border-black/30 bg-black/5 text-black hover:bg-black/10')}`}>
                 <Icons.Settings /> {isManual ? t.cancelManual : t.manualCalibration}
               </button>
-              <button type="button" onClick={handleRandomRequest} className={`flex items-center gap-2 px-5 py-2 rounded-full text-[8px] md:text-[9px] font-black uppercase tracking-widest border-2 transition-all shadow-xl ${isRenoir ? 'border-amber-600/50 bg-amber-950/30 text-amber-300 hover:bg-amber-500 hover:text-amber-950' : 'border-black/30 bg-black/5 text-black hover:bg-black hover:text-white'}`}>
+              <button type="button" onClick={handleRandomRequest} className={`flex items-center gap-2 px-5 py-2 rounded-full text-[8px] md:text-[9px] font-black uppercase tracking-widest border-2 transition-all shadow-xl ${isRenoir ? 'border-amber-600/70 bg-amber-950/90 text-amber-300 hover:bg-amber-500 hover:text-amber-950 hover:border-amber-400' : 'border-black/30 bg-black/5 text-black hover:bg-black hover:text-white'}`}>
                 <Icons.Sparkle /> {t.randomRequest}
               </button>
             </div>
