@@ -1716,7 +1716,6 @@ export const App: React.FC = () => {
           >
             {(r?.title || "The Decree")?.replace(/\[\[|\]\]/g, '')}
           </h1>
-
           <div className="w-full max-w-[400px]">
             <RatioIndicator logicScore={state.logicScore} chaosScore={state.chaosScore} category={r.category as any} theme={theme} language={uiLanguage} />
             <div className={`relative group cursor-crosshair transition-all duration-700 ${isRenoir ? 'renoir-glow rounded-[60px]' : 'oracle-glow'}`}>
@@ -1805,112 +1804,9 @@ export const App: React.FC = () => {
             </div>
           </div>
 
-          <div className="w-full flex flex-col items-center space-y-8">
-            <div className={`w-full p-8 md:p-12 relative transition-all duration-500 shadow-2xl border ${isTranslating ? 'blur-md opacity-40' : ''} ${isRenoir ? 'bg-[#1e0a0a]/80 backdrop-blur-xl border-amber-900/20 rounded-[60px]' : 'bg-white/80 backdrop-blur-xl border-black/5 rounded-[60px]'}`}>
-               <div className="flex flex-col items-center mb-8 border-b border-current/10 pb-6 uppercase font-black">
-                 <div className="w-full flex justify-between items-center mb-2">
-                   <h3 className="text-[11px] font-black uppercase opacity-40 tracking-[0.4em]">
-                     {modeLabel}
-                   </h3>
-                   <select data-html2canvas-ignore value={activeFramework} onChange={(e) => { setActiveFramework(e.target.value as FrameworkType); scrollToAnalysis(); }} className={`text-[10px] font-black uppercase bg-transparent outline-none cursor-pointer underline-offset-4 hover:underline ${isRenoir ? 'text-amber-400 decoration-amber-500' : 'text-red-600 decoration-red-500'}`}>
-                      {Object.keys(t.frameworks).map(k => <option key={k} value={k} className="text-black">{(t.frameworks as any)[k]}</option>)}
-                   </select>
-                 </div>
-                 
-                 {r.isUncertain && (
-                   <div className={`text-center py-2 px-4 border rounded-xl animate-bounce mt-4 ${isRenoir ? 'bg-amber-900/10 border-amber-500/30' : 'bg-red-50 border-red-200'}`}>
-                     <p className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${isRenoir ? 'text-amber-500' : 'text-red-600'}`}>{t.uncertaintyPrefix}</p>
-                     <p className="text-[11px] italic opacity-70">"{r.uncertaintyQuery || 'Was this intended as a personal decision or a recommendation?'}"</p>
-                   </div>
-                 )}
-               </div>
+            <TextBlock text={activeAnalysisData?.analysis || "The council is currently formulating the synthesized core of this revelation."} isRenoir={isRenoir} isLoading={activeAnalysisData?.isLoading} loadingLabel={t.loadingAnalysis} dropCap={activeFramework === 'DEFAULT'} />
 
-               {/* Graphics/Charts */}
-               {r.type === 'COMPARISON' && r.comparison && (
-                 <div className="w-full space-y-8 mb-12 animate-in slide-in-from-bottom-4 duration-700">
-                   <div className="grid grid-cols-2 gap-4">
-                     {['A', 'B'].map(opt => {
-                       const title = opt === 'A' ? r.comparison!.optionA : r.comparison!.optionB;
-                       const score = opt === 'A' ? r.comparison!.percentageA : r.comparison!.percentageB;
-                       const voters = Object.values(r.perspectives || {})
-                         .filter(p => (p as Perspective).vote === opt)
-                         .map(p => (p as Perspective).philosopherName);
-                       
-                       return (
-                         <div key={opt} className="flex flex-col items-center text-center">
-                           <span className={`text-[9px] font-black uppercase opacity-40 mb-2`}>{opt === 'A' ? t.optionA : t.optionB}</span>
-                           <span className="text-lg md:text-xl font-black uppercase leading-tight">{title}</span>
-                           <div className={`w-full h-2 mt-4 border border-current/10 relative`}>
-                             <div className={`absolute top-0 left-0 h-full ${isRenoir ? 'bg-amber-500' : 'bg-red-600'}`} style={{ width: `${score}%` }} />
-                           </div>
-                           <span className="mt-2 text-[10px] font-black opacity-60">{score}%</span>
-                           <div className="mt-4 flex flex-col items-center">
-                             <span className="text-[7px] font-black uppercase opacity-30 mb-2 tracking-widest">Delegates</span>
-                             <div className="flex flex-wrap justify-center gap-1 opacity-50">
-                               {voters.map((vName, vIdx) => (
-                                 <span key={vIdx} className="text-[8px] font-black uppercase px-1.5 py-0.5 border border-current/20 rounded-[4px] leading-tight">
-                                   {vName}
-                                 </span>
-                               ))}
-                             </div>
-                           </div>
-                         </div>
-                       );
-                     })}
-                   </div>
-                 </div>
-               )}
-
-               {/* MAIN VERDICT - PROMINENT AND POSITIONED BELOW THE GRAPHICS */}
-               <div className="w-full flex flex-col items-center justify-center text-center py-10 mb-10 bg-current/[0.03] rounded-[40px] border border-current/5 px-8 shadow-inner animate-in zoom-in duration-700">
-                  <span className={`text-[10px] font-black uppercase tracking-[0.7em] opacity-40 mb-5`}>{verdictTypeLabel}</span>
-                  <span className={`leading-tight ${isRenoir ? 'text-amber-500 font-serif' : 'text-red-600 font-sans'} ${
-                     (activeAnalysisData?.verdict?.length || 0) > 60 || activeFramework !== 'DEFAULT'
-                       ? 'text-lg md:text-xl font-medium tracking-normal'
-                       : 'text-2xl md:text-5xl font-black uppercase tracking-tighter'
-                   }`}>
-                     {renderHyperlinkedText(activeAnalysisData?.verdict || "Awaiting the echo of fate...", !!isRenoir, true)}
-                  </span>
-                  
-                  {activeAnalysisData?.summary && (
-                    <div className="mt-6 pt-6 border-t border-current/5 max-w-2xl">
-                      <p className={`text-sm md:text-base font-normal italic opacity-80 leading-relaxed ${isRenoir ? 'text-amber-200/60' : 'text-gray-600'}`}>
-                        {activeAnalysisData.summary}
-                      </p>
-                    </div>
-                  )}
-               </div>
-
-               {r.type === 'RECOMMENDATION' && activeAnalysisData?.recommendationLink && (
-                 <div className="w-full flex justify-center mb-10 animate-in slide-in-from-bottom-4 duration-700">
-                   <a 
-                     href={activeAnalysisData.recommendationLink} 
-                     target="_blank" 
-                     rel="noopener noreferrer"
-                     className={`flex items-center gap-3 px-8 py-3 rounded-full border-2 font-black uppercase tracking-[0.3em] text-[10px] transition-all hover:scale-105 active:scale-95 shadow-xl ${isRenoir ? 'bg-amber-900 border-amber-500 text-white' : 'bg-black border-red-600 text-white'}`}
-                   >
-                     <Icons.External /> {t.studyEvidence}
-                   </a>
-                 </div>
-               )}
-
-               {activeAnalysisData?.tally && (
-                  <div className="mb-10 text-center animate-in fade-in slide-in-from-top-2 duration-700">
-                    <span className="text-[8px] font-black uppercase tracking-raw block mb-2">{tallyLabel}</span>
-                    <span className="text-[10px] md:text-xs font-light italic opacity-60">
-                      {activeAnalysisData.tally}
-                    </span>
-                  </div>
-               )}
-
-               {activeAnalysisData && (
-                 <div className="w-full animate-in fade-in duration-1000">
-                   <div className="mb-8 border-b border-current/5 pb-8">
-                     <span ref={analysisHeaderRef} className="text-[9px] font-black uppercase tracking-[0.4em] opacity-30 block mb-6 text-center">{activeFramework === 'DEFAULT' ? t.ontologicalCore : t.frameworks[activeFramework]}</span>
-                     <TextBlock text={activeAnalysisData.analysis || "The council is currently formulating the synthesized core of this revelation."} isRenoir={isRenoir} isLoading={activeAnalysisData.isLoading} loadingLabel={t.loadingAnalysis} dropCap={activeFramework === 'DEFAULT'} />
-                   </div>
-
-                   <div className="pt-8 mb-8">
+            <div className="pt-8 mb-8">
                       <h4 className="text-[10px] font-black uppercase tracking-[0.6em] text-center opacity-30 mb-8">{t.councilOfPhilosophers}</h4>
                       <div className="flex flex-wrap justify-center gap-4 md:gap-6">
                         {perspectivesList.map((p) => {
@@ -1938,9 +1834,6 @@ export const App: React.FC = () => {
                         {t.disclaimer}
                      </p>
                    </div>
-                 </div>
-               )}
-            </div>
 
             <div data-html2canvas-ignore className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full">
                <button onClick={loadAllPerspectives} className={`py-6 text-[11px] font-black uppercase tracking-[0.3em] rounded-3xl transition-all active:scale-95 shadow-xl ${isRenoir ? 'bg-amber-900 border border-amber-700/60 text-amber-100 hover:bg-amber-800' : 'bg-black text-white hover:bg-zinc-800'}`}>
@@ -2005,7 +1898,6 @@ export const App: React.FC = () => {
                </div>
             </div>
           </div>
-        </div>
     );
   } else {
     mainContent = (
