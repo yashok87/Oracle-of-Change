@@ -1648,7 +1648,7 @@ export const App: React.FC = () => {
           <div className="w-full flex justify-between items-end mb-24 border-b-2 border-white/20 pb-12">
             <div className="flex flex-col">
               <span className="text-white/40 text-[11px] font-black uppercase tracking-[1.2em] mb-4">Council Proceedings</span>
-              <h2 className="text-2xl md:text-6xl font-black text-white uppercase tracking-tighter leading-[0.8]">{(r?.title || "Decree")?.replace(/\[\[|\]\]/g, '')}</h2>
+              <h2 className="text-2xl md:text-6xl font-black text-white uppercase tracking-tighter leading-tight">{(r?.title || "Decree")?.replace(/\[\[|\]\]/g, '')}</h2>
             </div>
             <button onClick={() => { setShowPerspectivesModal(false); stopAudio(); }} className="text-white p-4 border-2 border-white rounded-full hover:bg-white hover:text-black transition-all active:scale-90"><Icons.Close /></button>
           </div>
@@ -1712,7 +1712,7 @@ export const App: React.FC = () => {
       <div ref={captureRef} className="max-w-3xl mx-auto flex flex-col items-center space-y-12">
         <h1 
             onClick={triggerConfetti}
-            className="text-3xl md:text-5xl font-black uppercase tracking-tighter leading-[0.8] text-center cursor-pointer"
+            className={`text-3xl md:text-5xl font-black uppercase tracking-tighter leading-tight text-center cursor-pointer ${isRenoir ? 'text-amber-100 font-serif drop-shadow-[0_2px_10px_rgba(245,158,11,0.2)]' : 'text-black font-sans'}`}
           >
             {(r?.title || "The Decree")?.replace(/\[\[|\]\]/g, '')}
           </h1>
@@ -1812,7 +1812,7 @@ export const App: React.FC = () => {
                    <h3 className="text-[11px] font-black uppercase opacity-40 tracking-[0.4em]">
                      {modeLabel}
                    </h3>
-                   <select data-html2canvas-ignore value={activeFramework} onChange={(e) => { setActiveFramework(e.target.value as FrameworkType); scrollToAnalysis(); }} className="text-[10px] font-black uppercase bg-transparent outline-none cursor-pointer decoration-red-500 underline-offset-4 hover:underline">
+                   <select data-html2canvas-ignore value={activeFramework} onChange={(e) => { setActiveFramework(e.target.value as FrameworkType); scrollToAnalysis(); }} className={`text-[10px] font-black uppercase bg-transparent outline-none cursor-pointer underline-offset-4 hover:underline ${isRenoir ? 'text-amber-400 decoration-amber-500' : 'text-red-600 decoration-red-500'}`}>
                       {Object.keys(t.frameworks).map(k => <option key={k} value={k} className="text-black">{(t.frameworks as any)[k]}</option>)}
                    </select>
                  </div>
@@ -1943,24 +1943,24 @@ export const App: React.FC = () => {
             </div>
 
             <div data-html2canvas-ignore className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full">
-               <button onClick={loadAllPerspectives} className={`py-6 text-[11px] font-black uppercase tracking-[0.3em] rounded-3xl transition-all active:scale-95 shadow-xl ${isRenoir ? 'bg-amber-900 text-white' : 'bg-black text-white'}`}>
+               <button onClick={loadAllPerspectives} className={`py-6 text-[11px] font-black uppercase tracking-[0.3em] rounded-3xl transition-all active:scale-95 shadow-xl ${isRenoir ? 'bg-amber-900 border border-amber-700/60 text-amber-100 hover:bg-amber-800' : 'bg-black text-white hover:bg-zinc-800'}`}>
                 {t.readPerspectives}
                </button>
                <div className="relative">
-                 <button onClick={() => setShowSaveMenu(!showSaveMenu)} className="w-full py-6 text-[11px] border-2 border-current/10 font-black uppercase tracking-[0.2em] rounded-3xl transition-all active:scale-95 flex items-center justify-center gap-2 hover:bg-current/5">
+                 <button onClick={() => setShowSaveMenu(!showSaveMenu)} className={`w-full py-6 text-[11px] border-2 font-black uppercase tracking-[0.2em] rounded-3xl transition-all active:scale-95 flex items-center justify-center gap-2 ${isRenoir ? 'bg-amber-950/60 border-amber-800/60 text-amber-100 hover:bg-amber-900/80' : 'bg-white border-black/10 text-black hover:bg-zinc-50'}`}>
                   <Icons.Download /> {t.saveArtifact}
                  </button>
                  {showSaveMenu && (
                    <>
                      <div className="fixed inset-0 z-[590] cursor-pointer" onClick={() => setShowSaveMenu(false)} />
-                     <div className={`absolute bottom-full left-0 w-full mb-2 p-2 rounded-3xl border shadow-2xl z-[600] flex flex-col gap-1 backdrop-blur-2xl animate-in slide-in-from-bottom-2 ${isRenoir ? 'bg-amber-950/90 border-amber-900/40' : 'bg-white/90 border-black/10'}`}>
+                     <div className={`absolute bottom-full left-0 w-full mb-2 p-2 rounded-3xl border shadow-2xl z-[600] flex flex-col gap-1 backdrop-blur-2xl animate-in slide-in-from-bottom-2 ${isRenoir ? 'bg-amber-950/95 border-amber-900/60 text-amber-100' : 'bg-white/95 border-black/10 text-black'}`}>
                         <button onClick={saveArtifactAsImage} className="w-full p-4 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-current/10 text-left flex justify-between items-center group">{t.saveCard} <Icons.Download /></button>
                         <button onClick={savePictureOnly} className="w-full p-4 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-current/10 text-left flex justify-between items-center group">{t.saveImage} <Icons.Download /></button>
                      </div>
                    </>
                  )}
                </div>
-               <button onClick={() => setState(s => ({ ...s, status: 'IDLE' }))} className="py-6 text-[11px] border-2 border-current font-black uppercase tracking-[0.2em] rounded-3xl transition-all active:scale-95 hover:bg-red-600 hover:text-white hover:border-red-600">
+               <button onClick={() => setState(s => ({ ...s, status: 'IDLE' }))} className={`py-6 text-[11px] border-2 font-black uppercase tracking-[0.2em] rounded-3xl transition-all active:scale-95 ${isRenoir ? 'bg-amber-950/60 border-amber-500 text-amber-300 hover:bg-amber-600 hover:text-white hover:border-amber-600' : 'bg-white border-black text-black hover:bg-red-600 hover:text-white hover:border-red-600'}`}>
                 {t.newQuery}
                </button>
             </div>
@@ -1973,7 +1973,7 @@ export const App: React.FC = () => {
                 <Icons.Refresh />
                 <span className="underline underline-offset-4 decoration-2 group-hover:decoration-current">{t.askAgain}</span>
               </button>
-              <button onClick={handleRandomRequest} className="flex items-center gap-1.5 px-4 py-1 text-[10px] font-black uppercase tracking-widest transition-all hover:scale-105 active:scale-95 group text-amber-500">
+              <button onClick={handleRandomRequest} className={`flex items-center gap-1.5 px-4 py-1 text-[10px] font-black uppercase tracking-widest transition-all hover:scale-105 active:scale-95 group ${isRenoir ? 'text-amber-500' : 'text-black hover:text-red-600'}`}>
                 <Icons.Refresh />
                 <span className="underline underline-offset-4 decoration-2 group-hover:decoration-current">{t.randomRequest}</span>
               </button>
@@ -1983,7 +1983,7 @@ export const App: React.FC = () => {
                <span className="text-[11px] font-black uppercase opacity-40 tracking-[0.6em] block mb-10">{t.sources}</span>
                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full px-4">
                  {activeAnalysisData?.sources?.map((s, i) => s && (
-                  <a key={i} href={s.uri} target="_blank" rel="noopener noreferrer" className={`p-5 border-2 border-current/5 rounded-3xl hover:bg-current/5 transition-all flex justify-between items-center group`}>
+                  <a key={i} href={s.uri} target="_blank" rel="noopener noreferrer" className={`p-5 border-2 rounded-3xl transition-all flex justify-between items-center group ${isRenoir ? 'border-amber-900/40 bg-amber-950/30 hover:bg-amber-900/40 text-amber-100' : 'border-current/5 hover:bg-current/5 text-black'}`}>
                     <div className="flex flex-col text-left truncate">
                        <span className="text-[9px] font-black uppercase opacity-30 mb-1 tracking-widest">REF. {(i+1).toString().padStart(2, '0')}</span>
                        <span className="text-[11px] font-black uppercase leading-tight group-hover:underline truncate max-w-[200px]">{s?.title || "Source"}</span>
@@ -1993,7 +1993,7 @@ export const App: React.FC = () => {
                  ))}
                  
                  {activeAnalysisData?.studyMoreUrl && (
-                   <a data-html2canvas-ignore href={activeAnalysisData.studyMoreUrl} target="_blank" rel="noopener noreferrer" className={`p-5 border-2 border-current font-black uppercase transition-all flex justify-center items-center group md:col-span-2 mt-4 hover:bg-red-600 hover:text-white hover:border-red-600`}>
+                   <a data-html2canvas-ignore href={activeAnalysisData.studyMoreUrl} target="_blank" rel="noopener noreferrer" className={`p-5 border-2 font-black uppercase transition-all flex justify-center items-center group md:col-span-2 mt-4 ${isRenoir ? 'border-amber-600 text-amber-300 hover:bg-amber-600 hover:text-white' : 'border-current text-black hover:bg-red-600 hover:text-white hover:border-red-600'}`}>
                     <div className="flex items-center gap-3">
                       <span className="text-[11px] font-black uppercase tracking-[0.3em]">
                         {activeAnalysisData.studyMoreLabel || t.studyFurther}
