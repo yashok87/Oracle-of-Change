@@ -1443,37 +1443,206 @@ export const App: React.FC = () => {
     };
   }, [state.response?.imageUrl, state.attempts]);
 
-  const saveArtifactAsImage = async () => {
-    if (!captureRef.current || !state.response?.imageUrl) return;
-    
-    const originalSrc = state.response.imageUrl;
-    let localUrl: string | null = null;
+  const getCORSDataUrl = async (url: string): Promise<string> => {
+    if (!url) return "";
+    if (url.startsWith('data:')) return url;
     
     try {
-      // Use CORS-friendly image to avoid tainting the canvas
-      localUrl = await getCORSFriendlyImage(originalSrc);
-      if (resultImageRef.current) {
-        resultImageRef.current.src = localUrl;
-        await new Promise(resolve => {
-          if (resultImageRef.current?.complete) resolve(true);
-          else {
-            resultImageRef.current!.onload = () => resolve(true);
-            resultImageRef.current!.onerror = () => resolve(false);
-          }
+      const res = await fetch(url, { mode: 'cors' });
+      if (res.ok) {
+        const blob = await res.blob();
+        return await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string || "");
+          reader.onerror = () => resolve("");
+          reader.readAsDataURL(blob);
         });
-        if (resultImageRef.current?.decode) {
-          try { await resultImageRef.current.decode(); } catch (e) {}
+      }
+    } catch (e) {
+      console.warn("[SaveCard] Direct fetch data URL failed, trying proxies...", e);
+    }
+
+    const proxies = [
+      `https://corsproxy.io/?${encodeURIComponent(url)}`,
+      `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`
+    ];
+
+    for (const proxyUrl of proxies) {
+      try {
+        const res = await fetch(proxyUrl);
+        if (res.ok) {
+          const blob = await res.blob();
+          const dataUrl = await new Promise<string>((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result as string || "");
+            reader.onerror = () => resolve("");
+            reader.readAsDataURL(blob);
+          });
+          if (dataUrl) return dataUrl;
+        }
+      } catch (e) {
+        console.warn("[SaveCard] Proxy fetch failed:", e);
+      }
+    }
+
+    return url;
+  };
+
+  const drawCardToCanvasFallback = async (resp: OracleResponse, imgUrl: string, isRenoirStyle: boolean) => {
+    const width = 1000;
+    const padding = 60;
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let loadedImg: HTMLImageElement | null = null;
+    if (imgUrl) {
+      try {
+        loadedImg = new Image();
+        loadedImg.crossOrigin = 'anonymous';
+        loadedImg.src = imgUrl;
+        await new Promise((resolve) => {
+          loadedImg!.onload = () => resolve(true);
+          loadedImg!.onerror = () => resolve(false);
+        });
+      } catch (e) {
+        console.warn("Fallback image load error:", e);
+      }
+    }
+
+    const title = (resp.title || "The Decree").replace(/\[\[|\]\]/g, '');
+    const verdict = (resp.verdict || "").replace(/\[\[|\]\]|\(\(|\)\)/g, '');
+    const summary = (resp.summary || "").replace(/\[\[|\]\]|\(\(|\)\)/g, '');
+    const analysis = (resp.detailedAnalysis || "").replace(/\[\[|\]\]|\(\(|\)\)/g, '');
+
+    const wrapText = (text: string, x: number, startY: number, maxWidth: number, lineHeight: number, font: string, fillStyle: string) => {
+      ctx.font = font;
+      ctx.fillStyle = fillStyle;
+      ctx.textAlign = 'center';
+
+      const paragraphs = text.split(/\n+/);
+      let currentY = startY;
+
+      for (const para of paragraphs) {
+        const words = para.split(' ');
+        let line = '';
+        for (let n = 0; n < words.length; n++) {
+          const testLine = line + words[n] + ' ';
+          const metrics = ctx.measureText(testLine);
+          if (metrics.width > maxWidth && n > 0) {
+            ctx.fillText(line.trim(), x, currentY);
+            line = words[n] + ' ';
+            currentY += lineHeight;
+          } else {
+            line = testLine;
+          }
+        }
+        if (line.trim()) {
+          ctx.fillText(line.trim(), x, currentY);
+          currentY += lineHeight;
+        }
+        currentY += lineHeight * 0.4;
+      }
+      return currentY;
+    };
+
+    const imgSize = 400;
+    let estimatedHeight = padding * 3 + 60 + imgSize + 80 + 120;
+    if (analysis) estimatedHeight += Math.ceil(analysis.length / 45) * 28 + 100;
+
+    canvas.width = width;
+    canvas.height = Math.max(1200, estimatedHeight);
+
+    const bgColor = isRenoirStyle ? '#0f0505' : '#ffffff';
+    const textColor = isRenoirStyle ? '#fef3c7' : '#000000';
+    const accentColor = isRenoirStyle ? '#f59e0b' : '#dc2626';
+
+    ctx.fillStyle = bgColor;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    let currentY = padding + 40;
+
+    ctx.font = isRenoirStyle ? 'bold 36px Georgia, serif' : '900 36px Inter, sans-serif';
+    ctx.fillStyle = textColor;
+    ctx.textAlign = 'center';
+    ctx.fillText(title.toUpperCase(), width / 2, currentY);
+    currentY += 50;
+
+    if (loadedImg && loadedImg.complete && loadedImg.naturalWidth > 0) {
+      const imgX = (width - imgSize) / 2;
+      try {
+        ctx.drawImage(loadedImg, imgX, currentY, imgSize, imgSize);
+      } catch (e) {
+        console.warn("drawImage failed in fallback:", e);
+      }
+      currentY += imgSize + 40;
+    } else {
+      currentY += 20;
+    }
+
+    if (verdict) {
+      ctx.font = isRenoirStyle ? 'italic bold 26px Georgia, serif' : '900 28px Inter, sans-serif';
+      ctx.fillStyle = accentColor;
+      currentY = wrapText(verdict, width / 2, currentY, width - padding * 2, 38, ctx.font, accentColor);
+      currentY += 20;
+    }
+
+    if (summary) {
+      ctx.font = 'italic 18px Georgia, serif';
+      ctx.fillStyle = isRenoirStyle ? '#fde68a' : '#4b5563';
+      currentY = wrapText(summary, width / 2, currentY, width - padding * 2.5, 26, ctx.font, ctx.fillStyle);
+      currentY += 20;
+    }
+
+    if (analysis) {
+      ctx.font = '16px Inter, sans-serif';
+      ctx.fillStyle = isRenoirStyle ? '#e5e7eb' : '#1f2937';
+      currentY = wrapText(analysis, width / 2, currentY, width - padding * 2, 26, ctx.font, ctx.fillStyle);
+    }
+
+    ctx.font = 'bold 12px Inter, sans-serif';
+    ctx.fillStyle = isRenoirStyle ? '#78350f' : '#9ca3af';
+    ctx.fillText("ORACLE OF CHANCE — ARTEFACT", width / 2, canvas.height - 40);
+
+    const link = document.createElement('a');
+    link.download = `oracle-card-${Date.now()}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  };
+
+  const saveArtifactAsImage = async () => {
+    if (!captureRef.current || !state.response) return;
+    
+    const rData = state.response;
+    const originalSrc = rData.imageUrl || "";
+    let dataUrl: string | null = null;
+    
+    try {
+      if (originalSrc) {
+        dataUrl = await getCORSDataUrl(originalSrc);
+        if (resultImageRef.current && dataUrl) {
+          resultImageRef.current.src = dataUrl;
+          await new Promise(resolve => {
+            if (resultImageRef.current?.complete) resolve(true);
+            else {
+              resultImageRef.current!.onload = () => resolve(true);
+              resultImageRef.current!.onerror = () => resolve(false);
+            }
+          });
+          if (resultImageRef.current?.decode) {
+            try { await resultImageRef.current.decode(); } catch (e) {}
+          }
         }
       }
 
       const canvas = await html2canvas(captureRef.current, { 
         backgroundColor: isRenoir ? '#0f0505' : '#ffffff', 
-        useCORS: true, 
+        useCORS: false,
+        allowTaint: true,
         scale: 2,
         logging: false,
-        allowTaint: false,
         scrollX: 0,
-        scrollY: -window.scrollY, // Fix for scrolled content
+        scrollY: -window.scrollY,
         windowWidth: document.documentElement.offsetWidth,
         windowHeight: document.documentElement.offsetHeight
       });
@@ -1484,10 +1653,17 @@ export const App: React.FC = () => {
       link.click();
       setShowSaveMenu(false);
     } catch (e) { 
-      console.error("Export failure", e); 
+      console.warn("html2canvas export failed, drawing fallback card to canvas:", e); 
+      try {
+        await drawCardToCanvasFallback(rData, dataUrl || originalSrc, isRenoir);
+        setShowSaveMenu(false);
+      } catch (err) {
+        console.error("Canvas fallback export failed:", err);
+      }
     } finally {
-      if (resultImageRef.current) resultImageRef.current.src = originalSrc;
-      if (localUrl && localUrl.startsWith('blob:')) URL.revokeObjectURL(localUrl);
+      if (resultImageRef.current && originalSrc) {
+        resultImageRef.current.src = localDisplayUrl || originalSrc;
+      }
     }
   };
 
@@ -1536,15 +1712,12 @@ export const App: React.FC = () => {
     const key = frameworkKeyMap[activeFramework];
     const framework = (r.perspectives as any)?.[key];
     
-    // For recommendations, we want to maintain the primary item in the verdict if the philosopher doesn't provide a clear one
     let displayVerdict = framework?.verdict || r.verdict;
     
-    // For comparisons, always maintain the global winner in the main verdict display
     if (r.type === 'COMPARISON') {
       displayVerdict = r.verdict;
     }
     
-    // Generate a fresh link if the philosopher has a different verdict
     let displayLink = r.recommendationLink;
     if (framework?.verdict && r.type === 'RECOMMENDATION') {
       const searchTopic = framework.verdict.replace(/\[\[|\]\]/g, '');
@@ -1564,6 +1737,13 @@ export const App: React.FC = () => {
       recommendationLink: displayLink
     };
   })();
+
+  const sourcesList = (activeAnalysisData?.sources && activeAnalysisData.sources.length > 0)
+    ? activeAnalysisData.sources
+    : (r ? [
+        { title: "Universal Query: " + (r.title || "Decree"), uri: `https://www.google.com/search?q=${encodeURIComponent(r.title || "Decree")}` },
+        { title: "Sourcing Deep Metadata", uri: `https://www.google.com/search?q=${encodeURIComponent((r.title || "Decree") + ' official source reviews')}` }
+      ] : []);
 
   const VisionLoadingIcon = () => (
     <div className="absolute inset-0 flex flex-col items-center justify-center z-20 transition-opacity duration-300 bg-current/5 backdrop-blur-sm">
@@ -1943,24 +2123,47 @@ export const App: React.FC = () => {
             </div>
 
             <div data-html2canvas-ignore className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full">
-               <button onClick={loadAllPerspectives} className={`py-6 text-[11px] font-black uppercase tracking-[0.3em] rounded-3xl transition-all active:scale-95 shadow-xl ${isRenoir ? 'bg-amber-900 border border-amber-700/60 text-amber-100 hover:bg-amber-800' : 'bg-black text-white hover:bg-zinc-800'}`}>
+               <button 
+                 onClick={loadAllPerspectives} 
+                 className={`py-6 text-[11px] font-black uppercase tracking-[0.3em] rounded-3xl transition-all active:scale-95 shadow-xl ${
+                   isRenoir 
+                     ? 'bg-amber-500 text-amber-950 hover:bg-amber-400 border border-amber-400' 
+                     : 'bg-black text-white hover:bg-zinc-800 border border-black'
+                 }`}
+               >
                 {t.readPerspectives}
                </button>
                <div className="relative">
-                 <button onClick={() => setShowSaveMenu(!showSaveMenu)} className={`w-full py-6 text-[11px] border-2 font-black uppercase tracking-[0.2em] rounded-3xl transition-all active:scale-95 flex items-center justify-center gap-2 ${isRenoir ? 'bg-amber-950/60 border-amber-800/60 text-amber-100 hover:bg-amber-900/80' : 'bg-white border-black/10 text-black hover:bg-zinc-50'}`}>
+                 <button 
+                   onClick={() => setShowSaveMenu(!showSaveMenu)} 
+                   className={`w-full py-6 text-[11px] border-2 font-black uppercase tracking-[0.2em] rounded-3xl transition-all active:scale-95 flex items-center justify-center gap-2 shadow-xl ${
+                     isRenoir 
+                       ? 'bg-[#1e0a0a] border-amber-500/50 text-amber-100 hover:bg-amber-950 hover:border-amber-400' 
+                       : 'bg-white border-black/10 text-black hover:bg-zinc-50'
+                   }`}
+                 >
                   <Icons.Download /> {t.saveArtifact}
                  </button>
                  {showSaveMenu && (
                    <>
                      <div className="fixed inset-0 z-[590] cursor-pointer" onClick={() => setShowSaveMenu(false)} />
-                     <div className={`absolute bottom-full left-0 w-full mb-2 p-2 rounded-3xl border shadow-2xl z-[600] flex flex-col gap-1 backdrop-blur-2xl animate-in slide-in-from-bottom-2 ${isRenoir ? 'bg-amber-950/95 border-amber-900/60 text-amber-100' : 'bg-white/95 border-black/10 text-black'}`}>
+                     <div className={`absolute bottom-full left-0 w-full mb-2 p-2 rounded-3xl border shadow-2xl z-[600] flex flex-col gap-1 backdrop-blur-2xl animate-in slide-in-from-bottom-2 ${
+                       isRenoir ? 'bg-amber-950/95 border-amber-900/60 text-amber-100' : 'bg-white/95 border-black/10 text-black'
+                     }`}>
                         <button onClick={saveArtifactAsImage} className="w-full p-4 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-current/10 text-left flex justify-between items-center group">{t.saveCard} <Icons.Download /></button>
                         <button onClick={savePictureOnly} className="w-full p-4 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-current/10 text-left flex justify-between items-center group">{t.saveImage} <Icons.Download /></button>
                      </div>
                    </>
                  )}
                </div>
-               <button onClick={() => setState(s => ({ ...s, status: 'IDLE' }))} className={`py-6 text-[11px] border-2 font-black uppercase tracking-[0.2em] rounded-3xl transition-all active:scale-95 ${isRenoir ? 'bg-amber-950/60 border-amber-500 text-amber-300 hover:bg-amber-600 hover:text-white hover:border-amber-600' : 'bg-white border-black text-black hover:bg-red-600 hover:text-white hover:border-red-600'}`}>
+               <button 
+                 onClick={() => setState(s => ({ ...s, status: 'IDLE' }))} 
+                 className={`py-6 text-[11px] border-2 font-black uppercase tracking-[0.2em] rounded-3xl transition-all active:scale-95 shadow-xl ${
+                   isRenoir 
+                     ? 'bg-[#1e0a0a] border-amber-500 text-amber-300 font-black hover:bg-amber-500 hover:text-amber-950 hover:border-amber-500' 
+                     : 'bg-white border-black text-black hover:bg-red-600 hover:text-white hover:border-red-600'
+                 }`}
+               >
                 {t.newQuery}
                </button>
             </div>
@@ -1968,12 +2171,19 @@ export const App: React.FC = () => {
             <div data-html2canvas-ignore className="flex justify-center -mt-6 gap-4">
               <button 
                 onClick={() => setShowCalibrationPopup(true)} 
-                className={`flex items-center gap-1.5 px-4 py-1 text-[10px] font-black uppercase tracking-widest transition-all hover:scale-105 active:scale-95 group ${isRenoir ? 'text-amber-500' : 'text-red-600'}`}
+                className={`flex items-center gap-1.5 px-4 py-1 text-[10px] font-black uppercase tracking-widest transition-all hover:scale-105 active:scale-95 group ${
+                  isRenoir ? 'text-amber-400 hover:text-amber-300' : 'text-red-600 hover:text-red-700'
+                }`}
               >
                 <Icons.Refresh />
                 <span className="underline underline-offset-4 decoration-2 group-hover:decoration-current">{t.askAgain}</span>
               </button>
-              <button onClick={handleRandomRequest} className={`flex items-center gap-1.5 px-4 py-1 text-[10px] font-black uppercase tracking-widest transition-all hover:scale-105 active:scale-95 group ${isRenoir ? 'text-amber-500' : 'text-black hover:text-red-600'}`}>
+              <button 
+                onClick={handleRandomRequest} 
+                className={`flex items-center gap-1.5 px-4 py-1 text-[10px] font-black uppercase tracking-widest transition-all hover:scale-105 active:scale-95 group ${
+                  isRenoir ? 'text-amber-200 hover:text-amber-400' : 'text-black hover:text-red-600'
+                }`}
+              >
                 <Icons.Refresh />
                 <span className="underline underline-offset-4 decoration-2 group-hover:decoration-current">{t.randomRequest}</span>
               </button>
@@ -1982,8 +2192,8 @@ export const App: React.FC = () => {
             <div className="pt-16 w-full border-t border-current/10 text-center">
                <span className="text-[11px] font-black uppercase opacity-40 tracking-[0.6em] block mb-10">{t.sources}</span>
                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full px-4">
-                 {activeAnalysisData?.sources?.map((s, i) => s && (
-                  <a key={i} href={s.uri} target="_blank" rel="noopener noreferrer" className={`p-5 border-2 rounded-3xl transition-all flex justify-between items-center group ${isRenoir ? 'border-amber-900/40 bg-amber-950/30 hover:bg-amber-900/40 text-amber-100' : 'border-current/5 hover:bg-current/5 text-black'}`}>
+                 {sourcesList.map((s, i) => s && (
+                  <a key={i} href={s.uri} target="_blank" rel="noopener noreferrer" className={`p-5 border-2 rounded-3xl transition-all flex justify-between items-center group ${isRenoir ? 'border-amber-900/60 bg-[#1e0a0a] hover:bg-amber-900/40 text-amber-100' : 'border-current/5 hover:bg-current/5 text-black'}`}>
                     <div className="flex flex-col text-left truncate">
                        <span className="text-[9px] font-black uppercase opacity-30 mb-1 tracking-widest">REF. {(i+1).toString().padStart(2, '0')}</span>
                        <span className="text-[11px] font-black uppercase leading-tight group-hover:underline truncate max-w-[200px]">{s?.title || "Source"}</span>
@@ -1993,7 +2203,7 @@ export const App: React.FC = () => {
                  ))}
                  
                  {activeAnalysisData?.studyMoreUrl && (
-                   <a data-html2canvas-ignore href={activeAnalysisData.studyMoreUrl} target="_blank" rel="noopener noreferrer" className={`p-5 border-2 font-black uppercase transition-all flex justify-center items-center group md:col-span-2 mt-4 ${isRenoir ? 'border-amber-600 text-amber-300 hover:bg-amber-600 hover:text-white' : 'border-current text-black hover:bg-red-600 hover:text-white hover:border-red-600'}`}>
+                   <a data-html2canvas-ignore href={activeAnalysisData.studyMoreUrl} target="_blank" rel="noopener noreferrer" className={`p-5 border-2 font-black uppercase transition-all flex justify-center items-center group md:col-span-2 mt-4 ${isRenoir ? 'border-amber-500 text-amber-300 hover:bg-amber-500 hover:text-amber-950' : 'border-current text-black hover:bg-red-600 hover:text-white hover:border-red-600'}`}>
                     <div className="flex items-center gap-3">
                       <span className="text-[11px] font-black uppercase tracking-[0.3em]">
                         {activeAnalysisData.studyMoreLabel || t.studyFurther}
