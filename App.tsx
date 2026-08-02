@@ -1891,122 +1891,19 @@ export const App: React.FC = () => {
             })}
           </div>
 
-          {/* Dedicated Modal Footer Container for Action Buttons and Sources */}
-          <div className="perspectives-modal-footer w-full mt-20 pt-12 border-t-2 border-white/20 flex flex-col items-center space-y-10">
-             
-             {/* Primary Action Buttons */}
-             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full">
-                <button 
-                  onClick={() => {
-                    setShowPerspectivesModal(false);
-                    scrollToAnalysis();
-                  }} 
-                  className={`action-button py-6 px-4 text-[11px] font-black uppercase tracking-[0.2em] rounded-3xl transition-all active:scale-95 shadow-2xl border-2 cursor-pointer ${
-                    isRenoir 
-                      ? 'bg-amber-500 text-amber-950 border-amber-300 hover:bg-amber-400' 
-                      : 'bg-white text-black border-white hover:bg-zinc-200'
-                  }`}
-                >
-                 {t.readPerspectives}
-                </button>
-
-                <div className="relative w-full">
-                  <button 
-                    onClick={() => setShowSaveMenu(!showSaveMenu)} 
-                    className={`action-button w-full py-6 px-4 text-[11px] border-2 font-black uppercase tracking-[0.2em] rounded-3xl transition-all active:scale-95 flex items-center justify-center gap-2 shadow-2xl cursor-pointer ${
-                      isRenoir 
-                        ? 'bg-amber-100 border-amber-400 text-amber-950 font-black hover:bg-amber-300' 
-                        : 'bg-zinc-900 border-zinc-500 text-white hover:bg-zinc-800'
-                    }`}
-                  >
-                   <Icons.Download /> {t.saveArtifact}
-                  </button>
-                  {showSaveMenu && (
-                    <>
-                      <div className="fixed inset-0 z-[590] cursor-pointer" onClick={() => setShowSaveMenu(false)} />
-                      <div className={`absolute bottom-full left-0 w-full mb-2 p-2 rounded-3xl border-2 shadow-2xl z-[600] flex flex-col gap-1 backdrop-blur-2xl ${
-                        isRenoir ? 'bg-[#1e0a0a] border-amber-400 text-amber-100' : 'bg-zinc-900 border-zinc-500 text-white'
-                      }`}>
-                         <button onClick={saveArtifactAsImage} className="w-full p-4 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-white/10 text-left flex justify-between items-center">{t.saveCard} <Icons.Download /></button>
-                         <button onClick={savePictureOnly} className="w-full p-4 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-white/10 text-left flex justify-between items-center">{t.saveImage} <Icons.Download /></button>
-                      </div>
-                    </>
-                  )}
-                </div>
-
-                <button 
-                  onClick={() => { setShowPerspectivesModal(false); stopAudio(); setState(s => ({ ...s, status: 'IDLE' })); }} 
-                  className={`action-button py-6 px-4 text-[11px] border-2 font-black uppercase tracking-[0.2em] rounded-3xl transition-all active:scale-95 shadow-2xl cursor-pointer ${
-                    isRenoir 
-                      ? 'bg-red-600 border-red-400 text-white font-black hover:bg-red-500' 
-                      : 'bg-red-600 border-red-500 text-white font-black hover:bg-red-700'
-                  }`}
-                >
-                 {t.newQuery}
-                </button>
-             </div>
-
-             {/* Secondary Action Buttons */}
-             <div className="flex justify-center gap-4 flex-wrap w-full">
-               <button 
-                 onClick={() => { setShowPerspectivesModal(false); setShowCalibrationPopup(true); }} 
-                 className={`action-button flex items-center gap-2 px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest border-2 transition-all hover:scale-105 active:scale-95 shadow-lg cursor-pointer ${
-                   isRenoir 
-                     ? 'bg-amber-500 text-amber-950 border-amber-300 font-black hover:bg-amber-400' 
-                     : 'bg-zinc-900 text-white border-zinc-500 hover:bg-white hover:text-black'
-                 }`}
-               >
-                 <Icons.Refresh />
-                 <span>{t.askAgain}</span>
-               </button>
-               <button 
-                 onClick={() => { setShowPerspectivesModal(false); handleRandomRequest(); }} 
-                 className={`action-button flex items-center gap-2 px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest border-2 transition-all hover:scale-105 active:scale-95 shadow-lg cursor-pointer ${
-                   isRenoir 
-                     ? 'bg-amber-100 text-amber-950 border-amber-400 font-black hover:bg-amber-300' 
-                     : 'bg-zinc-900 text-white border-zinc-500 hover:bg-white hover:text-black'
-                 }`}
-               >
-                 <Icons.Refresh />
-                 <span>{t.randomRequest}</span>
-               </button>
-             </div>
-
-             {/* Grounding Evidence / Sources links in PerspectivesModal */}
-             {sourcesList && sourcesList.length > 0 && (
-               <div className="w-full pt-8 text-center">
-                  <span className={`text-[11px] font-black uppercase tracking-[0.6em] block mb-8 ${isRenoir ? 'text-amber-300' : 'text-white'}`}>{t.sources}</span>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full px-2">
-                    {sourcesList.map((s, i) => s && (
-                     <a key={i} href={s.uri} target="_blank" rel="noopener noreferrer" className={`source-card-link p-5 border-2 rounded-3xl transition-all flex justify-between items-center shadow-lg cursor-pointer ${
-                       isRenoir 
-                         ? 'border-amber-400 bg-[#2b0c0c] hover:bg-amber-500 text-amber-100 hover:text-amber-950 group' 
-                         : 'border-zinc-600 bg-zinc-900 text-white hover:border-white hover:bg-zinc-800'
-                     }`}>
-                       <div className="flex flex-col text-left truncate pr-2">
-                          <span className={`text-[9px] font-black uppercase mb-1 tracking-widest ${isRenoir ? 'text-amber-400 group-hover:text-amber-950' : 'text-red-400'}`}>REF. {(i+1).toString().padStart(2, '0')}</span>
-                          <span className={`text-[11px] font-black uppercase leading-tight truncate max-w-[220px] ${isRenoir ? 'text-amber-100 group-hover:text-amber-950' : 'text-white'}`}>{s?.title || "Source"}</span>
-                       </div>
-                       <Icons.External className={`w-4 h-4 flex-shrink-0 ${isRenoir ? 'text-amber-400 group-hover:text-amber-950' : 'text-white'}`} />
-                     </a>
-                    ))}
-                  </div>
-               </div>
-             )}
-
-             <div className="mt-8 mb-16">
-               <button onClick={() => { setShowPerspectivesModal(false); stopAudio(); }} className={`px-16 py-5 font-black uppercase tracking-[0.4em] text-[12px] transition-all shadow-2xl rounded-full ${
-                 isRenoir 
-                   ? 'bg-amber-500 text-amber-950 font-black hover:bg-amber-400' 
-                   : 'bg-white text-black hover:bg-red-600 hover:text-white'
-               }`}>
-                 {t.closeVerdict}
-               </button>
-             </div>
+          <div className="mt-6 mb-12">
+            <button onClick={() => { setShowPerspectivesModal(false); stopAudio(); }} className={`px-16 py-4 font-black uppercase tracking-[0.4em] text-[12px] transition-all shadow-2xl rounded-full ${
+              isRenoir 
+                ? 'bg-amber-400 text-amber-950 font-black hover:bg-amber-300' 
+                : 'bg-white text-black hover:bg-red-600 hover:text-white'
+            }`}>
+              {t.closeVerdict}
+            </button>
           </div>
-      </div>
+       </div>
     </div>
   );
+
   let mainContent = null;
 
   if (state.status === 'ERROR') {
@@ -2128,7 +2025,6 @@ export const App: React.FC = () => {
                       {Object.keys(t.frameworks).map(k => <option key={k} value={k} className="text-black">{(t.frameworks as any)[k]}</option>)}
                    </select>
                  </div>
-                 
                  {r.isUncertain && (
                    <div className={`text-center py-2 px-4 border rounded-xl animate-bounce mt-4 ${isRenoir ? 'bg-amber-900/10 border-amber-500/30' : 'bg-red-50 border-red-200'}`}>
                      <p className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${isRenoir ? 'text-amber-500' : 'text-red-600'}`}>{t.uncertaintyPrefix}</p>
@@ -2173,7 +2069,7 @@ export const App: React.FC = () => {
                  </div>
                )}
 
-               {/* MAIN VERDICT - PROMINENT AND POSITIONED BELOW THE GRAPHICS */}
+               {/* MAIN VERDICT */}
                <div className="w-full flex flex-col items-center justify-center text-center py-10 mb-10 bg-current/[0.03] rounded-[40px] border border-current/5 px-8 shadow-inner animate-in zoom-in duration-700">
                   <span className={`text-[10px] font-black uppercase tracking-[0.7em] opacity-40 mb-5`}>{verdictTypeLabel}</span>
                   <span className={`leading-tight ${isRenoir ? 'text-amber-500 font-serif' : 'text-red-600 font-sans'} ${
@@ -2252,116 +2148,117 @@ export const App: React.FC = () => {
                    </div>
                  </div>
                )}
-            </div>
 
-            {/* Rebuilt Result Footer Section for Action Buttons and Sources */}
-            <div data-html2canvas-ignore className="result-footer-section w-full mt-8 space-y-8">
-              
-              {/* Primary Action Buttons Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full">
-                 <button 
-                   onClick={loadAllPerspectives} 
-                   className={`action-button py-6 px-4 text-[11px] font-black uppercase tracking-[0.3em] rounded-3xl transition-all active:scale-95 shadow-xl border-2 cursor-pointer ${
-                     isRenoir 
-                       ? 'bg-amber-500 text-amber-950 border-amber-300 hover:bg-amber-400' 
-                       : 'bg-black text-white border-black hover:bg-zinc-800'
-                   }`}
-                 >
-                  {t.readPerspectives}
-                 </button>
+               {/* Rebuilt High-Contrast Result Footer Section inside Main Card */}
+               <div data-html2canvas-ignore className="result-footer-section w-full mt-10 pt-8 border-t-2 border-current/10 space-y-8 opacity-100">
+                 
+                 {/* Primary Action Buttons Grid */}
+                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full">
+                    <button 
+                      onClick={loadAllPerspectives} 
+                      className={`action-button py-5 px-4 text-[11px] font-black uppercase tracking-[0.3em] rounded-2xl transition-all active:scale-95 shadow-xl border-2 cursor-pointer opacity-100 ${
+                        isRenoir 
+                          ? 'bg-amber-400 text-amber-950 border-amber-300 hover:bg-amber-300' 
+                          : 'bg-black text-white border-black hover:bg-zinc-800'
+                      }`}
+                    >
+                     {t.readPerspectives}
+                    </button>
 
-                 <div className="relative w-full">
+                    <div className="relative w-full">
+                      <button 
+                        onClick={() => setShowSaveMenu(!showSaveMenu)} 
+                        className={`action-button w-full py-5 px-4 text-[11px] border-2 font-black uppercase tracking-[0.2em] rounded-2xl transition-all active:scale-95 flex items-center justify-center gap-2 shadow-xl cursor-pointer opacity-100 ${
+                          isRenoir 
+                            ? 'bg-amber-100 border-amber-400 text-amber-950 font-black hover:bg-amber-200' 
+                            : 'bg-zinc-900 border-black text-white hover:bg-zinc-800'
+                        }`}
+                      >
+                       <Icons.Download /> {t.saveArtifact}
+                      </button>
+                      {showSaveMenu && (
+                        <>
+                          <div className="fixed inset-0 z-[590] cursor-pointer" onClick={() => setShowSaveMenu(false)} />
+                          <div className={`absolute bottom-full left-0 w-full mb-2 p-2 rounded-2xl border-2 shadow-2xl z-[600] flex flex-col gap-1 backdrop-blur-2xl animate-in slide-in-from-bottom-2 ${
+                            isRenoir ? 'bg-[#2b0c0c] border-amber-400 text-amber-100' : 'bg-zinc-900 border-black text-white'
+                          }`}>
+                             <button onClick={saveArtifactAsImage} className="w-full p-4 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-amber-500 hover:text-amber-950 text-left flex justify-between items-center cursor-pointer">{t.saveCard} <Icons.Download /></button>
+                             <button onClick={savePictureOnly} className="w-full p-4 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-amber-500 hover:text-amber-950 text-left flex justify-between items-center cursor-pointer">{t.saveImage} <Icons.Download /></button>
+                          </div>
+                        </>
+                      )}
+                    </div>
+
+                    <button 
+                      onClick={() => setState(s => ({ ...s, status: 'IDLE' }))} 
+                      className={`action-button py-5 px-4 text-[11px] border-2 font-black uppercase tracking-[0.2em] rounded-2xl transition-all active:scale-95 shadow-xl cursor-pointer opacity-100 ${
+                        isRenoir 
+                          ? 'bg-red-600 border-red-400 text-white font-black hover:bg-red-500' 
+                          : 'bg-red-600 border-red-600 text-white font-black hover:bg-red-700'
+                      }`}
+                    >
+                     {t.newQuery}
+                    </button>
+                 </div>
+
+                 {/* Secondary Action Buttons */}
+                 <div className="flex justify-center gap-4 flex-wrap w-full">
                    <button 
-                     onClick={() => setShowSaveMenu(!showSaveMenu)} 
-                     className={`action-button w-full py-6 px-4 text-[11px] border-2 font-black uppercase tracking-[0.2em] rounded-3xl transition-all active:scale-95 flex items-center justify-center gap-2 shadow-xl cursor-pointer ${
+                     onClick={() => setShowCalibrationPopup(true)} 
+                     className={`action-button flex items-center gap-2 px-6 py-3.5 rounded-full text-[10px] font-black uppercase tracking-widest border-2 transition-all hover:scale-105 active:scale-95 shadow-md cursor-pointer opacity-100 ${
                        isRenoir 
-                         ? 'bg-amber-100 border-amber-400 text-amber-950 font-black hover:bg-amber-300' 
-                         : 'bg-zinc-900 border-black text-white hover:bg-zinc-800'
+                         ? 'bg-amber-500 text-amber-950 border-amber-300 font-black hover:bg-amber-400' 
+                         : 'bg-black text-white border-black hover:bg-zinc-800'
                      }`}
                    >
-                    <Icons.Download /> {t.saveArtifact}
+                     <Icons.Refresh />
+                     <span>{t.askAgain}</span>
                    </button>
-                   {showSaveMenu && (
-                     <>
-                       <div className="fixed inset-0 z-[590] cursor-pointer" onClick={() => setShowSaveMenu(false)} />
-                       <div className={`absolute bottom-full left-0 w-full mb-2 p-2 rounded-3xl border-2 shadow-2xl z-[600] flex flex-col gap-1 backdrop-blur-2xl animate-in slide-in-from-bottom-2 ${
-                         isRenoir ? 'bg-[#1e0a0a] border-amber-400 text-amber-100' : 'bg-zinc-900 border-black text-white'
+                   <button 
+                     onClick={handleRandomRequest} 
+                     className={`action-button flex items-center gap-2 px-6 py-3.5 rounded-full text-[10px] font-black uppercase tracking-widest border-2 transition-all hover:scale-105 active:scale-95 shadow-md cursor-pointer opacity-100 ${
+                       isRenoir 
+                         ? 'bg-amber-100 text-amber-950 border-amber-400 font-black hover:bg-amber-200' 
+                         : 'bg-zinc-900 text-white border-black hover:bg-zinc-800'
+                     }`}
+                   >
+                     <Icons.Refresh />
+                     <span>{t.randomRequest}</span>
+                   </button>
+                 </div>
+
+                 {/* Grounding Evidence / Sources Section */}
+                 <div className="pt-8 w-full border-t-2 border-current/10 text-center">
+                    <span className={`text-[11px] font-black uppercase tracking-[0.6em] block mb-6 opacity-100 ${isRenoir ? 'text-amber-300' : 'text-black'}`}>{t.sources}</span>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full px-2">
+                      {sourcesList.map((s, i) => s && (
+                       <a key={i} href={s.uri} target="_blank" rel="noopener noreferrer" className={`source-card-link p-5 border-2 rounded-2xl transition-all flex justify-between items-center shadow-md cursor-pointer opacity-100 group ${
+                         isRenoir 
+                           ? 'border-amber-400 bg-[#2b0c0c] hover:bg-amber-400 text-amber-100 hover:text-amber-950' 
+                           : 'border-black bg-white hover:bg-black text-black hover:text-white'
                        }`}>
-                          <button onClick={saveArtifactAsImage} className="w-full p-4 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-amber-500 hover:text-amber-950 text-left flex justify-between items-center cursor-pointer">{t.saveCard} <Icons.Download /></button>
-                          <button onClick={savePictureOnly} className="w-full p-4 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-amber-500 hover:text-amber-950 text-left flex justify-between items-center cursor-pointer">{t.saveImage} <Icons.Download /></button>
-                       </div>
-                     </>
-                   )}
+                         <div className="flex flex-col text-left truncate pr-2">
+                            <span className={`text-[9px] font-black uppercase mb-1 tracking-widest opacity-100 ${isRenoir ? 'text-amber-400 group-hover:text-amber-950' : 'text-red-600 group-hover:text-red-400'}`}>REF. {(i+1).toString().padStart(2, '0')}</span>
+                            <span className={`text-[11px] font-black uppercase leading-tight truncate max-w-[240px] opacity-100 ${isRenoir ? 'text-amber-100 group-hover:text-amber-950' : 'text-black group-hover:text-white'}`}>{s?.title || "Source"}</span>
+                         </div>
+                         <Icons.External className={`w-4 h-4 flex-shrink-0 opacity-100 ${isRenoir ? 'text-amber-400 group-hover:text-amber-950' : 'text-black group-hover:text-white'}`} />
+                       </a>
+                      ))}
+                      
+                      {activeAnalysisData?.studyMoreUrl && (
+                        <a data-html2canvas-ignore href={activeAnalysisData.studyMoreUrl} target="_blank" rel="noopener noreferrer" className={`source-card-link p-5 border-2 font-black uppercase transition-all flex justify-center items-center group md:col-span-2 mt-2 shadow-md rounded-2xl cursor-pointer opacity-100 ${isRenoir ? 'border-amber-400 bg-amber-400 text-amber-950 font-black hover:bg-amber-300' : 'border-black bg-black text-white font-black hover:bg-zinc-800'}`}>
+                         <div className="flex items-center gap-3">
+                           <span className="text-[11px] font-black uppercase tracking-[0.3em]">
+                             {activeAnalysisData.studyMoreLabel || t.studyFurther}
+                           </span>
+                           <Icons.Search />
+                         </div>
+                        </a>
+                      )}
+                    </div>
                  </div>
+               </div>
 
-                 <button 
-                   onClick={() => setState(s => ({ ...s, status: 'IDLE' }))} 
-                   className={`action-button py-6 px-4 text-[11px] border-2 font-black uppercase tracking-[0.2em] rounded-3xl transition-all active:scale-95 shadow-xl cursor-pointer ${
-                     isRenoir 
-                       ? 'bg-red-600 border-red-400 text-white font-black hover:bg-red-500' 
-                       : 'bg-red-600 border-red-600 text-white font-black hover:bg-red-700'
-                   }`}
-                 >
-                  {t.newQuery}
-                 </button>
-              </div>
-
-              {/* Secondary Action Buttons */}
-              <div className="flex justify-center gap-4 flex-wrap w-full">
-                <button 
-                  onClick={() => setShowCalibrationPopup(true)} 
-                  className={`action-button flex items-center gap-2 px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest border-2 transition-all hover:scale-105 active:scale-95 shadow-md cursor-pointer ${
-                    isRenoir 
-                      ? 'bg-amber-500 text-amber-950 border-amber-300 font-black hover:bg-amber-400' 
-                      : 'bg-black text-white border-black hover:bg-zinc-800'
-                  }`}
-                >
-                  <Icons.Refresh />
-                  <span>{t.askAgain}</span>
-                </button>
-                <button 
-                  onClick={handleRandomRequest} 
-                  className={`action-button flex items-center gap-2 px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest border-2 transition-all hover:scale-105 active:scale-95 shadow-md cursor-pointer ${
-                    isRenoir 
-                      ? 'bg-amber-100 text-amber-950 border-amber-400 font-black hover:bg-amber-300' 
-                      : 'bg-zinc-900 text-white border-black hover:bg-zinc-800'
-                  }`}
-                >
-                  <Icons.Refresh />
-                  <span>{t.randomRequest}</span>
-                </button>
-              </div>
-
-              {/* Grounding Evidence / Sources Section */}
-              <div className="pt-10 w-full border-t-2 border-current/10 text-center">
-                 <span className={`text-[11px] font-black uppercase tracking-[0.6em] block mb-8 ${isRenoir ? 'text-amber-300' : 'text-black'}`}>{t.sources}</span>
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full px-2">
-                   {sourcesList.map((s, i) => s && (
-                    <a key={i} href={s.uri} target="_blank" rel="noopener noreferrer" className={`source-card-link p-5 border-2 rounded-3xl transition-all flex justify-between items-center shadow-md cursor-pointer group ${
-                      isRenoir 
-                        ? 'border-amber-400 bg-[#2b0c0c] hover:bg-amber-500 text-amber-100 hover:text-amber-950' 
-                        : 'border-black bg-white hover:bg-black text-black hover:text-white'
-                    }`}>
-                      <div className="flex flex-col text-left truncate pr-2">
-                         <span className={`text-[9px] font-black uppercase mb-1 tracking-widest ${isRenoir ? 'text-amber-400 group-hover:text-amber-950' : 'text-red-600 group-hover:text-red-400'}`}>REF. {(i+1).toString().padStart(2, '0')}</span>
-                         <span className={`text-[11px] font-black uppercase leading-tight truncate max-w-[240px] ${isRenoir ? 'text-amber-100 group-hover:text-amber-950' : 'text-black group-hover:text-white'}`}>{s?.title || "Source"}</span>
-                      </div>
-                      <Icons.External className={`w-4 h-4 flex-shrink-0 ${isRenoir ? 'text-amber-400 group-hover:text-amber-950' : 'text-black group-hover:text-white'}`} />
-                    </a>
-                   ))}
-                   
-                   {activeAnalysisData?.studyMoreUrl && (
-                     <a data-html2canvas-ignore href={activeAnalysisData.studyMoreUrl} target="_blank" rel="noopener noreferrer" className={`source-card-link p-5 border-2 font-black uppercase transition-all flex justify-center items-center group md:col-span-2 mt-4 shadow-md rounded-3xl cursor-pointer ${isRenoir ? 'border-amber-400 bg-amber-400 text-amber-950 font-black hover:bg-amber-300' : 'border-black bg-black text-white font-black hover:bg-zinc-800'}`}>
-                      <div className="flex items-center gap-3">
-                        <span className="text-[11px] font-black uppercase tracking-[0.3em]">
-                          {activeAnalysisData.studyMoreLabel || t.studyFurther}
-                        </span>
-                        <Icons.Search />
-                      </div>
-                     </a>
-                   )}
-                 </div>
-              </div>
             </div>
           </div>
         </div>
