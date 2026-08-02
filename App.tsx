@@ -524,6 +524,7 @@ export const App: React.FC = () => {
   const [isManual, setIsManual] = useState(false);
   const [imgCrossOrigin, setImgCrossOrigin] = useState<"anonymous" | undefined>("anonymous");
   const [showSaveMenu, setShowSaveMenu] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [learningProfile, setLearningProfile] = useState<LearningProfile | null>(null);
   const [selectedImageModel, setSelectedImageModel] = useState<string>('flux');
@@ -1445,38 +1446,17 @@ export const App: React.FC = () => {
 
   const saveArtifactAsImage = async () => {
     if (!captureRef.current) return;
-    
-    const originalSrc = state.response?.imageUrl;
-    let localUrl: string | null = null;
+    setShowSaveMenu(false);
+    setIsExporting(true);
     
     try {
-      if (originalSrc && resultImageRef.current) {
-        try {
-          localUrl = await getCORSFriendlyImage(originalSrc);
-          if (localUrl && localUrl !== originalSrc) {
-            resultImageRef.current.src = localUrl;
-            await new Promise(resolve => {
-              if (resultImageRef.current?.complete) resolve(true);
-              else {
-                resultImageRef.current!.onload = () => resolve(true);
-                resultImageRef.current!.onerror = () => resolve(false);
-              }
-            });
-            if (resultImageRef.current?.decode) {
-              try { await resultImageRef.current.decode(); } catch (e) {}
-            }
-          }
-        } catch (imgErr) {
-          console.warn("[Oracle] Pre-fetching CORS image failed, proceeding with direct capture:", imgErr);
-        }
-      }
-
       const canvas = await html2canvas(captureRef.current, { 
         backgroundColor: isRenoir ? '#0f0505' : '#ffffff', 
         useCORS: true, 
         allowTaint: true,
         scale: 2,
-        logging: false
+        logging: false,
+        ignoreElements: (element) => element.hasAttribute('data-html2canvas-ignore')
       });
 
       const dataUrl = canvas.toDataURL('image/png');
@@ -1486,26 +1466,71 @@ export const App: React.FC = () => {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      setShowSaveMenu(false);
     } catch (e) { 
-      console.error("[Oracle] Export failure", e); 
+      console.warn("[Oracle] Primary canvas export failed, attempting clean fallback export:", e);
+      try {
+        const images = captureRef.current.querySelectorAll('img');
+        const savedDisplays: string[] = [];
+        images.forEach((img, idx) => {
+          savedDisplays[idx] = img.style.display;
+          img.style.display = 'none';
+        });
+
+        const fallbackCanvas = await html2canvas(captureRef.current, {
+          backgroundColor: isRenoir ? '#0f0505' : '#ffffff',
+          scale: 2,
+          logging: false,
+          ignoreElements: (element) => element.hasAttribute('data-html2canvas-ignore')
+        });
+
+        images.forEach((img, idx) => {
+          img.style.display = savedDisplays[idx];
+        });
+
+        const dataUrl = fallbackCanvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        link.download = `oracle-decree-${Date.now()}.png`;
+        link.href = dataUrl;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } catch (err2) {
+        console.error("[Oracle] Canvas export failed:", err2);
+      }
     } finally {
-      if (originalSrc && resultImageRef.current) {
-        resultImageRef.current.src = originalSrc;
-      }
-      if (localUrl && localUrl.startsWith('blob:')) {
-        URL.revokeObjectURL(localUrl);
-      }
+      setIsExporting(false);
     }
   };
 
   const savePictureOnly = async () => {
-    if (!state.response?.imageUrl) return;
-    const link = document.createElement('a');
-    link.download = `oracle-vision-${Date.now()}.png`;
-    link.href = state.response.imageUrl;
-    link.click();
+    const src = localDisplayUrl || state.response?.imageUrl;
+    if (!src) return;
     setShowSaveMenu(false);
+    setIsExporting(true);
+
+    try {
+      const response = await fetch(src);
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.download = `oracle-vision-${Date.now()}.png`;
+      link.href = blobUrl;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 2000);
+    } catch (e) {
+      console.warn("[Oracle] Direct blob save failed, downloading directly:", e);
+      const link = document.createElement('a');
+      link.download = `oracle-vision-${Date.now()}.png`;
+      link.href = src;
+      link.target = "_blank";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   const r = state.response;
