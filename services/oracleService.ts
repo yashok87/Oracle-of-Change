@@ -136,199 +136,75 @@ function isMaterialQuery(query: string): boolean {
 }
 
 async function generateOracleText(prompt: string, systemInstruction: string, useJson: boolean = false): Promise<string> {
+  // User requested to use ONLY Pollinations and NOT Gemini.
   return await generatePollinationsText(prompt, systemInstruction, useJson);
 }
 
 async function generatePollinationsText(prompt: string, systemInstruction: string, useJson: boolean = false): Promise<string> {
   const seed = Math.floor(Math.random() * 1000000);
+  const apiKey = (process.env.POLL_KEY || "pk_jcfg5Q1xs8BU8pgq").trim();
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  if (apiKey) headers["Authorization"] = `Bearer ${apiKey}`;
 
-  // Method 1: Anonymous POST to text.pollinations.ai (Free, no API key needed, fast)
-  const controller1 = new AbortController();
-  const timeoutId1 = setTimeout(() => controller1.abort(), 6000);
+  let attempts = 0;
+  const maxAttempts = 3;
+  
+  while (attempts < maxAttempts) {
+    try {
+      const response = await fetch("https://gen.pollinations.ai/v1/chat/completions", {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          model: "openai",
+          messages: [
+            { role: "system", content: systemInstruction || "You are a helpful assistant." },
+            { role: "user", content: prompt }
+          ],
+          seed,
+          response_format: useJson ? { type: "json_object" } : undefined,
+          temperature: 0.3
+        })
+      });
 
-  try {
-    const response = await fetch("https://text.pollinations.ai/", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      signal: controller1.signal,
-      body: JSON.stringify({
-        messages: [
-          { role: "system", content: systemInstruction || "You are a helpful assistant." },
-          { role: "user", content: prompt }
-        ],
-        seed,
-        jsonMode: useJson,
-        model: "openai"
-      })
-    });
-    clearTimeout(timeoutId1);
+      if (!response.ok) {
+        const errText = await response.text();
+        console.warn(`[Oracle] Pollinations failure (Attempt ${attempts + 1}):`, response.status, errText);
+        
+        if (response.status >= 500 && attempts < maxAttempts - 1) {
+          attempts++;
+          await new Promise(resolve => setTimeout(resolve, 2000 * attempts));
+          continue;
+        }
 
-    if (response.ok) {
-      const text = await response.text();
-      if (text && !text.includes('"error":402') && !text.includes('"error":"Queue full')) {
-        return text;
+        let message = `${response.status}`;
+        try {
+          if (errText.trim().startsWith('{')) {
+            const errJson = JSON.parse(errText);
+            if (errJson.error) {
+              message = typeof errJson.error === 'string' ? errJson.error : (errJson.error.message || JSON.stringify(errJson.error));
+            } else if (errJson.message) {
+              message = errJson.message;
+            }
+          }
+        } catch (e) {}
+        throw new Error(`Pollinations unreachable: ${message}`);
       }
-    }
-  } catch (err: any) {
-    clearTimeout(timeoutId1);
-  }
 
-  // Method 2: Anonymous POST to gen.pollinations.ai
-  const controller2 = new AbortController();
-  const timeoutId2 = setTimeout(() => controller2.abort(), 6000);
-
-  try {
-    const response = await fetch("https://gen.pollinations.ai/v1/chat/completions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      signal: controller2.signal,
-      body: JSON.stringify({
-        model: "openai",
-        messages: [
-          { role: "system", content: systemInstruction || "You are a helpful assistant." },
-          { role: "user", content: prompt }
-        ],
-        seed,
-        response_format: useJson ? { type: "json_object" } : undefined,
-        temperature: 0.3
-      })
-    });
-    clearTimeout(timeoutId2);
-
-    if (response.ok) {
       const data = await response.json();
-      if (data.choices && data.choices[0] && data.choices[0].message?.content) {
+      if (data.choices && data.choices[0] && data.choices[0].message) {
         return data.choices[0].message.content;
       }
+      throw new Error("Malformed Pollinations response");
+    } catch (err: any) {
+      attempts++;
+      if (attempts < maxAttempts) {
+        await new Promise(resolve => setTimeout(resolve, 2000 * attempts));
+        continue;
+      }
+      throw err;
     }
-  } catch (err: any) {
-    clearTimeout(timeoutId2);
   }
-
-  throw new Error("Pollinations API unavailable");
-}
-
-function synthesizeLocalOracleResponse(
-  query: string, 
-  chaosScore: number, 
-  theme: 'SUPREMATIST' | 'IMPRESSIONIST', 
-  language: 'EN' | 'RU', 
-  learningProfile: LearningProfile | null,
-  selectedPerspectives: any,
-  imageModel: string
-): OracleResponse {
-  const isComp = isComparisonQuery(query);
-  const isMaterial = isMaterialQuery(query);
-  const isExplicit = isExplicitSelectionRequest(query);
-  const isBinary = isBinaryQuery(query);
-
-  let type: 'COMPARISON' | 'RECOMMENDATION' | 'DECISION' | 'KNOWLEDGE' | 'PREDICTION' | 'PERSONAL' = 
-    isComp ? 'COMPARISON' : (isExplicit || isMaterial) ? 'RECOMMENDATION' : isBinary ? 'DECISION' : 'KNOWLEDGE';
-
-  const cleanQuery = query.trim().replace(/^["']|["']$/g, '');
-  const title = language === 'RU' 
-    ? `Декрет Судьбы: ${cleanQuery.slice(0, 24)}` 
-    : `Decree of Chance: ${cleanQuery.slice(0, 24)}`;
-    
-  let category = isMaterial ? 'MATERIAL' : 'ONTOLOGY';
-  let summary = language === 'RU' 
-    ? `Совет Десяти вынес вердикт по вопросу «${cleanQuery}» (коэффициент энтропии ${chaosScore}%).` 
-    : `The Council of Ten has synthesized a verdict for "${cleanQuery}" under ${chaosScore}% entropy.`;
-  
-  let verdict = '';
-  let optionA = '';
-  let optionB = '';
-  let votesA = 50;
-  let votesB = 50;
-
-  if (isComp) {
-    const parts = cleanQuery.split(/\b(vs|or|versus|противопоставление|или|против)\b/i).filter(p => p.trim() && !/^(vs|or|versus|или|против)$/i.test(p.trim()));
-    optionA = parts[0]?.trim() || (language === 'RU' ? 'Первый вектор' : 'First Vector');
-    optionB = parts[1]?.trim() || (language === 'RU' ? 'Второй вектор' : 'Second Vector');
-
-    // Dynamic votes based on chaosScore and query length hash
-    const hash = cleanQuery.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    votesA = Math.max(25, Math.min(75, 50 + ((hash % 30) - 15) + Math.floor((chaosScore - 50) / 4)));
-    votesB = 100 - votesA;
-    const winner = votesA >= votesB ? optionA : optionB;
-
-    verdict = language === 'RU'
-      ? `Совет постановил: [[${winner}]] одерживает онтологическое преимущество.`
-      : `The Council decrees: [[${winner}]] prevails with dialetical clarity.`;
-  } else if (type === 'RECOMMENDATION') {
-    verdict = language === 'RU' 
-      ? `[[${cleanQuery}]] — Главное воплощение замысла`
-      : `[[${cleanQuery}]] — Optimal Manifestation of Intent`;
-  } else if (isBinary) {
-    const isYes = (chaosScore + cleanQuery.length) % 2 === 0;
-    verdict = isYes
-      ? (language === 'RU' ? `[[ДА]] — Онтологический вектор благоприятствует действию.` : `[[YES]] — The ontological alignment favours immediate action.`)
-      : (language === 'RU' ? `[[НЕТ]] — Диалектика предостерегает от спешки.` : `[[NO]] — The dialectic cautions against premature action.`);
-  } else {
-    verdict = language === 'RU'
-      ? `[[${cleanQuery}]] — Фундаментальная сущность и смысл`
-      : `[[${cleanQuery}]] — Fundamental Essence and Purpose`;
-  }
-
-  const perspectivesData: any = {};
-  for (const key of PERSPECTIVE_KEYS) {
-    const reg = selectedPerspectives[key] || { philosopherName: 'Philosopher', philosopherThemes: ['Wisdom', 'Truth'] };
-    const pName = reg.philosopherName || 'Council Sage';
-    const themesStr = (reg.philosopherThemes || ['Wisdom']).join(', ');
-    
-    let text = '';
-    if (language === 'RU') {
-      text = `В отношении «${cleanQuery}» ${pName} подчеркивает категории ${themesStr}. Истинный смысл раскрывается через снятие внешних противоречий и глубокую внутреннюю интеграцию.`;
-    } else {
-      text = `Regarding "${cleanQuery}", ${pName} emphasizes the categories of ${themesStr}. True insight is realized through transcending surface contradictions into structural balance.`;
-    }
-
-    const vote = isComp ? ((cleanQuery.length + key.length) % 2 === 0 ? 'A' : 'B') : 'RESONANCE';
-    perspectivesData[key] = {
-      philosopherName: pName,
-      philosopherThemes: reg.philosopherThemes || ['Wisdom'],
-      verdict: text,
-      vote
-    };
-  }
-
-  const detailedAnalysis = language === 'RU'
-    ? `Совет Десяти завершил анализ вопроса «${cleanQuery}» под энтропийным давлением ${chaosScore}%. Синтез философских доктрин указывает на то, что видимая неопределенность вокруг данного запроса является источником новых возможностей.\n\nКаждая из десяти школ мысли соглашается в одном: реализация замысла требует не избегания риска, а его осознанного осмысления. Принятие вынесенного вердикта укрепляет волю и упорядочивает хаос.`
-    : `The Council of Ten has concluded its deliberation on "${cleanQuery}" under an entropy factor of ${chaosScore}%. The synthesis of these ten philosophical perspectives reveals that apparent uncertainty surrounding this inquiry contains the germ of new possibility.\n\nEvery doctrine agrees upon a fundamental truth: realization of intent requires not avoiding risk, but integrating it with conscious clarity. Embracing this decree restores alignment with the dialectic.`;
-
-  const seed = Math.floor(Math.random() * 1000000);
-  const divinePrompt = `Philosophical revelation artwork for "${cleanQuery}", style of ${theme === 'SUPREMATIST' ? 'Suprematism Kazimir Malevich abstract' : 'Impressionism Renoir Monet oil painting'}, museum quality 8k`;
-  const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(divinePrompt)}?width=1024&height=1024&nologo=true&seed=${seed}&model=${imageModel}`;
-
-  const searchTopic = verdict.replace(/\[\[|\]\]/g, '');
-  return {
-    title,
-    type,
-    isDecision: type === 'DECISION',
-    category,
-    summary,
-    verdict,
-    detailedAnalysis,
-    reasoning: language === 'RU' ? 'Онтологический синтез Совета' : 'Ontological synthesis of the Council',
-    recommendationLink: `https://www.google.com/search?q=${encodeURIComponent(searchTopic || cleanQuery)}`,
-    perspectives: perspectivesData,
-    comparison: isComp ? {
-      optionA,
-      optionB,
-      percentageA: votesA,
-      percentageB: votesB
-    } : undefined,
-    sources: [
-      { title: `Universal Query: ${cleanQuery}`, uri: `https://www.google.com/search?q=${encodeURIComponent(cleanQuery)}` },
-      { title: `Philosophical Archive: ${searchTopic || 'Ontology'}`, uri: `https://www.google.com/search?q=${encodeURIComponent((searchTopic || cleanQuery) + ' Stanford Encyclopedia of Philosophy')}` }
-    ],
-    imageUrl,
-    imageStyleLabel: theme === 'SUPREMATIST' ? 'SUPREMATISM' : 'IMPRESSIONISM',
-    imageModel,
-    textModelUsed: 'Council-Synthesis',
-    language,
-    isFallback: false
-  };
+  throw new Error("Max retries reached for Pollinations");
 }
 
 async function callOracleVision(divinePrompt: string): Promise<string> {
@@ -485,7 +361,6 @@ Respond ONLY with JSON. No meta-commentary.`;
     const oracleResponse: OracleResponse = {
       ...data,
       type: finalizedType || (isComp ? 'COMPARISON' : isExplicit ? 'RECOMMENDATION' : 'KNOWLEDGE'),
-      isDecision: (finalizedType || (isComp ? 'COMPARISON' : isExplicit ? 'RECOMMENDATION' : 'KNOWLEDGE')) === 'DECISION',
       perspectives: data.perspectives || {},
       sources: [],
       textModelUsed: 'Pollinations-OpenAI',
@@ -600,8 +475,21 @@ Respond ONLY with JSON. No meta-commentary.`;
     
     return oracleResponse;
   } catch (err) {
-    console.warn("[Oracle] External AI API unavailable or failed, generating local Council Synthesis:", err);
-    return synthesizeLocalOracleResponse(query, chaosScore, theme, language, learningProfile, selectedPerspectives, imageModel);
+    console.error("Council deliberation failed", err);
+    const apiKey = (process.env.POLL_KEY || "pk_jcfg5Q1xs8BU8pgq").trim();
+    return {
+      type: 'KNOWLEDGE',
+      isDecision: false,
+      title: 'Echo from the Void',
+      verdict: 'The path is occluded by static.',
+      category: 'ONTOLOGY',
+      reasoning: 'API Error.',
+      detailedAnalysis: 'The council has retreated into the silence of the circuits. Recalibrate and seek again.',
+      perspectives: {} as any,
+      imageUrl: apiKey
+        ? `https://gen.pollinations.ai/image/abstract-void-chaos?model=cogview-3&nologo=true&key=${apiKey}`
+        : `https://image.pollinations.ai/prompt/abstract-void-chaos?model=cogview-3&nologo=true`
+    } as OracleResponse;
   }
 }
 
@@ -760,12 +648,5 @@ CRITICAL:
 4. Language: ${lang}.
 ${isUnsynchronized ? "Note: The primary council consensus is still being calculated. Formulate your independent wisdom based on the seeker's query alone." : ""}`;
 
-  try {
-    return await generateOracleText(`Deliver your symposium report.`, sys, false);
-  } catch (err) {
-    if (lang === 'RU') {
-      return `Я, ${phil}, рассматриваю вопрос "${query}" сквозь призму категорий: ${themes.join(', ')}. В структуре этого суждения открывается фундаментальный онтологический баланс: всякое движение мысли берет начало во взаимодействии свободной воли и объективной необходимости.\n\nПроникая в суть представленного вердикта "${verdict || query}", следует отметить, что гармония не достигается отрицанием противоречий. Она возникает через осмысление целостной картины бытия.`;
-    }
-    return `I, ${phil}, examine the query "${query}" through the lens of: ${themes.join(', ')}. Within the structure of this inquiry, a fundamental ontological balance is revealed: every movement of thought originates in the interplay between active freedom and necessary order.\n\nIn contemplating the central verdict "${verdict || query}", one must recognize that harmony is not attained by denying contradiction, but by comprehending the full horizon of existence.`;
-  }
+  return await generateOracleText(`Deliver your symposium report.`, sys, false);
 }

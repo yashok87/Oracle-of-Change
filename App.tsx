@@ -524,11 +524,10 @@ export const App: React.FC = () => {
   const [isManual, setIsManual] = useState(false);
   const [imgCrossOrigin, setImgCrossOrigin] = useState<"anonymous" | undefined>("anonymous");
   const [showSaveMenu, setShowSaveMenu] = useState(false);
-  const [isExporting, setIsExporting] = useState(false);
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [learningProfile, setLearningProfile] = useState<LearningProfile | null>(null);
   const [selectedImageModel, setSelectedImageModel] = useState<string>('flux');
-  const [activePage, setActivePage] = useState<'ORACLE' | 'MUSIC' | 'ABOUT'>('ORACLE');
+  const [activePage, setActivePage] = useState<'ORACLE' | 'MUSIC' | 'ABOUT'>('MUSIC');
   const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
   const [isMusicMuted, setIsMusicMuted] = useState(true);
   const [isPlayerExpanded, setIsPlayerExpanded] = useState(false);
@@ -768,9 +767,9 @@ export const App: React.FC = () => {
         className={`fixed left-0 top-0 bottom-0 z-[2000] group cursor-pointer transition-all duration-500 ${!isSideMenuOpen && activePage === 'MUSIC' ? 'w-12 bg-gradient-to-r from-black/5 to-transparent' : 'w-6 md:w-4'}`}
       >
         {!isSideMenuOpen && (
-          <div className={`absolute top-1/2 -translate-y-1/2 flex items-center gap-3 pointer-events-none transition-all duration-700 ${activePage === 'MUSIC' ? 'left-4 opacity-90' : 'left-2 md:left-4 opacity-80 group-hover:opacity-100'}`}>
-            <div className={`w-px h-16 transition-all duration-700 ${activePage === 'MUSIC' ? 'animate-bounce' : 'animate-pulse'} ${isRenoir ? 'bg-amber-500/70 group-hover:bg-amber-500' : 'bg-red-600/70 group-hover:bg-red-600'}`} />
-            <span className={`text-[8px] md:text-[10px] font-black uppercase tracking-[0.4em] origin-left -rotate-90 transition-all duration-700 ${isRenoir ? 'text-amber-400 group-hover:text-amber-300' : 'text-red-900 group-hover:text-red-600 font-sans'}`}>
+          <div className={`absolute top-1/2 -translate-y-1/2 flex items-center gap-3 pointer-events-none transition-all duration-700 ${activePage === 'MUSIC' ? 'left-4 opacity-70' : 'left-2 md:left-4 opacity-30 group-hover:opacity-100'}`}>
+            <div className={`w-px h-16 transition-all duration-700 ${activePage === 'MUSIC' ? 'animate-bounce' : 'animate-pulse'} ${isRenoir ? 'bg-amber-500/40 group-hover:bg-amber-500/80' : 'bg-red-600/40 group-hover:bg-red-600/80'}`} />
+            <span className={`text-[8px] md:text-[10px] font-black uppercase tracking-[0.4em] origin-left -rotate-90 transition-all duration-700 ${isRenoir ? 'text-amber-500/50 group-hover:text-amber-500' : 'text-red-900/50 group-hover:text-red-900 font-sans'}`}>
               menu
             </span>
           </div>
@@ -1444,207 +1443,61 @@ export const App: React.FC = () => {
     };
   }, [state.response?.imageUrl, state.attempts]);
 
-  const generateCardCanvasDataUrl = async (): Promise<string> => {
-    const r = state.response;
-    const canvas = document.createElement('canvas');
-    const width = 1000;
-    const height = 1350;
-    canvas.width = width;
-    canvas.height = height;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) throw new Error("Canvas context missing");
-
-    const bgColor = isRenoir ? '#0f0505' : '#ffffff';
-    const textColor = isRenoir ? '#fef3c7' : '#000000';
-    const accentColor = isRenoir ? '#f59e0b' : '#dc2626';
-
-    // Fill canvas background
-    ctx.fillStyle = bgColor;
-    ctx.fillRect(0, 0, width, height);
-
-    // Outer border
-    ctx.strokeStyle = isRenoir ? '#92400e' : '#e5e7eb';
-    ctx.lineWidth = 12;
-    ctx.strokeRect(20, 20, width - 40, height - 40);
-
-    // Header Title
-    ctx.fillStyle = textColor;
-    ctx.font = `bold 34px ${isRenoir ? 'serif' : 'sans-serif'}`;
-    ctx.textAlign = 'center';
-    const titleText = (r?.title || 'The Decree of Chance').replace(/\[\[|\]\]/g, '');
-    ctx.fillText(titleText.toUpperCase(), width / 2, 85);
-
-    // Subheader Ratio
-    ctx.font = `bold 16px sans-serif`;
-    ctx.fillStyle = isRenoir ? '#d97706' : '#6b7280';
-    ctx.fillText(`LOGIC ${state.logicScore}%   •   CHAOS ${state.chaosScore}%`, width / 2, 120);
-
-    // Vision Image Draw
-    const imgSize = 480;
-    const imgX = (width - imgSize) / 2;
-    const imgY = 150;
-
-    const src = localDisplayUrl || r?.imageUrl;
-    if (src) {
-      try {
-        const img = new Image();
-        img.crossOrigin = 'anonymous';
-        img.src = src;
-        await new Promise((resolve) => {
-          if (img.complete) resolve(true);
-          else {
-            img.onload = () => resolve(true);
-            img.onerror = () => resolve(false);
-          }
-        });
-        ctx.drawImage(img, imgX, imgY, imgSize, imgSize);
-        ctx.strokeStyle = accentColor;
-        ctx.lineWidth = 4;
-        ctx.strokeRect(imgX, imgY, imgSize, imgSize);
-      } catch (e) {
-        ctx.fillStyle = isRenoir ? '#291212' : '#f3f4f6';
-        ctx.fillRect(imgX, imgY, imgSize, imgSize);
-      }
-    }
-
-    // Verdict Box
-    const verdictY = imgY + imgSize + 40;
-    ctx.fillStyle = isRenoir ? '#1c0a0a' : '#f9fafb';
-    ctx.fillRect(80, verdictY, width - 160, 100);
-    ctx.strokeStyle = accentColor;
-    ctx.lineWidth = 2;
-    ctx.strokeRect(80, verdictY, width - 160, 100);
-
-    ctx.fillStyle = accentColor;
-    ctx.font = `bold 22px ${isRenoir ? 'serif' : 'sans-serif'}`;
-    const cleanVerdict = (r?.verdict || '').replace(/\[\[|\]\]/g, '');
-    ctx.fillText(`"${cleanVerdict}"`, width / 2, verdictY + 58);
-
-    // Analysis text
-    const analysisY = verdictY + 140;
-    ctx.fillStyle = textColor;
-    ctx.font = `15px ${isRenoir ? 'serif' : 'sans-serif'}`;
-    
-    const analysisStr = r?.detailedAnalysis || r?.summary || '';
-    const words = analysisStr.split(' ');
-    let line = '';
-    let currY = analysisY;
-    const maxWidth = width - 200;
-    for (let n = 0; n < words.length && currY < height - 100; n++) {
-      const testLine = line + words[n] + ' ';
-      const metrics = ctx.measureText(testLine);
-      if (metrics.width > maxWidth && n > 0) {
-        ctx.fillText(line, width / 2, currY);
-        line = words[n] + ' ';
-        currY += 26;
-      } else {
-        line = testLine;
-      }
-    }
-    if (line) ctx.fillText(line, width / 2, currY);
-
-    // Footer branding
-    ctx.fillStyle = isRenoir ? '#b45309' : '#9ca3af';
-    ctx.font = 'bold 13px sans-serif';
-    ctx.fillText('THE ORACLE OF CHANCE • COUNCIL OF TEN SYNTHESIS', width / 2, height - 45);
-
-    return canvas.toDataURL('image/png');
-  };
-
   const saveArtifactAsImage = async () => {
-    setShowSaveMenu(false);
-    setIsExporting(true);
+    if (!captureRef.current || !state.response?.imageUrl) return;
+    
+    const originalSrc = state.response.imageUrl;
+    let localUrl: string | null = null;
     
     try {
-      let dataUrl = '';
-      if (captureRef.current) {
-        try {
-          const canvas = await html2canvas(captureRef.current, { 
-            backgroundColor: isRenoir ? '#0f0505' : '#ffffff', 
-            useCORS: true, 
-            allowTaint: true,
-            scale: 2,
-            logging: false,
-            ignoreElements: (element) => element.hasAttribute('data-html2canvas-ignore')
-          });
-          dataUrl = canvas.toDataURL('image/png');
-        } catch (hErr) {
-          console.warn("[Oracle] html2canvas failed, generating clean 2D canvas card:", hErr);
+      // Use CORS-friendly image to avoid tainting the canvas
+      localUrl = await getCORSFriendlyImage(originalSrc);
+      if (resultImageRef.current) {
+        resultImageRef.current.src = localUrl;
+        await new Promise(resolve => {
+          if (resultImageRef.current?.complete) resolve(true);
+          else {
+            resultImageRef.current!.onload = () => resolve(true);
+            resultImageRef.current!.onerror = () => resolve(false);
+          }
+        });
+        if (resultImageRef.current?.decode) {
+          try { await resultImageRef.current.decode(); } catch (e) {}
         }
       }
 
-      if (!dataUrl) {
-        dataUrl = await generateCardCanvasDataUrl();
-      }
+      const canvas = await html2canvas(captureRef.current, { 
+        backgroundColor: isRenoir ? '#0f0505' : '#ffffff', 
+        useCORS: true, 
+        scale: 2,
+        logging: false,
+        allowTaint: false,
+        scrollX: 0,
+        scrollY: -window.scrollY, // Fix for scrolled content
+        windowWidth: document.documentElement.offsetWidth,
+        windowHeight: document.documentElement.offsetHeight
+      });
 
       const link = document.createElement('a');
       link.download = `oracle-decree-${Date.now()}.png`;
-      link.href = dataUrl;
-      document.body.appendChild(link);
+      link.href = canvas.toDataURL('image/png');
       link.click();
-      document.body.removeChild(link);
+      setShowSaveMenu(false);
     } catch (e) { 
-      console.error("[Oracle] Canvas card export error:", e);
-      try {
-        const fallbackUrl = await generateCardCanvasDataUrl();
-        const link = document.createElement('a');
-        link.download = `oracle-decree-${Date.now()}.png`;
-        link.href = fallbackUrl;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      } catch (err2) {
-        console.error("[Oracle] Final fallback card export failed:", err2);
-      }
+      console.error("Export failure", e); 
     } finally {
-      setIsExporting(false);
+      if (resultImageRef.current) resultImageRef.current.src = originalSrc;
+      if (localUrl && localUrl.startsWith('blob:')) URL.revokeObjectURL(localUrl);
     }
   };
 
   const savePictureOnly = async () => {
-    const src = localDisplayUrl || state.response?.imageUrl;
-    if (!src) return;
+    if (!state.response?.imageUrl) return;
+    const link = document.createElement('a');
+    link.download = `oracle-vision-${Date.now()}.png`;
+    link.href = state.response.imageUrl;
+    link.click();
     setShowSaveMenu(false);
-    setIsExporting(true);
-
-    try {
-      const img = new Image();
-      img.crossOrigin = "anonymous";
-      img.src = src;
-      await new Promise((resolve) => {
-        if (img.complete) resolve(true);
-        else {
-          img.onload = () => resolve(true);
-          img.onerror = () => resolve(false);
-        }
-      });
-
-      const canvas = document.createElement('canvas');
-      canvas.width = img.naturalWidth || 1024;
-      canvas.height = img.naturalHeight || 1024;
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        ctx.drawImage(img, 0, 0);
-        const dataUrl = canvas.toDataURL('image/png');
-        const link = document.createElement('a');
-        link.download = `oracle-vision-${Date.now()}.png`;
-        link.href = dataUrl;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        return;
-      }
-    } catch (e) {
-      console.warn("[Oracle] Canvas image export failed, downloading directly:", e);
-      const link = document.createElement('a');
-      link.download = `oracle-vision-${Date.now()}.png`;
-      link.href = src;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } finally {
-      setIsExporting(false);
-    }
   };
 
   const r = state.response;
@@ -1863,6 +1716,7 @@ export const App: React.FC = () => {
           >
             {(r?.title || "The Decree")?.replace(/\[\[|\]\]/g, '')}
           </h1>
+
           <div className="w-full max-w-[400px]">
             <RatioIndicator logicScore={state.logicScore} chaosScore={state.chaosScore} category={r.category as any} theme={theme} language={uiLanguage} />
             <div className={`relative group cursor-crosshair transition-all duration-700 ${isRenoir ? 'renoir-glow rounded-[60px]' : 'oracle-glow'}`}>
@@ -1951,9 +1805,112 @@ export const App: React.FC = () => {
             </div>
           </div>
 
-            <TextBlock text={activeAnalysisData?.analysis || "The council is currently formulating the synthesized core of this revelation."} isRenoir={isRenoir} isLoading={activeAnalysisData?.isLoading} loadingLabel={t.loadingAnalysis} dropCap={activeFramework === 'DEFAULT'} />
+          <div className="w-full flex flex-col items-center space-y-8">
+            <div className={`w-full p-8 md:p-12 relative transition-all duration-500 shadow-2xl border ${isTranslating ? 'blur-md opacity-40' : ''} ${isRenoir ? 'bg-[#1e0a0a]/80 backdrop-blur-xl border-amber-900/20 rounded-[60px]' : 'bg-white/80 backdrop-blur-xl border-black/5 rounded-[60px]'}`}>
+               <div className="flex flex-col items-center mb-8 border-b border-current/10 pb-6 uppercase font-black">
+                 <div className="w-full flex justify-between items-center mb-2">
+                   <h3 className="text-[11px] font-black uppercase opacity-40 tracking-[0.4em]">
+                     {modeLabel}
+                   </h3>
+                   <select data-html2canvas-ignore value={activeFramework} onChange={(e) => { setActiveFramework(e.target.value as FrameworkType); scrollToAnalysis(); }} className={`text-[10px] font-black uppercase bg-transparent outline-none cursor-pointer underline-offset-4 hover:underline ${isRenoir ? 'text-amber-400 decoration-amber-500' : 'text-red-600 decoration-red-500'}`}>
+                      {Object.keys(t.frameworks).map(k => <option key={k} value={k} className="text-black">{(t.frameworks as any)[k]}</option>)}
+                   </select>
+                 </div>
+                 
+                 {r.isUncertain && (
+                   <div className={`text-center py-2 px-4 border rounded-xl animate-bounce mt-4 ${isRenoir ? 'bg-amber-900/10 border-amber-500/30' : 'bg-red-50 border-red-200'}`}>
+                     <p className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${isRenoir ? 'text-amber-500' : 'text-red-600'}`}>{t.uncertaintyPrefix}</p>
+                     <p className="text-[11px] italic opacity-70">"{r.uncertaintyQuery || 'Was this intended as a personal decision or a recommendation?'}"</p>
+                   </div>
+                 )}
+               </div>
 
-            <div className="pt-8 mb-8">
+               {/* Graphics/Charts */}
+               {r.type === 'COMPARISON' && r.comparison && (
+                 <div className="w-full space-y-8 mb-12 animate-in slide-in-from-bottom-4 duration-700">
+                   <div className="grid grid-cols-2 gap-4">
+                     {['A', 'B'].map(opt => {
+                       const title = opt === 'A' ? r.comparison!.optionA : r.comparison!.optionB;
+                       const score = opt === 'A' ? r.comparison!.percentageA : r.comparison!.percentageB;
+                       const voters = Object.values(r.perspectives || {})
+                         .filter(p => (p as Perspective).vote === opt)
+                         .map(p => (p as Perspective).philosopherName);
+                       
+                       return (
+                         <div key={opt} className="flex flex-col items-center text-center">
+                           <span className={`text-[9px] font-black uppercase opacity-40 mb-2`}>{opt === 'A' ? t.optionA : t.optionB}</span>
+                           <span className="text-lg md:text-xl font-black uppercase leading-tight">{title}</span>
+                           <div className={`w-full h-2 mt-4 border border-current/10 relative`}>
+                             <div className={`absolute top-0 left-0 h-full ${isRenoir ? 'bg-amber-500' : 'bg-red-600'}`} style={{ width: `${score}%` }} />
+                           </div>
+                           <span className="mt-2 text-[10px] font-black opacity-60">{score}%</span>
+                           <div className="mt-4 flex flex-col items-center">
+                             <span className="text-[7px] font-black uppercase opacity-30 mb-2 tracking-widest">Delegates</span>
+                             <div className="flex flex-wrap justify-center gap-1 opacity-50">
+                               {voters.map((vName, vIdx) => (
+                                 <span key={vIdx} className="text-[8px] font-black uppercase px-1.5 py-0.5 border border-current/20 rounded-[4px] leading-tight">
+                                   {vName}
+                                 </span>
+                               ))}
+                             </div>
+                           </div>
+                         </div>
+                       );
+                     })}
+                   </div>
+                 </div>
+               )}
+
+               {/* MAIN VERDICT - PROMINENT AND POSITIONED BELOW THE GRAPHICS */}
+               <div className="w-full flex flex-col items-center justify-center text-center py-10 mb-10 bg-current/[0.03] rounded-[40px] border border-current/5 px-8 shadow-inner animate-in zoom-in duration-700">
+                  <span className={`text-[10px] font-black uppercase tracking-[0.7em] opacity-40 mb-5`}>{verdictTypeLabel}</span>
+                  <span className={`leading-tight ${isRenoir ? 'text-amber-500 font-serif' : 'text-red-600 font-sans'} ${
+                     (activeAnalysisData?.verdict?.length || 0) > 60 || activeFramework !== 'DEFAULT'
+                       ? 'text-lg md:text-xl font-medium tracking-normal'
+                       : 'text-2xl md:text-5xl font-black uppercase tracking-tighter'
+                   }`}>
+                     {renderHyperlinkedText(activeAnalysisData?.verdict || "Awaiting the echo of fate...", !!isRenoir, true)}
+                  </span>
+                  
+                  {activeAnalysisData?.summary && (
+                    <div className="mt-6 pt-6 border-t border-current/5 max-w-2xl">
+                      <p className={`text-sm md:text-base font-normal italic opacity-80 leading-relaxed ${isRenoir ? 'text-amber-200/60' : 'text-gray-600'}`}>
+                        {activeAnalysisData.summary}
+                      </p>
+                    </div>
+                  )}
+               </div>
+
+               {r.type === 'RECOMMENDATION' && activeAnalysisData?.recommendationLink && (
+                 <div className="w-full flex justify-center mb-10 animate-in slide-in-from-bottom-4 duration-700">
+                   <a 
+                     href={activeAnalysisData.recommendationLink} 
+                     target="_blank" 
+                     rel="noopener noreferrer"
+                     className={`flex items-center gap-3 px-8 py-3 rounded-full border-2 font-black uppercase tracking-[0.3em] text-[10px] transition-all hover:scale-105 active:scale-95 shadow-xl ${isRenoir ? 'bg-amber-900 border-amber-500 text-white' : 'bg-black border-red-600 text-white'}`}
+                   >
+                     <Icons.External /> {t.studyEvidence}
+                   </a>
+                 </div>
+               )}
+
+               {activeAnalysisData?.tally && (
+                  <div className="mb-10 text-center animate-in fade-in slide-in-from-top-2 duration-700">
+                    <span className="text-[8px] font-black uppercase tracking-raw block mb-2">{tallyLabel}</span>
+                    <span className="text-[10px] md:text-xs font-light italic opacity-60">
+                      {activeAnalysisData.tally}
+                    </span>
+                  </div>
+               )}
+
+               {activeAnalysisData && (
+                 <div className="w-full animate-in fade-in duration-1000">
+                   <div className="mb-8 border-b border-current/5 pb-8">
+                     <span ref={analysisHeaderRef} className="text-[9px] font-black uppercase tracking-[0.4em] opacity-30 block mb-6 text-center">{activeFramework === 'DEFAULT' ? t.ontologicalCore : t.frameworks[activeFramework]}</span>
+                     <TextBlock text={activeAnalysisData.analysis || "The council is currently formulating the synthesized core of this revelation."} isRenoir={isRenoir} isLoading={activeAnalysisData.isLoading} loadingLabel={t.loadingAnalysis} dropCap={activeFramework === 'DEFAULT'} />
+                   </div>
+
+                   <div className="pt-8 mb-8">
                       <h4 className="text-[10px] font-black uppercase tracking-[0.6em] text-center opacity-30 mb-8">{t.councilOfPhilosophers}</h4>
                       <div className="flex flex-wrap justify-center gap-4 md:gap-6">
                         {perspectivesList.map((p) => {
@@ -1964,12 +1921,12 @@ export const App: React.FC = () => {
                             <button
                               key={p.id}
                               onClick={() => { setActiveFramework(p.frameworkType); scrollToAnalysis(); }}
-                              className={`group relative flex flex-col items-center transition-all duration-300 ${isActive ? 'scale-110 opacity-100' : 'opacity-85 hover:opacity-100'}`}
+                              className={`group relative flex flex-col items-center transition-all duration-300 ${isActive ? 'scale-110' : 'opacity-40 hover:opacity-100'}`}
                             >
-                              <div className={`w-10 h-10 md:w-12 md:h-12 rounded-full border-2 flex items-center justify-center text-[10px] font-black overflow-hidden transition-all ${isActive ? (isRenoir ? 'border-amber-500 bg-amber-500/20 text-amber-500 shadow-md shadow-amber-500/20' : 'border-red-600 bg-red-600/10 text-red-600 shadow-md shadow-red-600/20') : (isRenoir ? 'border-amber-700/50 bg-amber-950/40 text-amber-200' : 'border-black/30 bg-black/5 text-black')}`}>
+                              <div className={`w-10 h-10 md:w-12 md:h-12 rounded-full border-2 flex items-center justify-center text-[10px] font-black overflow-hidden transition-all ${isActive ? (isRenoir ? 'border-amber-500 bg-amber-500/20 text-amber-500' : 'border-red-600 bg-red-600/10 text-red-600') : 'border-current/20'}`}>
                                 {initials}
                               </div>
-                              <span className="mt-2 text-[8.5px] font-black uppercase tracking-tighter max-w-[65px] text-center leading-[0.9] opacity-90">{data?.philosopherName}</span>
+                              <span className="mt-2 text-[8px] font-black uppercase tracking-tighter max-w-[60px] text-center leading-[0.8]">{data?.philosopherName}</span>
                             </button>
                           );
                         })}
@@ -1981,6 +1938,9 @@ export const App: React.FC = () => {
                         {t.disclaimer}
                      </p>
                    </div>
+                 </div>
+               )}
+            </div>
 
             <div data-html2canvas-ignore className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full">
                <button onClick={loadAllPerspectives} className={`py-6 text-[11px] font-black uppercase tracking-[0.3em] rounded-3xl transition-all active:scale-95 shadow-xl ${isRenoir ? 'bg-amber-900 border border-amber-700/60 text-amber-100 hover:bg-amber-800' : 'bg-black text-white hover:bg-zinc-800'}`}>
@@ -2020,41 +1980,23 @@ export const App: React.FC = () => {
             </div>
 
             <div className="pt-16 w-full border-t border-current/10 text-center">
-               <span className="text-[11px] font-black uppercase opacity-60 tracking-[0.6em] block mb-10">{t.sources}</span>
+               <span className="text-[11px] font-black uppercase opacity-40 tracking-[0.6em] block mb-10">{t.sources}</span>
                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full px-4">
-                 {((activeAnalysisData?.sources && activeAnalysisData.sources.length > 0) 
-                   ? activeAnalysisData.sources 
-                   : [
-                       { title: `Universal Query: ${r.title || 'Revelation'}`, uri: `https://www.google.com/search?q=${encodeURIComponent(r.title || 'Philosophy')}` },
-                       { title: `Philosophical Evidence: ${(r.verdict || 'Ontological Core').replace(/\[\[|\]\]/g, '')}`, uri: `https://www.google.com/search?q=${encodeURIComponent((r.verdict || r.title || 'Philosophy').replace(/\[\[|\]\]/g, '') + ' Stanford Encyclopedia of Philosophy')}` }
-                     ]
-                 ).map((s, i) => s && (
-                  <a 
-                    key={i} 
-                    href={s.uri} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className={`p-5 border-2 rounded-3xl transition-all flex justify-between items-center group shadow-md ${isRenoir ? 'border-amber-700/60 bg-amber-950/80 hover:bg-amber-900 hover:border-amber-500 text-amber-100 shadow-amber-950/50' : 'border-black/15 bg-black/5 hover:bg-black/10 text-black shadow-sm'}`}
-                  >
-                    <div className="flex flex-col text-left truncate pr-2">
-                       <span className={`text-[9px] font-black uppercase mb-1 tracking-widest ${isRenoir ? 'text-amber-400 opacity-90' : 'text-red-600 opacity-80'}`}>REF. {(i+1).toString().padStart(2, '0')}</span>
-                       <span className={`text-[11px] font-black uppercase leading-tight group-hover:underline truncate max-w-[240px] ${isRenoir ? 'text-amber-100' : 'text-black'}`}>{s?.title || "Source Reference"}</span>
+                 {activeAnalysisData?.sources?.map((s, i) => s && (
+                  <a key={i} href={s.uri} target="_blank" rel="noopener noreferrer" className={`p-5 border-2 rounded-3xl transition-all flex justify-between items-center group ${isRenoir ? 'border-amber-900/40 bg-amber-950/30 hover:bg-amber-900/40 text-amber-100' : 'border-current/5 hover:bg-current/5 text-black'}`}>
+                    <div className="flex flex-col text-left truncate">
+                       <span className="text-[9px] font-black uppercase opacity-30 mb-1 tracking-widest">REF. {(i+1).toString().padStart(2, '0')}</span>
+                       <span className="text-[11px] font-black uppercase leading-tight group-hover:underline truncate max-w-[200px]">{s?.title || "Source"}</span>
                     </div>
-                    <Icons.External className={`flex-shrink-0 transition-transform group-hover:scale-110 ${isRenoir ? 'text-amber-400' : 'text-black'}`} />
+                    <Icons.External />
                   </a>
                  ))}
                  
-                 {(activeAnalysisData?.studyMoreUrl || r.recommendationLink) && (
-                   <a 
-                     data-html2canvas-ignore 
-                     href={activeAnalysisData?.studyMoreUrl || r.recommendationLink} 
-                     target="_blank" 
-                     rel="noopener noreferrer" 
-                     className={`p-5 border-2 rounded-3xl font-black uppercase transition-all flex justify-center items-center group md:col-span-2 mt-2 shadow-md ${isRenoir ? 'border-amber-500/80 bg-amber-900/60 text-amber-300 hover:bg-amber-500 hover:text-amber-950 hover:border-amber-400' : 'border-black text-black hover:bg-red-600 hover:text-white hover:border-red-600'}`}
-                   >
+                 {activeAnalysisData?.studyMoreUrl && (
+                   <a data-html2canvas-ignore href={activeAnalysisData.studyMoreUrl} target="_blank" rel="noopener noreferrer" className={`p-5 border-2 font-black uppercase transition-all flex justify-center items-center group md:col-span-2 mt-4 ${isRenoir ? 'border-amber-600 text-amber-300 hover:bg-amber-600 hover:text-white' : 'border-current text-black hover:bg-red-600 hover:text-white hover:border-red-600'}`}>
                     <div className="flex items-center gap-3">
                       <span className="text-[11px] font-black uppercase tracking-[0.3em]">
-                        {activeAnalysisData?.studyMoreLabel || t.studyFurther}
+                        {activeAnalysisData.studyMoreLabel || t.studyFurther}
                       </span>
                       <Icons.Search />
                     </div>
@@ -2063,6 +2005,7 @@ export const App: React.FC = () => {
                </div>
             </div>
           </div>
+        </div>
     );
   } else {
     mainContent = (
@@ -2107,10 +2050,10 @@ export const App: React.FC = () => {
           </div>
           <div className="flex flex-col items-center gap-4 w-full">
             <div className="flex gap-3">
-              <button type="button" onClick={() => { if(isManual) setState(s => ({ ...s, chaosScore: 50, logicScore: 50 })); setIsManual(!isManual); }} className={`flex items-center gap-2 px-5 py-2 rounded-full text-[8px] md:text-[9px] font-black uppercase tracking-widest border-2 transition-all shadow-xl ${isManual ? (isRenoir ? 'bg-amber-500 border-amber-500 text-amber-950 font-bold' : 'bg-black border-black text-white font-bold') : (isRenoir ? 'border-amber-600/70 bg-amber-950/90 text-amber-200 hover:border-amber-400 hover:bg-amber-900' : 'border-black/30 bg-black/5 text-black hover:bg-black/10')}`}>
+              <button type="button" onClick={() => { if(isManual) setState(s => ({ ...s, chaosScore: 50, logicScore: 50 })); setIsManual(!isManual); }} className={`flex items-center gap-2 px-5 py-2 rounded-full text-[8px] md:text-[9px] font-black uppercase tracking-widest border-2 transition-all shadow-xl ${isManual ? (isRenoir ? 'bg-amber-100/15 border-amber-100/40 text-amber-100 ring-1 ring-red-500' : 'bg-zinc-100 border-black/40 text-black ring-1 ring-red-600') : 'opacity-40 border-current hover:opacity-100'}`}>
                 <Icons.Settings /> {isManual ? t.cancelManual : t.manualCalibration}
               </button>
-              <button type="button" onClick={handleRandomRequest} className={`flex items-center gap-2 px-5 py-2 rounded-full text-[8px] md:text-[9px] font-black uppercase tracking-widest border-2 transition-all shadow-xl ${isRenoir ? 'border-amber-600/70 bg-amber-950/90 text-amber-300 hover:bg-amber-500 hover:text-amber-950 hover:border-amber-400' : 'border-black/30 bg-black/5 text-black hover:bg-black hover:text-white'}`}>
+              <button type="button" onClick={handleRandomRequest} className={`flex items-center gap-2 px-5 py-2 rounded-full text-[8px] md:text-[9px] font-black uppercase tracking-widest border-2 transition-all shadow-xl border-amber-500/50 text-amber-600 hover:bg-amber-500 hover:text-white`}>
                 <Icons.Sparkle /> {t.randomRequest}
               </button>
             </div>
@@ -2185,24 +2128,8 @@ export const App: React.FC = () => {
 
   const isRevealed = state.status === 'REVEALED';
 
-  const AppFooter = (
-    <footer className={`w-full py-4 px-6 md:px-12 border-t flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] md:text-[11px] font-bold uppercase tracking-[0.2em] transition-all z-20 ${isRenoir ? 'border-amber-900/30 text-amber-200/80 bg-[#0f0505]/90' : 'border-black/10 text-black/70 bg-white/90'}`}>
-      <div className="flex items-center gap-2 opacity-80">
-        <span>{t.footer || "The Oracle of Chance • Council of Ten"}</span>
-      </div>
-      <div className="flex flex-wrap items-center justify-center gap-4 md:gap-6">
-        <button onClick={() => setActivePage('ORACLE')} className="hover:opacity-100 transition-opacity underline decoration-current underline-offset-4">Oracle</button>
-        <button onClick={() => setActivePage('ABOUT')} className="hover:opacity-100 transition-opacity underline decoration-current underline-offset-4">About</button>
-        <button onClick={() => setActivePage('MUSIC')} className="hover:opacity-100 transition-opacity underline decoration-current underline-offset-4">Soundtrack</button>
-        <button onClick={startProfiling} className="hover:opacity-100 transition-opacity underline decoration-current underline-offset-4">{t.learningStyle || "Learning Style"}</button>
-        <button onClick={() => setIsSideMenuOpen(true)} className="hover:opacity-100 transition-opacity underline decoration-current underline-offset-4">History</button>
-        <button onClick={() => setShowCalibrationPopup(true)} className="hover:opacity-100 transition-opacity underline decoration-current underline-offset-4">Calibration</button>
-      </div>
-    </footer>
-  );
-
   return (
-    <div className={`relative ${isRevealed ? 'min-h-screen pt-20 pb-16 px-4 md:px-8 overflow-y-auto' : 'h-screen w-full flex flex-col items-center justify-between p-4 overflow-hidden'} ${isRenoir ? 'bg-[#0f0505] text-amber-100 font-serif' : 'bg-white text-black font-sans'}`}>
+    <div className={`relative ${isRevealed ? 'min-h-screen pt-24 pb-24 px-6 md:px-8 overflow-y-auto' : 'h-screen w-full flex flex-col items-center justify-center p-4 overflow-hidden'} ${isRenoir ? 'bg-[#0f0505] text-amber-100 font-serif' : 'bg-white text-black font-sans'}`}>
        <ThemeBackground theme={theme} />
        {GlobalUI}
        {HistorySidebar}
@@ -2212,12 +2139,8 @@ export const App: React.FC = () => {
        {showProfilingModal && ProfilingModal}
        {showCalibrationPopup && CalibrationPopup}
        {PerspectivesModal}
-       
-       <div className="w-full flex-1 flex flex-col items-center justify-center">
-         {mainContent}
-       </div>
-
-       {AppFooter}
+       {mainContent}
+       {state.status === 'IDLE' && <footer className="absolute bottom-6 text-[8px] opacity-10 tracking-1em font-black select-none uppercase">{t.footer}</footer>}
     </div>
   );
 };
