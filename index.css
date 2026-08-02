@@ -86,3 +86,22 @@ a,
     padding-bottom: env(safe-area-inset-bottom);
   }
 }
+
+/* Ensure action buttons and Grounding Evidence source links are fully visible */
+.action-button,
+.source-card-link,
+.perspectives-modal-footer button,
+.perspectives-modal-footer a,
+.result-footer-section button,
+.result-footer-section a {
+  opacity: 1 !important;
+  visibility: visible !important;
+  filter: none !important;
+}
+
+.perspectives-modal-footer,
+.result-footer-section {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+

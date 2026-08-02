@@ -1524,14 +1524,34 @@ export const App: React.FC = () => {
       let currentY = startY;
 
       for (const para of paragraphs) {
-        const words = para.split(' ');
+        const rawWords = para.split(' ');
         let line = '';
-        for (let n = 0; n < words.length; n++) {
-          const testLine = line + words[n] + ' ';
+        for (let n = 0; n < rawWords.length; n++) {
+          let word = rawWords[n];
+          if (ctx.measureText(word).width > maxWidth) {
+            let subWord = '';
+            for (let charIdx = 0; charIdx < word.length; charIdx++) {
+              if (ctx.measureText(subWord + word[charIdx]).width > maxWidth) {
+                if (line.trim()) {
+                  ctx.fillText(line.trim(), x, currentY);
+                  currentY += lineHeight;
+                  line = '';
+                }
+                ctx.fillText(subWord, x, currentY);
+                currentY += lineHeight;
+                subWord = word[charIdx];
+              } else {
+                subWord += word[charIdx];
+              }
+            }
+            word = subWord;
+          }
+
+          const testLine = line + word + ' ';
           const metrics = ctx.measureText(testLine);
-          if (metrics.width > maxWidth && n > 0) {
+          if (metrics.width > maxWidth && n > 0 && line.trim()) {
             ctx.fillText(line.trim(), x, currentY);
-            line = words[n] + ' ';
+            line = word + ' ';
             currentY += lineHeight;
           } else {
             line = testLine;
@@ -1541,13 +1561,18 @@ export const App: React.FC = () => {
           ctx.fillText(line.trim(), x, currentY);
           currentY += lineHeight;
         }
-        currentY += lineHeight * 0.4;
+        currentY += lineHeight * 0.3;
       }
       return currentY;
     };
 
-    const imgSize = 400;
-    let estimatedHeight = padding * 3 + 60 + imgSize + 80 + 120;
+    const imgSize = 360;
+    const titleFontSize = title.length > 50 ? 22 : title.length > 30 ? 26 : 32;
+    const titleLineHeight = titleFontSize + 12;
+    const titleLines = Math.max(1, Math.ceil(title.length / 20));
+    let estimatedHeight = padding * 3 + (titleLines * titleLineHeight) + imgSize + 80 + 120;
+    if (verdict) estimatedHeight += Math.ceil(verdict.length / 30) * 38 + 40;
+    if (summary) estimatedHeight += Math.ceil(summary.length / 40) * 26 + 40;
     if (analysis) estimatedHeight += Math.ceil(analysis.length / 45) * 28 + 100;
 
     canvas.width = width;
@@ -1562,11 +1587,9 @@ export const App: React.FC = () => {
 
     let currentY = padding + 40;
 
-    ctx.font = isRenoirStyle ? 'bold 36px Georgia, serif' : '900 36px Inter, sans-serif';
-    ctx.fillStyle = textColor;
-    ctx.textAlign = 'center';
-    ctx.fillText(title.toUpperCase(), width / 2, currentY);
-    currentY += 50;
+    const titleFont = isRenoirStyle ? `bold ${titleFontSize}px Georgia, serif` : `900 ${titleFontSize}px Inter, sans-serif`;
+    currentY = wrapText(title.toUpperCase(), width / 2, currentY, width - padding * 2.5, titleLineHeight, titleFont, textColor);
+    currentY += 24;
 
     if (loadedImg && loadedImg.complete && loadedImg.naturalWidth > 0) {
       const imgX = (width - imgSize) / 2;
@@ -1823,39 +1846,39 @@ export const App: React.FC = () => {
   );
 
   const PerspectivesModal = r && showPerspectivesModal && (
-    <div className="fixed inset-0 z-[1000] bg-black/80 backdrop-blur-3xl overflow-y-auto font-sans flex items-start justify-center p-4 md:p-12 cursor-pointer" onClick={() => { setShowPerspectivesModal(false); stopAudio(); }}>
+    <div className="fixed inset-0 z-[1000] bg-black/90 backdrop-blur-3xl overflow-y-auto font-sans flex items-start justify-center p-4 md:p-12 cursor-pointer" onClick={() => { setShowPerspectivesModal(false); stopAudio(); }}>
       <div className="w-full max-w-4xl min-h-full flex flex-col items-center py-12" onClick={e => e.stopPropagation()}>
-          <div className="w-full flex justify-between items-end mb-24 border-b-2 border-white/20 pb-12">
+          <div className="w-full flex justify-between items-end mb-16 border-b-2 border-white/20 pb-8">
             <div className="flex flex-col">
-              <span className="text-white/40 text-[11px] font-black uppercase tracking-[1.2em] mb-4">Council Proceedings</span>
-              <h2 className="text-2xl md:text-6xl font-black text-white uppercase tracking-tighter leading-tight">{(r?.title || "Decree")?.replace(/\[\[|\]\]/g, '')}</h2>
+              <span className="text-white/60 text-[11px] font-black uppercase tracking-[1.2em] mb-4">Council Proceedings</span>
+              <h2 className="text-2xl md:text-5xl font-black text-white uppercase tracking-tighter leading-tight break-words max-w-2xl">{(r?.title || "Decree")?.replace(/\[\[|\]\]/g, '')}</h2>
             </div>
             <button onClick={() => { setShowPerspectivesModal(false); stopAudio(); }} className="text-white p-4 border-2 border-white rounded-full hover:bg-white hover:text-black transition-all active:scale-90"><Icons.Close /></button>
           </div>
-          <div className="w-full space-y-32 md:space-y-48">
+          <div className="w-full space-y-16 md:space-y-24">
             {perspectivesList.map((p, idx) => {
               const data = (r.perspectives as any)?.[frameworkKeyMap[p.frameworkType]];
               if (!data) return null;
               const isLoading = loadingFrameworks.has(frameworkKeyMap[p.frameworkType]);
               const initials = data?.philosopherName?.split(' ').map((n: string) => n[0]).join('') || '?';
               return (
-                <div key={p.id} className="relative group p-6 md:p-10 rounded-[40px] border border-white/5 bg-white/5 backdrop-blur-xl">
+                <div key={p.id} className="relative p-6 md:p-10 rounded-[40px] border-2 border-white/20 bg-zinc-950 backdrop-blur-xl">
                     <div className="flex items-center gap-10 mb-12 border-b border-white/10 pb-8">
-                      <span className="text-5xl md:text-8xl font-black text-white/5 select-none">{(idx + 1).toString().padStart(2, '0')}</span>
+                      <span className="text-5xl md:text-8xl font-black text-white/20 select-none">{(idx + 1).toString().padStart(2, '0')}</span>
                       <div className="flex flex-col">
                           <div className="flex items-center gap-4">
-                            <div className="w-16 h-16 rounded-full border-2 border-white/20 flex items-center justify-center text-xl font-black text-white">{initials}</div>
+                            <div className="w-16 h-16 rounded-full border-2 border-white/40 flex items-center justify-center text-xl font-black text-white">{initials}</div>
                             <h3 className="text-xl md:text-3xl font-black text-white uppercase tracking-[0.3em]">{data.philosopherName}</h3>
                           </div>
-                          <span className="text-white/40 text-[10px] uppercase tracking-widest mt-4 block">Doctrine: {p.label}</span>
+                          <span className="text-white/70 text-[10px] uppercase tracking-widest mt-4 block">Doctrine: {p.label}</span>
                           <div className="flex flex-wrap gap-2 mt-4">
                             {data.philosopherThemes?.map((theme: string) => (
-                              <span key={theme} className="px-3 py-1 bg-white/10 border border-white/20 rounded-full text-[9px] font-black uppercase tracking-widest text-white/60">
+                              <span key={theme} className="px-3 py-1 bg-white/10 border border-white/30 rounded-full text-[9px] font-black uppercase tracking-widest text-white">
                                 {theme}
                               </span>
                             ))}
                           </div>
-                          <p className={`text-[12px] md:text-sm font-normal tracking-normal mt-6 px-4 py-2 border border-current inline-block rounded-xl ${isRenoir ? 'text-amber-500 border-amber-600' : 'text-red-600 border-red-600'}`}>
+                          <p className={`text-[12px] md:text-sm font-bold tracking-normal mt-6 px-4 py-2 border border-current inline-block rounded-xl ${isRenoir ? 'text-amber-400 border-amber-500' : 'text-red-500 border-red-500'}`}>
                               {data.verdict}
                           </p>
                       </div>
@@ -1867,14 +1890,20 @@ export const App: React.FC = () => {
               );
             })}
           </div>
-          <div className="mt-48 mb-32">
-          <button onClick={() => { setShowPerspectivesModal(false); stopAudio(); }} className="px-24 py-6 bg-white text-black font-black uppercase tracking-[0.5em] text-[12px] hover:bg-red-600 hover:text-white transition-all shadow-2xl rounded-full">
-            {t.closeVerdict}
-          </button>
+
+          <div className="mt-6 mb-12">
+            <button onClick={() => { setShowPerspectivesModal(false); stopAudio(); }} className={`px-16 py-4 font-black uppercase tracking-[0.4em] text-[12px] transition-all shadow-2xl rounded-full ${
+              isRenoir 
+                ? 'bg-amber-400 text-amber-950 font-black hover:bg-amber-300' 
+                : 'bg-white text-black hover:bg-red-600 hover:text-white'
+            }`}>
+              {t.closeVerdict}
+            </button>
           </div>
-      </div>
+       </div>
     </div>
   );
+
   let mainContent = null;
 
   if (state.status === 'ERROR') {
@@ -1892,7 +1921,7 @@ export const App: React.FC = () => {
       <div ref={captureRef} className="max-w-3xl mx-auto flex flex-col items-center space-y-12">
         <h1 
             onClick={triggerConfetti}
-            className={`text-3xl md:text-5xl font-black uppercase tracking-tighter leading-tight text-center cursor-pointer ${isRenoir ? 'text-amber-100 font-serif drop-shadow-[0_2px_10px_rgba(245,158,11,0.2)]' : 'text-black font-sans'}`}
+            className={`w-full max-w-2xl px-4 mx-auto text-2xl md:text-4xl lg:text-5xl font-black uppercase tracking-tight leading-snug text-center cursor-pointer break-words ${isRenoir ? 'text-amber-100 font-serif drop-shadow-[0_2px_10px_rgba(245,158,11,0.2)]' : 'text-black font-sans'}`}
           >
             {(r?.title || "The Decree")?.replace(/\[\[|\]\]/g, '')}
           </h1>
@@ -1996,7 +2025,6 @@ export const App: React.FC = () => {
                       {Object.keys(t.frameworks).map(k => <option key={k} value={k} className="text-black">{(t.frameworks as any)[k]}</option>)}
                    </select>
                  </div>
-                 
                  {r.isUncertain && (
                    <div className={`text-center py-2 px-4 border rounded-xl animate-bounce mt-4 ${isRenoir ? 'bg-amber-900/10 border-amber-500/30' : 'bg-red-50 border-red-200'}`}>
                      <p className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${isRenoir ? 'text-amber-500' : 'text-red-600'}`}>{t.uncertaintyPrefix}</p>
@@ -2041,7 +2069,7 @@ export const App: React.FC = () => {
                  </div>
                )}
 
-               {/* MAIN VERDICT - PROMINENT AND POSITIONED BELOW THE GRAPHICS */}
+               {/* MAIN VERDICT */}
                <div className="w-full flex flex-col items-center justify-center text-center py-10 mb-10 bg-current/[0.03] rounded-[40px] border border-current/5 px-8 shadow-inner animate-in zoom-in duration-700">
                   <span className={`text-[10px] font-black uppercase tracking-[0.7em] opacity-40 mb-5`}>{verdictTypeLabel}</span>
                   <span className={`leading-tight ${isRenoir ? 'text-amber-500 font-serif' : 'text-red-600 font-sans'} ${
@@ -2120,99 +2148,117 @@ export const App: React.FC = () => {
                    </div>
                  </div>
                )}
-            </div>
 
-            <div data-html2canvas-ignore className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full">
-               <button 
-                 onClick={loadAllPerspectives} 
-                 className={`py-6 text-[11px] font-black uppercase tracking-[0.3em] rounded-3xl transition-all active:scale-95 shadow-xl ${
-                   isRenoir 
-                     ? 'bg-amber-500 text-amber-950 hover:bg-amber-400 border border-amber-400' 
-                     : 'bg-black text-white hover:bg-zinc-800 border border-black'
-                 }`}
-               >
-                {t.readPerspectives}
-               </button>
-               <div className="relative">
-                 <button 
-                   onClick={() => setShowSaveMenu(!showSaveMenu)} 
-                   className={`w-full py-6 text-[11px] border-2 font-black uppercase tracking-[0.2em] rounded-3xl transition-all active:scale-95 flex items-center justify-center gap-2 shadow-xl ${
-                     isRenoir 
-                       ? 'bg-[#1e0a0a] border-amber-500/50 text-amber-100 hover:bg-amber-950 hover:border-amber-400' 
-                       : 'bg-white border-black/10 text-black hover:bg-zinc-50'
-                   }`}
-                 >
-                  <Icons.Download /> {t.saveArtifact}
-                 </button>
-                 {showSaveMenu && (
-                   <>
-                     <div className="fixed inset-0 z-[590] cursor-pointer" onClick={() => setShowSaveMenu(false)} />
-                     <div className={`absolute bottom-full left-0 w-full mb-2 p-2 rounded-3xl border shadow-2xl z-[600] flex flex-col gap-1 backdrop-blur-2xl animate-in slide-in-from-bottom-2 ${
-                       isRenoir ? 'bg-amber-950/95 border-amber-900/60 text-amber-100' : 'bg-white/95 border-black/10 text-black'
-                     }`}>
-                        <button onClick={saveArtifactAsImage} className="w-full p-4 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-current/10 text-left flex justify-between items-center group">{t.saveCard} <Icons.Download /></button>
-                        <button onClick={savePictureOnly} className="w-full p-4 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-current/10 text-left flex justify-between items-center group">{t.saveImage} <Icons.Download /></button>
-                     </div>
-                   </>
-                 )}
-               </div>
-               <button 
-                 onClick={() => setState(s => ({ ...s, status: 'IDLE' }))} 
-                 className={`py-6 text-[11px] border-2 font-black uppercase tracking-[0.2em] rounded-3xl transition-all active:scale-95 shadow-xl ${
-                   isRenoir 
-                     ? 'bg-[#1e0a0a] border-amber-500 text-amber-300 font-black hover:bg-amber-500 hover:text-amber-950 hover:border-amber-500' 
-                     : 'bg-white border-black text-black hover:bg-red-600 hover:text-white hover:border-red-600'
-                 }`}
-               >
-                {t.newQuery}
-               </button>
-            </div>
-
-            <div data-html2canvas-ignore className="flex justify-center -mt-6 gap-4">
-              <button 
-                onClick={() => setShowCalibrationPopup(true)} 
-                className={`flex items-center gap-1.5 px-4 py-1 text-[10px] font-black uppercase tracking-widest transition-all hover:scale-105 active:scale-95 group ${
-                  isRenoir ? 'text-amber-400 hover:text-amber-300' : 'text-red-600 hover:text-red-700'
-                }`}
-              >
-                <Icons.Refresh />
-                <span className="underline underline-offset-4 decoration-2 group-hover:decoration-current">{t.askAgain}</span>
-              </button>
-              <button 
-                onClick={handleRandomRequest} 
-                className={`flex items-center gap-1.5 px-4 py-1 text-[10px] font-black uppercase tracking-widest transition-all hover:scale-105 active:scale-95 group ${
-                  isRenoir ? 'text-amber-200 hover:text-amber-400' : 'text-black hover:text-red-600'
-                }`}
-              >
-                <Icons.Refresh />
-                <span className="underline underline-offset-4 decoration-2 group-hover:decoration-current">{t.randomRequest}</span>
-              </button>
-            </div>
-
-            <div className="pt-16 w-full border-t border-current/10 text-center">
-               <span className="text-[11px] font-black uppercase opacity-40 tracking-[0.6em] block mb-10">{t.sources}</span>
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full px-4">
-                 {sourcesList.map((s, i) => s && (
-                  <a key={i} href={s.uri} target="_blank" rel="noopener noreferrer" className={`p-5 border-2 rounded-3xl transition-all flex justify-between items-center group ${isRenoir ? 'border-amber-900/60 bg-[#1e0a0a] hover:bg-amber-900/40 text-amber-100' : 'border-current/5 hover:bg-current/5 text-black'}`}>
-                    <div className="flex flex-col text-left truncate">
-                       <span className="text-[9px] font-black uppercase opacity-30 mb-1 tracking-widest">REF. {(i+1).toString().padStart(2, '0')}</span>
-                       <span className="text-[11px] font-black uppercase leading-tight group-hover:underline truncate max-w-[200px]">{s?.title || "Source"}</span>
-                    </div>
-                    <Icons.External />
-                  </a>
-                 ))}
+               {/* Rebuilt High-Contrast Result Footer Section inside Main Card */}
+               <div data-html2canvas-ignore className="result-footer-section w-full mt-10 pt-8 border-t-2 border-current/10 space-y-8 opacity-100">
                  
-                 {activeAnalysisData?.studyMoreUrl && (
-                   <a data-html2canvas-ignore href={activeAnalysisData.studyMoreUrl} target="_blank" rel="noopener noreferrer" className={`p-5 border-2 font-black uppercase transition-all flex justify-center items-center group md:col-span-2 mt-4 ${isRenoir ? 'border-amber-500 text-amber-300 hover:bg-amber-500 hover:text-amber-950' : 'border-current text-black hover:bg-red-600 hover:text-white hover:border-red-600'}`}>
-                    <div className="flex items-center gap-3">
-                      <span className="text-[11px] font-black uppercase tracking-[0.3em]">
-                        {activeAnalysisData.studyMoreLabel || t.studyFurther}
-                      </span>
-                      <Icons.Search />
+                 {/* Primary Action Buttons Grid */}
+                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full">
+                    <button 
+                      onClick={loadAllPerspectives} 
+                      className={`action-button py-5 px-4 text-[11px] font-black uppercase tracking-[0.3em] rounded-2xl transition-all active:scale-95 shadow-xl border-2 cursor-pointer opacity-100 ${
+                        isRenoir 
+                          ? 'bg-amber-400 text-amber-950 border-amber-300 hover:bg-amber-300' 
+                          : 'bg-black text-white border-black hover:bg-zinc-800'
+                      }`}
+                    >
+                     {t.readPerspectives}
+                    </button>
+
+                    <div className="relative w-full">
+                      <button 
+                        onClick={() => setShowSaveMenu(!showSaveMenu)} 
+                        className={`action-button w-full py-5 px-4 text-[11px] border-2 font-black uppercase tracking-[0.2em] rounded-2xl transition-all active:scale-95 flex items-center justify-center gap-2 shadow-xl cursor-pointer opacity-100 ${
+                          isRenoir 
+                            ? 'bg-amber-100 border-amber-400 text-amber-950 font-black hover:bg-amber-200' 
+                            : 'bg-zinc-900 border-black text-white hover:bg-zinc-800'
+                        }`}
+                      >
+                       <Icons.Download /> {t.saveArtifact}
+                      </button>
+                      {showSaveMenu && (
+                        <>
+                          <div className="fixed inset-0 z-[590] cursor-pointer" onClick={() => setShowSaveMenu(false)} />
+                          <div className={`absolute bottom-full left-0 w-full mb-2 p-2 rounded-2xl border-2 shadow-2xl z-[600] flex flex-col gap-1 backdrop-blur-2xl animate-in slide-in-from-bottom-2 ${
+                            isRenoir ? 'bg-[#2b0c0c] border-amber-400 text-amber-100' : 'bg-zinc-900 border-black text-white'
+                          }`}>
+                             <button onClick={saveArtifactAsImage} className="w-full p-4 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-amber-500 hover:text-amber-950 text-left flex justify-between items-center cursor-pointer">{t.saveCard} <Icons.Download /></button>
+                             <button onClick={savePictureOnly} className="w-full p-4 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-amber-500 hover:text-amber-950 text-left flex justify-between items-center cursor-pointer">{t.saveImage} <Icons.Download /></button>
+                          </div>
+                        </>
+                      )}
                     </div>
-                   </a>
-                 )}
+
+                    <button 
+                      onClick={() => setState(s => ({ ...s, status: 'IDLE' }))} 
+                      className={`action-button py-5 px-4 text-[11px] border-2 font-black uppercase tracking-[0.2em] rounded-2xl transition-all active:scale-95 shadow-xl cursor-pointer opacity-100 ${
+                        isRenoir 
+                          ? 'bg-red-600 border-red-400 text-white font-black hover:bg-red-500' 
+                          : 'bg-red-600 border-red-600 text-white font-black hover:bg-red-700'
+                      }`}
+                    >
+                     {t.newQuery}
+                    </button>
+                 </div>
+
+                 {/* Secondary Action Buttons */}
+                 <div className="flex justify-center gap-4 flex-wrap w-full">
+                   <button 
+                     onClick={() => setShowCalibrationPopup(true)} 
+                     className={`action-button flex items-center gap-2 px-6 py-3.5 rounded-full text-[10px] font-black uppercase tracking-widest border-2 transition-all hover:scale-105 active:scale-95 shadow-md cursor-pointer opacity-100 ${
+                       isRenoir 
+                         ? 'bg-amber-500 text-amber-950 border-amber-300 font-black hover:bg-amber-400' 
+                         : 'bg-black text-white border-black hover:bg-zinc-800'
+                     }`}
+                   >
+                     <Icons.Refresh />
+                     <span>{t.askAgain}</span>
+                   </button>
+                   <button 
+                     onClick={handleRandomRequest} 
+                     className={`action-button flex items-center gap-2 px-6 py-3.5 rounded-full text-[10px] font-black uppercase tracking-widest border-2 transition-all hover:scale-105 active:scale-95 shadow-md cursor-pointer opacity-100 ${
+                       isRenoir 
+                         ? 'bg-amber-100 text-amber-950 border-amber-400 font-black hover:bg-amber-200' 
+                         : 'bg-zinc-900 text-white border-black hover:bg-zinc-800'
+                     }`}
+                   >
+                     <Icons.Refresh />
+                     <span>{t.randomRequest}</span>
+                   </button>
+                 </div>
+
+                 {/* Grounding Evidence / Sources Section */}
+                 <div className="pt-8 w-full border-t-2 border-current/10 text-center">
+                    <span className={`text-[11px] font-black uppercase tracking-[0.6em] block mb-6 opacity-100 ${isRenoir ? 'text-amber-300' : 'text-black'}`}>{t.sources}</span>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full px-2">
+                      {sourcesList.map((s, i) => s && (
+                       <a key={i} href={s.uri} target="_blank" rel="noopener noreferrer" className={`source-card-link p-5 border-2 rounded-2xl transition-all flex justify-between items-center shadow-md cursor-pointer opacity-100 group ${
+                         isRenoir 
+                           ? 'border-amber-400 bg-[#2b0c0c] hover:bg-amber-400 text-amber-100 hover:text-amber-950' 
+                           : 'border-black bg-white hover:bg-black text-black hover:text-white'
+                       }`}>
+                         <div className="flex flex-col text-left truncate pr-2">
+                            <span className={`text-[9px] font-black uppercase mb-1 tracking-widest opacity-100 ${isRenoir ? 'text-amber-400 group-hover:text-amber-950' : 'text-red-600 group-hover:text-red-400'}`}>REF. {(i+1).toString().padStart(2, '0')}</span>
+                            <span className={`text-[11px] font-black uppercase leading-tight truncate max-w-[240px] opacity-100 ${isRenoir ? 'text-amber-100 group-hover:text-amber-950' : 'text-black group-hover:text-white'}`}>{s?.title || "Source"}</span>
+                         </div>
+                         <Icons.External className={`w-4 h-4 flex-shrink-0 opacity-100 ${isRenoir ? 'text-amber-400 group-hover:text-amber-950' : 'text-black group-hover:text-white'}`} />
+                       </a>
+                      ))}
+                      
+                      {activeAnalysisData?.studyMoreUrl && (
+                        <a data-html2canvas-ignore href={activeAnalysisData.studyMoreUrl} target="_blank" rel="noopener noreferrer" className={`source-card-link p-5 border-2 font-black uppercase transition-all flex justify-center items-center group md:col-span-2 mt-2 shadow-md rounded-2xl cursor-pointer opacity-100 ${isRenoir ? 'border-amber-400 bg-amber-400 text-amber-950 font-black hover:bg-amber-300' : 'border-black bg-black text-white font-black hover:bg-zinc-800'}`}>
+                         <div className="flex items-center gap-3">
+                           <span className="text-[11px] font-black uppercase tracking-[0.3em]">
+                             {activeAnalysisData.studyMoreLabel || t.studyFurther}
+                           </span>
+                           <Icons.Search />
+                         </div>
+                        </a>
+                      )}
+                    </div>
+                 </div>
                </div>
+
             </div>
           </div>
         </div>
