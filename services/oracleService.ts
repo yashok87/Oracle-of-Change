@@ -141,18 +141,47 @@ async function generateOracleText(prompt: string, systemInstruction: string, use
 
 async function generatePollinationsText(prompt: string, systemInstruction: string, useJson: boolean = false): Promise<string> {
   const seed = Math.floor(Math.random() * 1000000);
-  const apiKey = (process.env.POLL_KEY || "pk_jcfg5Q1xs8BU8pgq").trim();
-  const headers: Record<string, string> = { "Content-Type": "application/json" };
-  if (apiKey) headers["Authorization"] = `Bearer ${apiKey}`;
 
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 1200);
+  // Method 1: Anonymous POST to text.pollinations.ai (Free, no API key needed, fast)
+  const controller1 = new AbortController();
+  const timeoutId1 = setTimeout(() => controller1.abort(), 6000);
+
+  try {
+    const response = await fetch("https://text.pollinations.ai/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      signal: controller1.signal,
+      body: JSON.stringify({
+        messages: [
+          { role: "system", content: systemInstruction || "You are a helpful assistant." },
+          { role: "user", content: prompt }
+        ],
+        seed,
+        jsonMode: useJson,
+        model: "openai"
+      })
+    });
+    clearTimeout(timeoutId1);
+
+    if (response.ok) {
+      const text = await response.text();
+      if (text && !text.includes('"error":402') && !text.includes('"error":"Queue full')) {
+        return text;
+      }
+    }
+  } catch (err: any) {
+    clearTimeout(timeoutId1);
+  }
+
+  // Method 2: Anonymous POST to gen.pollinations.ai
+  const controller2 = new AbortController();
+  const timeoutId2 = setTimeout(() => controller2.abort(), 6000);
 
   try {
     const response = await fetch("https://gen.pollinations.ai/v1/chat/completions", {
       method: "POST",
-      headers,
-      signal: controller.signal,
+      headers: { "Content-Type": "application/json" },
+      signal: controller2.signal,
       body: JSON.stringify({
         model: "openai",
         messages: [
@@ -164,21 +193,19 @@ async function generatePollinationsText(prompt: string, systemInstruction: strin
         temperature: 0.3
       })
     });
-    clearTimeout(timeoutId);
+    clearTimeout(timeoutId2);
 
-    if (!response.ok) {
-      throw new Error(`Pollinations HTTP ${response.status}`);
+    if (response.ok) {
+      const data = await response.json();
+      if (data.choices && data.choices[0] && data.choices[0].message?.content) {
+        return data.choices[0].message.content;
+      }
     }
-
-    const data = await response.json();
-    if (data.choices && data.choices[0] && data.choices[0].message?.content) {
-      return data.choices[0].message.content;
-    }
-    throw new Error("Malformed Pollinations response");
   } catch (err: any) {
-    clearTimeout(timeoutId);
-    throw err;
+    clearTimeout(timeoutId2);
   }
+
+  throw new Error("Pollinations API unavailable");
 }
 
 function synthesizeLocalOracleResponse(
@@ -198,106 +225,79 @@ function synthesizeLocalOracleResponse(
   let type: 'COMPARISON' | 'RECOMMENDATION' | 'DECISION' | 'KNOWLEDGE' | 'PREDICTION' | 'PERSONAL' = 
     isComp ? 'COMPARISON' : (isExplicit || isMaterial) ? 'RECOMMENDATION' : isBinary ? 'DECISION' : 'KNOWLEDGE';
 
-  let title = language === 'RU' ? 'Архитектура Судьбы' : 'Architectural Decree of Chance';
+  const cleanQuery = query.trim().replace(/^["']|["']$/g, '');
+  const title = language === 'RU' 
+    ? `Декрет Судьбы: ${cleanQuery.slice(0, 24)}` 
+    : `Decree of Chance: ${cleanQuery.slice(0, 24)}`;
+    
   let category = isMaterial ? 'MATERIAL' : 'ONTOLOGY';
   let summary = language === 'RU' 
-    ? `Совет Десяти вынес решение относительно "${query}" под воздействием энтропии ${chaosScore}%.` 
-    : `The Council of Ten has synthesized a unified verdict for "${query}" under ${chaosScore}% entropy.`;
+    ? `Совет Десяти вынес вердикт по вопросу «${cleanQuery}» (коэффициент энтропии ${chaosScore}%).` 
+    : `The Council of Ten has synthesized a verdict for "${cleanQuery}" under ${chaosScore}% entropy.`;
   
   let verdict = '';
   let optionA = '';
   let optionB = '';
-  let votesA = 0;
-  let votesB = 0;
+  let votesA = 50;
+  let votesB = 50;
 
   if (isComp) {
-    const parts = query.split(/\b(vs|or|versus|противопоставление|или|против)\b/i).filter(p => p.trim() && !/^(vs|or|versus|или|против)$/i.test(p.trim()));
-    optionA = parts[0]?.trim() || (language === 'RU' ? 'Первый путь' : 'First Path');
-    optionB = parts[1]?.trim() || (language === 'RU' ? 'Второй путь' : 'Second Path');
+    const parts = cleanQuery.split(/\b(vs|or|versus|противопоставление|или|против)\b/i).filter(p => p.trim() && !/^(vs|or|versus|или|против)$/i.test(p.trim()));
+    optionA = parts[0]?.trim() || (language === 'RU' ? 'Первый вектор' : 'First Vector');
+    optionB = parts[1]?.trim() || (language === 'RU' ? 'Второй вектор' : 'Second Vector');
 
-    // Deterministic votes
-    votesA = 6;
-    votesB = 4;
+    // Dynamic votes based on chaosScore and query length hash
+    const hash = cleanQuery.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    votesA = Math.max(25, Math.min(75, 50 + ((hash % 30) - 15) + Math.floor((chaosScore - 50) / 4)));
+    votesB = 100 - votesA;
+    const winner = votesA >= votesB ? optionA : optionB;
+
     verdict = language === 'RU'
-      ? `Совет постановил: [[${optionA}]] одерживает верх.`
-      : `The Council has decreed: [[${optionA}]] prevails.`;
+      ? `Совет постановил: [[${winner}]] одерживает онтологическое преимущество.`
+      : `The Council decrees: [[${winner}]] prevails with dialetical clarity.`;
   } else if (type === 'RECOMMENDATION') {
-    const cleanQ = query.replace(/\[\[|\]\]/g, '').trim();
     verdict = language === 'RU' 
-      ? `[[${cleanQ || 'Канонический выбор'}]] — Оптимальное воплощение`
-      : `[[${cleanQ || 'Canonical Selection'}]] — Optimal Manifestation`;
+      ? `[[${cleanQuery}]] — Главное воплощение замысла`
+      : `[[${cleanQuery}]] — Optimal Manifestation of Intent`;
   } else if (isBinary) {
-    verdict = chaosScore > 50 
+    const isYes = (chaosScore + cleanQuery.length) % 2 === 0;
+    verdict = isYes
       ? (language === 'RU' ? `[[ДА]] — Онтологический вектор благоприятствует действию.` : `[[YES]] — The ontological alignment favours immediate action.`)
-      : (language === 'RU' ? `[[НЕТ]] — Диалектика предостерегает от спешки.` : `[[NO]] — The dialectic cautions against hasty commitment.`);
+      : (language === 'RU' ? `[[НЕТ]] — Диалектика предостерегает от спешки.` : `[[NO]] — The dialectic cautions against premature action.`);
   } else {
     verdict = language === 'RU'
-      ? `[[${query.slice(0, 30)}]] — Сущность Бытия`
-      : `[[${query.slice(0, 30)}]] — Ontological Essence`;
+      ? `[[${cleanQuery}]] — Фундаментальная сущность и смысл`
+      : `[[${cleanQuery}]] — Fundamental Essence and Purpose`;
   }
 
   const perspectivesData: any = {};
-  const philQuotes: Record<string, { en: string; ru: string }> = {
-    psychoanalysis: {
-      en: `The signifier of "${query}" circles the locus of the Unconscious. In the Mirror Stage, the ego seeks a reflective ideal that conceals the fundamental lack at the core of desire.`,
-      ru: `Означивающее "${query}" вращается вокруг бессознательного. В стадии зеркала эго ищет идеальное отражение, скрывающее изначальную нехватку.`
-    },
-    gestalt: {
-      en: `Observe the contact boundary between awareness and "${query}". True organismic balance demands integrating what was disowned in the immediate here and now.`,
-      ru: `Осознайте границу контакта между восприятием и "${query}". Органическое равновесие требует интеграции отвергнутого прямо здесь и сейчас.`
-    },
-    russian_philosophy: {
-      en: `Spirit transcends mechanical causality. Genuine transformation regarding "${query}" is an unconstrained act of existential freedom and creative breakthrough.`,
-      ru: `Дух превосходит механическую причинность. Настоящее преображение в отношении "${query}" есть акт свободомыслия и творческого прорыва.`
-    },
-    german_philosophy: {
-      en: `Will to power shapes every evaluation of "${query}". Overcome passive gravity and embrace the eternal recurrence of your conviction.`,
-      ru: `Воля к власти определяет оценку "${query}". Преодолейте инерцию и примите вечное возвращение вашего решения.`
-    },
-    existential: {
-      en: `Existence precedes essence. Condemned to be free, in defining your position on "${query}" you invent your own purpose without external guarantees.`,
-      ru: `Существование предшествует сущности. Вы обречены на свободу: определяя положение "${query}", вы создаете смысл без внешних гарантий.`
-    },
-    theological: {
-      en: `Step beyond aesthetic detachment. The leap of commitment regarding "${query}" requires navigating the productive dread of possibility.`,
-      ru: `Шагните за пределы эстетического созерцания. Рывок в отношении "${query}" требует прохождения через продуктивный страх возможности.`
-    },
-    buddhist: {
-      en: `Form is emptiness, emptiness is form. When conceptual noise around "${query}" dissolves, non-dual clarity reveals itself naturally.`,
-      ru: `Форма есть пустота, пустота есть форма. Когда концептуальный шум вокруг "${query}" затихает, недвойственная ясность открывается сама.`
-    },
-    post_modern: {
-      en: `The representation of "${query}" has eclipsed the underlying reality. We navigate a hyperreal simulation of exchange values and signifiers.`,
-      ru: `Репрезентация "${query}" вытеснила реальность. Мы перемещаемся в гиперреальной симуляции знаков и символических обменов.`
-    },
-    ancient_greeks: {
-      en: `Seek the ideal form through practical wisdom. The Golden Mean illuminates the balanced, virtuous course for "${query}".`,
-      ru: `Ищите идеальную форму через практическую мудрость. Золотая середина освещает гармоничный путь для "${query}".`
-    },
-    ancient_romans: {
-      en: `Fortify the Inner Citadel. What stands in the way of "${query}" becomes the way; govern your judgements rather than external outcomes.`,
-      ru: `Укрепляйте Внутреннюю Цитадель. Препятствие на пути "${query}" становится самим путем; управляйте своими суждениями.`
-    }
-  };
-
   for (const key of PERSPECTIVE_KEYS) {
     const reg = selectedPerspectives[key] || { philosopherName: 'Philosopher', philosopherThemes: ['Wisdom', 'Truth'] };
-    const text = philQuotes[key] ? (language === 'RU' ? philQuotes[key].ru : philQuotes[key].en) : `Analysis on ${query}`;
-    const vote = isComp ? (Math.random() > 0.4 ? 'A' : 'B') : 'RESONANCE';
+    const pName = reg.philosopherName || 'Council Sage';
+    const themesStr = (reg.philosopherThemes || ['Wisdom']).join(', ');
+    
+    let text = '';
+    if (language === 'RU') {
+      text = `В отношении «${cleanQuery}» ${pName} подчеркивает категории ${themesStr}. Истинный смысл раскрывается через снятие внешних противоречий и глубокую внутреннюю интеграцию.`;
+    } else {
+      text = `Regarding "${cleanQuery}", ${pName} emphasizes the categories of ${themesStr}. True insight is realized through transcending surface contradictions into structural balance.`;
+    }
+
+    const vote = isComp ? ((cleanQuery.length + key.length) % 2 === 0 ? 'A' : 'B') : 'RESONANCE';
     perspectivesData[key] = {
-      philosopherName: reg.philosopherName,
-      philosopherThemes: reg.philosopherThemes,
+      philosopherName: pName,
+      philosopherThemes: reg.philosopherThemes || ['Wisdom'],
       verdict: text,
       vote
     };
   }
 
   const detailedAnalysis = language === 'RU'
-    ? `Совет Десяти собрался для рассмотрения вопроса "${query}" с учетом энтропийного коэффициента ${chaosScore}%. В синтезе философских школ выявляется центральный онтологический тезис: истинная субъектность достигается не пассивным ожиданием определенности, а осознанным выбором в условиях неизбежной динамики.\n\nКаждый вектор мысли подчеркивает, что видимые противоречия являются лишь поверхностным проявлением более глубокого единства. Принятие этого вывода открывает путь к гармонизации замысла и воплощения.`
-    : `The Council of Ten has convened to deliberate upon "${query}" under an entropy factor of ${chaosScore}%. In synthesizing these divergent philosophical frameworks, a central ontological thesis emerges: true agency is realized not through passive anticipation of certainty, but through decisive alignment with the dialectic.\n\nEvery structural perspective reinforces that apparent contradictions are merely surface expressions of an underlying structural coherence. Embracing this decree provides the seeker with visual and intellectual momentum.`;
+    ? `Совет Десяти завершил анализ вопроса «${cleanQuery}» под энтропийным давлением ${chaosScore}%. Синтез философских доктрин указывает на то, что видимая неопределенность вокруг данного запроса является источником новых возможностей.\n\nКаждая из десяти школ мысли соглашается в одном: реализация замысла требует не избегания риска, а его осознанного осмысления. Принятие вынесенного вердикта укрепляет волю и упорядочивает хаос.`
+    : `The Council of Ten has concluded its deliberation on "${cleanQuery}" under an entropy factor of ${chaosScore}%. The synthesis of these ten philosophical perspectives reveals that apparent uncertainty surrounding this inquiry contains the germ of new possibility.\n\nEvery doctrine agrees upon a fundamental truth: realization of intent requires not avoiding risk, but integrating it with conscious clarity. Embracing this decree restores alignment with the dialectic.`;
 
   const seed = Math.floor(Math.random() * 1000000);
-  const divinePrompt = `Philosophical revelation artwork for "${query}", style of ${theme === 'SUPREMATIST' ? 'Suprematism Kazimir Malevich abstract' : 'Impressionism Renoir Monet oil painting'}, museum quality 8k`;
+  const divinePrompt = `Philosophical revelation artwork for "${cleanQuery}", style of ${theme === 'SUPREMATIST' ? 'Suprematism Kazimir Malevich abstract' : 'Impressionism Renoir Monet oil painting'}, museum quality 8k`;
   const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(divinePrompt)}?width=1024&height=1024&nologo=true&seed=${seed}&model=${imageModel}`;
 
   const searchTopic = verdict.replace(/\[\[|\]\]/g, '');
@@ -310,17 +310,17 @@ function synthesizeLocalOracleResponse(
     verdict,
     detailedAnalysis,
     reasoning: language === 'RU' ? 'Онтологический синтез Совета' : 'Ontological synthesis of the Council',
-    recommendationLink: `https://www.google.com/search?q=${encodeURIComponent(searchTopic || query)}`,
+    recommendationLink: `https://www.google.com/search?q=${encodeURIComponent(searchTopic || cleanQuery)}`,
     perspectives: perspectivesData,
     comparison: isComp ? {
       optionA,
       optionB,
-      percentageA: 60,
-      percentageB: 40
+      percentageA: votesA,
+      percentageB: votesB
     } : undefined,
     sources: [
-      { title: `Universal Query: ${query}`, uri: `https://www.google.com/search?q=${encodeURIComponent(query)}` },
-      { title: `Philosophical Archive: ${searchTopic || 'Ontology'}`, uri: `https://www.google.com/search?q=${encodeURIComponent((searchTopic || query) + ' Stanford Encyclopedia of Philosophy')}` }
+      { title: `Universal Query: ${cleanQuery}`, uri: `https://www.google.com/search?q=${encodeURIComponent(cleanQuery)}` },
+      { title: `Philosophical Archive: ${searchTopic || 'Ontology'}`, uri: `https://www.google.com/search?q=${encodeURIComponent((searchTopic || cleanQuery) + ' Stanford Encyclopedia of Philosophy')}` }
     ],
     imageUrl,
     imageStyleLabel: theme === 'SUPREMATIST' ? 'SUPREMATISM' : 'IMPRESSIONISM',

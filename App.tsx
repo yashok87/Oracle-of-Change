@@ -528,7 +528,7 @@ export const App: React.FC = () => {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [learningProfile, setLearningProfile] = useState<LearningProfile | null>(null);
   const [selectedImageModel, setSelectedImageModel] = useState<string>('flux');
-  const [activePage, setActivePage] = useState<'ORACLE' | 'MUSIC' | 'ABOUT'>('MUSIC');
+  const [activePage, setActivePage] = useState<'ORACLE' | 'MUSIC' | 'ABOUT'>('ORACLE');
   const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
   const [isMusicMuted, setIsMusicMuted] = useState(true);
   const [isPlayerExpanded, setIsPlayerExpanded] = useState(false);
@@ -1444,22 +1444,139 @@ export const App: React.FC = () => {
     };
   }, [state.response?.imageUrl, state.attempts]);
 
+  const generateCardCanvasDataUrl = async (): Promise<string> => {
+    const r = state.response;
+    const canvas = document.createElement('canvas');
+    const width = 1000;
+    const height = 1350;
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error("Canvas context missing");
+
+    const bgColor = isRenoir ? '#0f0505' : '#ffffff';
+    const textColor = isRenoir ? '#fef3c7' : '#000000';
+    const accentColor = isRenoir ? '#f59e0b' : '#dc2626';
+
+    // Fill canvas background
+    ctx.fillStyle = bgColor;
+    ctx.fillRect(0, 0, width, height);
+
+    // Outer border
+    ctx.strokeStyle = isRenoir ? '#92400e' : '#e5e7eb';
+    ctx.lineWidth = 12;
+    ctx.strokeRect(20, 20, width - 40, height - 40);
+
+    // Header Title
+    ctx.fillStyle = textColor;
+    ctx.font = `bold 34px ${isRenoir ? 'serif' : 'sans-serif'}`;
+    ctx.textAlign = 'center';
+    const titleText = (r?.title || 'The Decree of Chance').replace(/\[\[|\]\]/g, '');
+    ctx.fillText(titleText.toUpperCase(), width / 2, 85);
+
+    // Subheader Ratio
+    ctx.font = `bold 16px sans-serif`;
+    ctx.fillStyle = isRenoir ? '#d97706' : '#6b7280';
+    ctx.fillText(`LOGIC ${state.logicScore}%   •   CHAOS ${state.chaosScore}%`, width / 2, 120);
+
+    // Vision Image Draw
+    const imgSize = 480;
+    const imgX = (width - imgSize) / 2;
+    const imgY = 150;
+
+    const src = localDisplayUrl || r?.imageUrl;
+    if (src) {
+      try {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.src = src;
+        await new Promise((resolve) => {
+          if (img.complete) resolve(true);
+          else {
+            img.onload = () => resolve(true);
+            img.onerror = () => resolve(false);
+          }
+        });
+        ctx.drawImage(img, imgX, imgY, imgSize, imgSize);
+        ctx.strokeStyle = accentColor;
+        ctx.lineWidth = 4;
+        ctx.strokeRect(imgX, imgY, imgSize, imgSize);
+      } catch (e) {
+        ctx.fillStyle = isRenoir ? '#291212' : '#f3f4f6';
+        ctx.fillRect(imgX, imgY, imgSize, imgSize);
+      }
+    }
+
+    // Verdict Box
+    const verdictY = imgY + imgSize + 40;
+    ctx.fillStyle = isRenoir ? '#1c0a0a' : '#f9fafb';
+    ctx.fillRect(80, verdictY, width - 160, 100);
+    ctx.strokeStyle = accentColor;
+    ctx.lineWidth = 2;
+    ctx.strokeRect(80, verdictY, width - 160, 100);
+
+    ctx.fillStyle = accentColor;
+    ctx.font = `bold 22px ${isRenoir ? 'serif' : 'sans-serif'}`;
+    const cleanVerdict = (r?.verdict || '').replace(/\[\[|\]\]/g, '');
+    ctx.fillText(`"${cleanVerdict}"`, width / 2, verdictY + 58);
+
+    // Analysis text
+    const analysisY = verdictY + 140;
+    ctx.fillStyle = textColor;
+    ctx.font = `15px ${isRenoir ? 'serif' : 'sans-serif'}`;
+    
+    const analysisStr = r?.detailedAnalysis || r?.summary || '';
+    const words = analysisStr.split(' ');
+    let line = '';
+    let currY = analysisY;
+    const maxWidth = width - 200;
+    for (let n = 0; n < words.length && currY < height - 100; n++) {
+      const testLine = line + words[n] + ' ';
+      const metrics = ctx.measureText(testLine);
+      if (metrics.width > maxWidth && n > 0) {
+        ctx.fillText(line, width / 2, currY);
+        line = words[n] + ' ';
+        currY += 26;
+      } else {
+        line = testLine;
+      }
+    }
+    if (line) ctx.fillText(line, width / 2, currY);
+
+    // Footer branding
+    ctx.fillStyle = isRenoir ? '#b45309' : '#9ca3af';
+    ctx.font = 'bold 13px sans-serif';
+    ctx.fillText('THE ORACLE OF CHANCE • COUNCIL OF TEN SYNTHESIS', width / 2, height - 45);
+
+    return canvas.toDataURL('image/png');
+  };
+
   const saveArtifactAsImage = async () => {
-    if (!captureRef.current) return;
     setShowSaveMenu(false);
     setIsExporting(true);
     
     try {
-      const canvas = await html2canvas(captureRef.current, { 
-        backgroundColor: isRenoir ? '#0f0505' : '#ffffff', 
-        useCORS: true, 
-        allowTaint: true,
-        scale: 2,
-        logging: false,
-        ignoreElements: (element) => element.hasAttribute('data-html2canvas-ignore')
-      });
+      let dataUrl = '';
+      if (captureRef.current) {
+        try {
+          const canvas = await html2canvas(captureRef.current, { 
+            backgroundColor: isRenoir ? '#0f0505' : '#ffffff', 
+            useCORS: true, 
+            allowTaint: true,
+            scale: 2,
+            logging: false,
+            ignoreElements: (element) => element.hasAttribute('data-html2canvas-ignore')
+          });
+          dataUrl = canvas.toDataURL('image/png');
+        } catch (hErr) {
+          console.warn("[Oracle] html2canvas failed, generating clean 2D canvas card:", hErr);
+        }
+      }
 
-      const dataUrl = canvas.toDataURL('image/png');
+      if (!dataUrl) {
+        dataUrl = await generateCardCanvasDataUrl();
+      }
+
       const link = document.createElement('a');
       link.download = `oracle-decree-${Date.now()}.png`;
       link.href = dataUrl;
@@ -1467,35 +1584,17 @@ export const App: React.FC = () => {
       link.click();
       document.body.removeChild(link);
     } catch (e) { 
-      console.warn("[Oracle] Primary canvas export failed, attempting clean fallback export:", e);
+      console.error("[Oracle] Canvas card export error:", e);
       try {
-        const images = captureRef.current.querySelectorAll('img');
-        const savedDisplays: string[] = [];
-        images.forEach((img, idx) => {
-          savedDisplays[idx] = img.style.display;
-          img.style.display = 'none';
-        });
-
-        const fallbackCanvas = await html2canvas(captureRef.current, {
-          backgroundColor: isRenoir ? '#0f0505' : '#ffffff',
-          scale: 2,
-          logging: false,
-          ignoreElements: (element) => element.hasAttribute('data-html2canvas-ignore')
-        });
-
-        images.forEach((img, idx) => {
-          img.style.display = savedDisplays[idx];
-        });
-
-        const dataUrl = fallbackCanvas.toDataURL('image/png');
+        const fallbackUrl = await generateCardCanvasDataUrl();
         const link = document.createElement('a');
         link.download = `oracle-decree-${Date.now()}.png`;
-        link.href = dataUrl;
+        link.href = fallbackUrl;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
       } catch (err2) {
-        console.error("[Oracle] Canvas export failed:", err2);
+        console.error("[Oracle] Final fallback card export failed:", err2);
       }
     } finally {
       setIsExporting(false);
@@ -1509,22 +1608,37 @@ export const App: React.FC = () => {
     setIsExporting(true);
 
     try {
-      const response = await fetch(src);
-      const blob = await response.blob();
-      const blobUrl = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.download = `oracle-vision-${Date.now()}.png`;
-      link.href = blobUrl;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      setTimeout(() => URL.revokeObjectURL(blobUrl), 2000);
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.src = src;
+      await new Promise((resolve) => {
+        if (img.complete) resolve(true);
+        else {
+          img.onload = () => resolve(true);
+          img.onerror = () => resolve(false);
+        }
+      });
+
+      const canvas = document.createElement('canvas');
+      canvas.width = img.naturalWidth || 1024;
+      canvas.height = img.naturalHeight || 1024;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.drawImage(img, 0, 0);
+        const dataUrl = canvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        link.download = `oracle-vision-${Date.now()}.png`;
+        link.href = dataUrl;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        return;
+      }
     } catch (e) {
-      console.warn("[Oracle] Direct blob save failed, downloading directly:", e);
+      console.warn("[Oracle] Canvas image export failed, downloading directly:", e);
       const link = document.createElement('a');
       link.download = `oracle-vision-${Date.now()}.png`;
       link.href = src;
-      link.target = "_blank";
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -2071,8 +2185,24 @@ export const App: React.FC = () => {
 
   const isRevealed = state.status === 'REVEALED';
 
+  const AppFooter = (
+    <footer className={`w-full py-4 px-6 md:px-12 border-t flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] md:text-[11px] font-bold uppercase tracking-[0.2em] transition-all z-20 ${isRenoir ? 'border-amber-900/30 text-amber-200/80 bg-[#0f0505]/90' : 'border-black/10 text-black/70 bg-white/90'}`}>
+      <div className="flex items-center gap-2 opacity-80">
+        <span>{t.footer || "The Oracle of Chance • Council of Ten"}</span>
+      </div>
+      <div className="flex flex-wrap items-center justify-center gap-4 md:gap-6">
+        <button onClick={() => setActivePage('ORACLE')} className="hover:opacity-100 transition-opacity underline decoration-current underline-offset-4">Oracle</button>
+        <button onClick={() => setActivePage('ABOUT')} className="hover:opacity-100 transition-opacity underline decoration-current underline-offset-4">About</button>
+        <button onClick={() => setActivePage('MUSIC')} className="hover:opacity-100 transition-opacity underline decoration-current underline-offset-4">Soundtrack</button>
+        <button onClick={startProfiling} className="hover:opacity-100 transition-opacity underline decoration-current underline-offset-4">{t.learningStyle || "Learning Style"}</button>
+        <button onClick={() => setIsSideMenuOpen(true)} className="hover:opacity-100 transition-opacity underline decoration-current underline-offset-4">History</button>
+        <button onClick={() => setShowCalibrationPopup(true)} className="hover:opacity-100 transition-opacity underline decoration-current underline-offset-4">Calibration</button>
+      </div>
+    </footer>
+  );
+
   return (
-    <div className={`relative ${isRevealed ? 'min-h-screen pt-24 pb-24 px-6 md:px-8 overflow-y-auto' : 'h-screen w-full flex flex-col items-center justify-center p-4 overflow-hidden'} ${isRenoir ? 'bg-[#0f0505] text-amber-100 font-serif' : 'bg-white text-black font-sans'}`}>
+    <div className={`relative ${isRevealed ? 'min-h-screen pt-20 pb-16 px-4 md:px-8 overflow-y-auto' : 'h-screen w-full flex flex-col items-center justify-between p-4 overflow-hidden'} ${isRenoir ? 'bg-[#0f0505] text-amber-100 font-serif' : 'bg-white text-black font-sans'}`}>
        <ThemeBackground theme={theme} />
        {GlobalUI}
        {HistorySidebar}
@@ -2082,8 +2212,12 @@ export const App: React.FC = () => {
        {showProfilingModal && ProfilingModal}
        {showCalibrationPopup && CalibrationPopup}
        {PerspectivesModal}
-       {mainContent}
-       {state.status === 'IDLE' && <footer className="absolute bottom-6 text-[8px] opacity-10 tracking-1em font-black select-none uppercase">{t.footer}</footer>}
+       
+       <div className="w-full flex-1 flex flex-col items-center justify-center">
+         {mainContent}
+       </div>
+
+       {AppFooter}
     </div>
   );
 };
