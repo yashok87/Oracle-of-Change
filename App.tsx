@@ -1129,7 +1129,7 @@ export const App: React.FC = () => {
               className={`group relative block p-8 md:p-10 rounded-3xl border transition-all duration-500 hover:scale-[1.01] shadow-2xl overflow-hidden ${
                 isRenoir 
                   ? 'border-amber-700/50 bg-gradient-to-br from-amber-950/80 via-amber-900/30 to-amber-950/90 text-amber-100 hover:border-amber-400 hover:shadow-amber-950/60' 
-                  : 'border-stone-800 bg-stone-900 text-stone-100 hover:border-black hover:bg-stone-950 hover:shadow-2xl'
+                  : 'border-stone-700/80 bg-gradient-to-br from-stone-800 via-stone-800/90 to-stone-900 text-stone-100 hover:border-stone-500 hover:from-stone-750 hover:to-stone-850 hover:shadow-2xl'
               }`}
             >
               {/* Background decorative watermark */}
@@ -1142,7 +1142,7 @@ export const App: React.FC = () => {
                   <div className={`w-16 h-16 rounded-2xl border flex items-center justify-center flex-shrink-0 transition-transform duration-500 group-hover:rotate-6 group-hover:scale-110 shadow-inner ${
                     isRenoir 
                       ? 'border-amber-500/40 bg-amber-500/10 text-amber-300' 
-                      : 'border-stone-700 bg-stone-800 text-amber-400 group-hover:border-amber-400'
+                      : 'border-stone-600 bg-stone-700/70 text-amber-300 group-hover:border-amber-400'
                   }`}>
                     <Icons.Book className="w-8 h-8" />
                   </div>
@@ -1152,18 +1152,18 @@ export const App: React.FC = () => {
                       <span className={`text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] px-3 py-1 rounded-full border ${
                         isRenoir 
                           ? 'border-amber-500/30 text-amber-400 bg-amber-500/10' 
-                          : 'border-amber-500/40 text-amber-300 bg-amber-500/10'
+                          : 'border-amber-400/40 text-amber-300 bg-amber-500/15'
                       }`}>
                         {t.bookBadge}
                       </span>
-                      <span className={`text-xs font-mono opacity-60 ${isRenoir ? 'text-amber-200/70' : 'text-stone-400'}`}>vozduh.wordpress.com</span>
+                      <span className={`text-xs font-mono opacity-60 ${isRenoir ? 'text-amber-200/70' : 'text-amber-200/80'}`}>vozduh.wordpress.com</span>
                     </div>
 
                     <h3 className={`text-xl md:text-2xl font-serif font-bold tracking-tight text-white group-hover:text-amber-300 transition-colors`}>
                       {t.bookTitle}
                     </h3>
 
-                    <p className={`text-xs md:text-sm opacity-80 max-w-xl font-serif italic leading-relaxed text-stone-300`}>
+                    <p className={`text-xs md:text-sm opacity-80 max-w-xl font-serif italic leading-relaxed text-stone-200`}>
                       {t.bookSubtitle}
                     </p>
                   </div>
@@ -1173,7 +1173,7 @@ export const App: React.FC = () => {
                   <span className={`text-xs md:text-sm font-black uppercase tracking-[0.2em] px-5 py-2.5 rounded-xl border transition-all ${
                     isRenoir 
                       ? 'border-amber-500/40 bg-amber-500/20 text-amber-300 group-hover:bg-amber-500 group-hover:text-amber-950' 
-                      : 'border-amber-500/40 bg-stone-800 text-amber-300 group-hover:bg-amber-400 group-hover:text-stone-950'
+                      : 'border-amber-400/50 bg-stone-700/80 text-amber-300 group-hover:bg-amber-400 group-hover:text-stone-950'
                   }`}>
                     {t.bookRead}
                   </span>
