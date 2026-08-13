@@ -140,6 +140,7 @@ const TRANSLATIONS = {
     faithDesc: "Interactive journey & artistic digital experiment",
     hansardDesc: "Musical tribute & interactive tribute project",
     goToMusic: "Go to Music",
+    goToBook: "Go to Book",
     goToInstructions: "Go to instructions",
     bookBadge: "Book / Journal",
     bookTitle: "Chronicle of Pilgrimage through Cyprus",
@@ -197,6 +198,7 @@ const TRANSLATIONS = {
     faithDesc: "Интерактивное путешествие и цифровой арт-проект",
     hansardDesc: "Музыкальное посвящение и трибьют-проект",
     goToMusic: "Перейти к музыке",
+    goToBook: "Перейти к книге",
     goToInstructions: "Инструкции",
     bookBadge: "Книга / Дневник",
     bookTitle: "Хроника паломничества по Кипру",
@@ -556,7 +558,7 @@ export const App: React.FC = () => {
   const [learningProfile, setLearningProfile] = useState<LearningProfile | null>(null);
   const [selectedImageModel, setSelectedImageModel] = useState<string>('flux');
   const [activePage, setActivePage] = useState<'ORACLE' | 'MUSIC' | 'ABOUT'>('MUSIC');
-  const [isMusicScrolled, setIsMusicScrolled] = useState(false);
+  const [musicScrollSection, setMusicScrollSection] = useState<'APPS' | 'MUSIC' | 'BOOK'>('APPS');
   const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
   const [isMusicMuted, setIsMusicMuted] = useState(true);
   const [isPlayerExpanded, setIsPlayerExpanded] = useState(false);
@@ -903,7 +905,27 @@ export const App: React.FC = () => {
 
   const JacobMusicPage = (
     <div 
-      onScroll={(e) => setIsMusicScrolled(e.currentTarget.scrollTop > 30)}
+      onScroll={(e) => {
+        const container = e.currentTarget;
+        const musicEl = document.getElementById('music-section');
+        const bookEl = document.getElementById('book-section');
+        if (!musicEl || !bookEl) return;
+        
+        const containerRect = container.getBoundingClientRect();
+        const musicRect = musicEl.getBoundingClientRect();
+        const bookRect = bookEl.getBoundingClientRect();
+        
+        const musicTop = musicRect.top - containerRect.top;
+        const bookTop = bookRect.top - containerRect.top;
+        
+        if (musicTop > container.clientHeight * 0.35) {
+          setMusicScrollSection('APPS');
+        } else if (bookTop > container.clientHeight * 0.55) {
+          setMusicScrollSection('MUSIC');
+        } else {
+          setMusicScrollSection('BOOK');
+        }
+      }}
       className={`fixed inset-0 z-[1500] overflow-y-auto duration-1000 scrollbar-hide transition-all ${isRenoir ? 'bg-[#0f0505] text-amber-100 font-serif' : 'bg-white text-black font-sans'} ${activePage === 'MUSIC' ? 'visible opacity-100 pointer-events-auto' : 'invisible opacity-0 pointer-events-none'}`}
     >
       <div 
@@ -1035,9 +1057,11 @@ export const App: React.FC = () => {
             </div>
           </div>
 
+          {/* Single space separator between Apps section and Music section */}
+          <div className="py-6 md:py-10" />
 
-
-          <div className="flex flex-col lg:flex-row items-center lg:items-center justify-between gap-12 lg:gap-24">
+          {/* Section 2: Music Section */}
+          <div id="music-section" className="flex flex-col lg:flex-row items-center lg:items-center justify-between gap-12 lg:gap-24 pt-4">
             
             {/* SoundCloud Widget Container */}
             <div className="w-full lg:w-1/2 flex flex-col items-center gap-8">
@@ -1109,8 +1133,8 @@ export const App: React.FC = () => {
             </div>
           </div>
 
-          {/* Book / Pilgrimage Section */}
-          <div className="w-full max-w-4xl mx-auto pt-16 pb-4 animate-in fade-in slide-in-from-bottom duration-1000">
+          {/* Section 3: Book / Pilgrimage Section */}
+          <div id="book-section" className="w-full max-w-4xl mx-auto pt-16 pb-4 animate-in fade-in slide-in-from-bottom duration-1000">
             <a 
               href="https://vozduh.wordpress.com" 
               target="_blank" 
@@ -1196,25 +1220,41 @@ export const App: React.FC = () => {
         </div>
       </div>
 
-      {/* Glued "Go to Music" floating button at bottom of screen */}
+      {/* Glued floating action button at bottom of screen */}
       <div className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-[1600] transition-all duration-500 ${
-        activePage === 'MUSIC' && !isMusicScrolled
+        activePage === 'MUSIC' && musicScrollSection !== 'BOOK'
           ? 'opacity-100 translate-y-0 pointer-events-auto'
           : 'opacity-0 translate-y-4 pointer-events-none'
       }`}>
-        <button 
-          onClick={() => {
-            document.getElementById('soundcloud-player')?.scrollIntoView({ behavior: 'smooth' });
-          }}
-          className={`group flex items-center gap-2.5 py-2.5 px-6 rounded-full text-[10px] md:text-xs font-black uppercase tracking-[0.3em] cursor-pointer transition-all duration-300 hover:scale-105 shadow-xl backdrop-blur-md border-none ${
-            isRenoir 
-              ? 'bg-amber-950/90 text-amber-300 hover:bg-amber-500 hover:text-amber-950' 
-              : 'bg-black/90 text-white hover:bg-red-600'
-          }`}
-        >
-          <span>{t.goToMusic}</span>
-          <Icons.ArrowDown className="w-4 h-4 animate-bounce group-hover:translate-y-0.5 transition-transform" />
-        </button>
+        {musicScrollSection === 'APPS' ? (
+          <button 
+            onClick={() => {
+              document.getElementById('music-section')?.scrollIntoView({ behavior: 'smooth' });
+            }}
+            className={`group flex items-center gap-2.5 py-2.5 px-6 rounded-full text-[10px] md:text-xs font-black uppercase tracking-[0.3em] cursor-pointer transition-all duration-300 hover:scale-105 shadow-xl backdrop-blur-md border-none ${
+              isRenoir 
+                ? 'bg-amber-950/90 text-amber-300 hover:bg-amber-500 hover:text-amber-950' 
+                : 'bg-black/90 text-white hover:bg-red-600'
+            }`}
+          >
+            <span>{t.goToMusic}</span>
+            <Icons.ArrowDown className="w-4 h-4 animate-bounce group-hover:translate-y-0.5 transition-transform" />
+          </button>
+        ) : (
+          <button 
+            onClick={() => {
+              document.getElementById('book-section')?.scrollIntoView({ behavior: 'smooth' });
+            }}
+            className={`group flex items-center gap-2.5 py-2.5 px-6 rounded-full text-[10px] md:text-xs font-black uppercase tracking-[0.3em] cursor-pointer transition-all duration-300 hover:scale-105 shadow-xl backdrop-blur-md border-none ${
+              isRenoir 
+                ? 'bg-amber-950/90 text-amber-300 hover:bg-amber-500 hover:text-amber-950' 
+                : 'bg-black/90 text-white hover:bg-red-600'
+            }`}
+          >
+            <span>{t.goToBook}</span>
+            <Icons.ArrowDown className="w-4 h-4 animate-bounce group-hover:translate-y-0.5 transition-transform" />
+          </button>
+        )}
       </div>
     </div>
   );
