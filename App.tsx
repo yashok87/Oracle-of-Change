@@ -1126,14 +1126,14 @@ export const App: React.FC = () => {
               href="https://vozduh.wordpress.com" 
               target="_blank" 
               rel="noopener noreferrer"
-              className={`group relative block p-8 md:p-10 rounded-3xl border transition-all duration-500 hover:scale-[1.01] shadow-2xl overflow-hidden ${
+              className={`group relative block p-8 md:p-10 rounded-3xl border transition-all duration-500 hover:scale-[1.01] shadow-md hover:shadow-2xl overflow-hidden ${
                 isRenoir 
                   ? 'border-amber-700/50 bg-gradient-to-br from-amber-950/80 via-amber-900/30 to-amber-950/90 text-amber-100 hover:border-amber-400 hover:shadow-amber-950/60' 
-                  : 'border-stone-700/80 bg-gradient-to-br from-stone-800 via-stone-800/90 to-stone-900 text-stone-100 hover:border-stone-500 hover:from-stone-750 hover:to-stone-850 hover:shadow-2xl'
+                  : 'border-black/15 bg-transparent text-black hover:bg-stone-900 hover:text-white hover:border-black'
               }`}
             >
               {/* Background decorative watermark */}
-              <div className="absolute -right-8 -bottom-8 w-44 h-44 opacity-10 pointer-events-none group-hover:scale-125 transition-transform duration-700">
+              <div className="absolute -right-8 -bottom-8 w-44 h-44 opacity-5 group-hover:opacity-10 pointer-events-none group-hover:scale-125 transition-transform duration-700">
                 <Icons.Book className="w-full h-full" />
               </div>
 
@@ -1142,28 +1142,32 @@ export const App: React.FC = () => {
                   <div className={`w-16 h-16 rounded-2xl border flex items-center justify-center flex-shrink-0 transition-transform duration-500 group-hover:rotate-6 group-hover:scale-110 shadow-inner ${
                     isRenoir 
                       ? 'border-amber-500/40 bg-amber-500/10 text-amber-300' 
-                      : 'border-stone-600 bg-stone-700/70 text-amber-300 group-hover:border-amber-400'
+                      : 'border-black/10 bg-black/5 text-red-600 group-hover:border-amber-400/50 group-hover:bg-amber-500/10 group-hover:text-amber-300'
                   }`}>
                     <Icons.Book className="w-8 h-8" />
                   </div>
 
                   <div className="space-y-2">
                     <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
-                      <span className={`text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] px-3 py-1 rounded-full border ${
+                      <span className={`text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] px-3 py-1 rounded-full border transition-colors ${
                         isRenoir 
                           ? 'border-amber-500/30 text-amber-400 bg-amber-500/10' 
-                          : 'border-amber-400/40 text-amber-300 bg-amber-500/15'
+                          : 'border-red-600/30 text-red-600 bg-red-600/5 group-hover:border-amber-400/40 group-hover:text-amber-300 group-hover:bg-amber-500/10'
                       }`}>
                         {t.bookBadge}
                       </span>
-                      <span className={`text-xs font-mono opacity-60 ${isRenoir ? 'text-amber-200/70' : 'text-amber-200/80'}`}>vozduh.wordpress.com</span>
+                      <span className={`text-xs font-mono transition-colors ${isRenoir ? 'text-amber-200/70' : 'text-black/60 group-hover:text-stone-400'}`}>vozduh.wordpress.com</span>
                     </div>
 
-                    <h3 className={`text-xl md:text-2xl font-serif font-bold tracking-tight text-white group-hover:text-amber-300 transition-colors`}>
+                    <h3 className={`text-xl md:text-2xl font-serif font-bold tracking-tight transition-colors ${
+                      isRenoir ? 'text-white group-hover:text-amber-300' : 'text-black group-hover:text-white'
+                    }`}>
                       {t.bookTitle}
                     </h3>
 
-                    <p className={`text-xs md:text-sm opacity-80 max-w-xl font-serif italic leading-relaxed text-stone-200`}>
+                    <p className={`text-xs md:text-sm max-w-xl font-serif italic leading-relaxed transition-colors ${
+                      isRenoir ? 'text-stone-300' : 'text-stone-600 group-hover:text-stone-300'
+                    }`}>
                       {t.bookSubtitle}
                     </p>
                   </div>
@@ -1173,11 +1177,13 @@ export const App: React.FC = () => {
                   <span className={`text-xs md:text-sm font-black uppercase tracking-[0.2em] px-5 py-2.5 rounded-xl border transition-all ${
                     isRenoir 
                       ? 'border-amber-500/40 bg-amber-500/20 text-amber-300 group-hover:bg-amber-500 group-hover:text-amber-950' 
-                      : 'border-amber-400/50 bg-stone-700/80 text-amber-300 group-hover:bg-amber-400 group-hover:text-stone-950'
+                      : 'border-black/20 bg-black/5 text-black group-hover:bg-amber-400 group-hover:border-amber-400 group-hover:text-stone-950'
                   }`}>
                     {t.bookRead}
                   </span>
-                  <Icons.External className={`w-4 h-4 opacity-80 group-hover:opacity-100 group-hover:translate-x-1 transition-all text-amber-300`} />
+                  <Icons.External className={`w-4 h-4 transition-all ${
+                    isRenoir ? 'text-amber-300 opacity-80 group-hover:opacity-100 group-hover:translate-x-1' : 'text-black group-hover:text-white opacity-80 group-hover:opacity-100 group-hover:translate-x-1'
+                  }`} />
                 </div>
               </div>
             </a>
