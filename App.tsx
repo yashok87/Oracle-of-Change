@@ -556,6 +556,7 @@ export const App: React.FC = () => {
   const [learningProfile, setLearningProfile] = useState<LearningProfile | null>(null);
   const [selectedImageModel, setSelectedImageModel] = useState<string>('flux');
   const [activePage, setActivePage] = useState<'ORACLE' | 'MUSIC' | 'ABOUT'>('MUSIC');
+  const [isMusicScrolled, setIsMusicScrolled] = useState(false);
   const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
   const [isMusicMuted, setIsMusicMuted] = useState(true);
   const [isPlayerExpanded, setIsPlayerExpanded] = useState(false);
@@ -901,7 +902,10 @@ export const App: React.FC = () => {
   );
 
   const JacobMusicPage = (
-    <div className={`fixed inset-0 z-[1500] overflow-y-auto duration-1000 scrollbar-hide transition-all ${isRenoir ? 'bg-[#0f0505] text-amber-100 font-serif' : 'bg-white text-black font-sans'} ${activePage === 'MUSIC' ? 'visible opacity-100 pointer-events-auto' : 'invisible opacity-0 pointer-events-none'}`}>
+    <div 
+      onScroll={(e) => setIsMusicScrolled(e.currentTarget.scrollTop > 30)}
+      className={`fixed inset-0 z-[1500] overflow-y-auto duration-1000 scrollbar-hide transition-all ${isRenoir ? 'bg-[#0f0505] text-amber-100 font-serif' : 'bg-white text-black font-sans'} ${activePage === 'MUSIC' ? 'visible opacity-100 pointer-events-auto' : 'invisible opacity-0 pointer-events-none'}`}
+    >
       <div 
         className="fixed inset-0 bg-cover bg-center opacity-10 grayscale mix-blend-multiply pointer-events-none"
         style={{ backgroundImage: `url('https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=2670&auto=format&fit=crop')` }}
@@ -1031,22 +1035,7 @@ export const App: React.FC = () => {
             </div>
           </div>
 
-          {/* Go to Music prompt */}
-          <div className="flex flex-col items-center justify-center pt-2 pb-2">
-            <button 
-              onClick={() => {
-                document.getElementById('soundcloud-player')?.scrollIntoView({ behavior: 'smooth' });
-              }}
-              className={`group flex items-center gap-3 py-2 px-5 rounded-full border border-current/10 text-[10px] md:text-xs font-black uppercase tracking-[0.3em] cursor-pointer transition-all duration-300 hover:scale-105 ${
-                isRenoir 
-                  ? 'bg-amber-900/20 text-amber-400 border-amber-500/30 hover:bg-amber-500 hover:text-amber-950' 
-                  : 'bg-transparent text-black border-black/10 hover:bg-black/5 hover:border-black/30'
-              }`}
-            >
-              <span>{t.goToMusic}</span>
-              <Icons.ArrowDown className="w-4 h-4 animate-bounce group-hover:translate-y-0.5 transition-transform" />
-            </button>
-          </div>
+
 
           <div className="flex flex-col lg:flex-row items-center lg:items-center justify-between gap-12 lg:gap-24">
             
@@ -1205,6 +1194,27 @@ export const App: React.FC = () => {
           </div>
           
         </div>
+      </div>
+
+      {/* Glued "Go to Music" floating button at bottom of screen */}
+      <div className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-[1600] transition-all duration-500 ${
+        activePage === 'MUSIC' && !isMusicScrolled
+          ? 'opacity-100 translate-y-0 pointer-events-auto'
+          : 'opacity-0 translate-y-4 pointer-events-none'
+      }`}>
+        <button 
+          onClick={() => {
+            document.getElementById('soundcloud-player')?.scrollIntoView({ behavior: 'smooth' });
+          }}
+          className={`group flex items-center gap-2.5 py-2.5 px-6 rounded-full text-[10px] md:text-xs font-black uppercase tracking-[0.3em] cursor-pointer transition-all duration-300 hover:scale-105 shadow-xl backdrop-blur-md border-none ${
+            isRenoir 
+              ? 'bg-amber-950/90 text-amber-300 hover:bg-amber-500 hover:text-amber-950' 
+              : 'bg-black/90 text-white hover:bg-red-600'
+          }`}
+        >
+          <span>{t.goToMusic}</span>
+          <Icons.ArrowDown className="w-4 h-4 animate-bounce group-hover:translate-y-0.5 transition-transform" />
+        </button>
       </div>
     </div>
   );
