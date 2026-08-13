@@ -933,7 +933,7 @@ export const App: React.FC = () => {
                 className={`group relative flex flex-col items-center justify-center text-center gap-3 p-5 rounded-2xl border transition-all duration-300 hover:scale-[1.02] shadow-md min-h-[140px] ${
                   isRenoir 
                     ? 'border-amber-900/40 bg-amber-900/10 hover:bg-amber-900/30 hover:border-amber-500/50' 
-                    : 'border-black/10 bg-white hover:bg-black/5 hover:border-black/30'
+                    : 'border-black/10 bg-transparent hover:bg-black/5 hover:border-black/30'
                 }`}
               >
                 <div className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all ${
@@ -959,7 +959,7 @@ export const App: React.FC = () => {
                 className={`group relative flex flex-col items-center justify-center text-center gap-3 p-5 rounded-2xl border transition-all duration-300 hover:scale-[1.02] shadow-md min-h-[140px] ${
                   isRenoir 
                     ? 'border-amber-900/40 bg-amber-900/10 hover:bg-amber-900/30 hover:border-amber-500/50' 
-                    : 'border-black/10 bg-white hover:bg-black/5 hover:border-black/30'
+                    : 'border-black/10 bg-transparent hover:bg-black/5 hover:border-black/30'
                 }`}
               >
                 <div className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all ${
@@ -985,7 +985,7 @@ export const App: React.FC = () => {
                 className={`group relative flex flex-col items-center justify-center text-center gap-3 p-5 rounded-2xl border transition-all duration-300 hover:scale-[1.02] shadow-md min-h-[140px] ${
                   isRenoir 
                     ? 'border-amber-900/40 bg-amber-900/10 hover:bg-amber-900/30 hover:border-amber-500/50' 
-                    : 'border-black/10 bg-white hover:bg-black/5 hover:border-black/30'
+                    : 'border-black/10 bg-transparent hover:bg-black/5 hover:border-black/30'
                 }`}
               >
                 <div className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all ${
@@ -1011,7 +1011,7 @@ export const App: React.FC = () => {
                 className={`group relative flex flex-col items-center justify-center text-center gap-3 p-5 rounded-2xl border transition-all duration-300 hover:scale-[1.02] shadow-md min-h-[140px] ${
                   isRenoir 
                     ? 'border-amber-900/40 bg-amber-900/10 hover:bg-amber-900/30 hover:border-amber-500/50' 
-                    : 'border-black/10 bg-white hover:bg-black/5 hover:border-black/30'
+                    : 'border-black/10 bg-transparent hover:bg-black/5 hover:border-black/30'
                 }`}
               >
                 <div className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all ${
@@ -1040,7 +1040,7 @@ export const App: React.FC = () => {
               className={`group flex items-center gap-3 py-2 px-5 rounded-full border border-current/10 text-[10px] md:text-xs font-black uppercase tracking-[0.3em] cursor-pointer transition-all duration-300 hover:scale-105 ${
                 isRenoir 
                   ? 'bg-amber-900/20 text-amber-400 border-amber-500/30 hover:bg-amber-500 hover:text-amber-950' 
-                  : 'bg-black/5 text-black border-black/10 hover:bg-black/10 hover:border-black/30'
+                  : 'bg-transparent text-black border-black/10 hover:bg-black/5 hover:border-black/30'
               }`}
             >
               <span>{t.goToMusic}</span>
@@ -1129,7 +1129,7 @@ export const App: React.FC = () => {
               className={`group relative block p-8 md:p-10 rounded-3xl border transition-all duration-500 hover:scale-[1.01] shadow-2xl overflow-hidden ${
                 isRenoir 
                   ? 'border-amber-700/50 bg-gradient-to-br from-amber-950/80 via-amber-900/30 to-amber-950/90 text-amber-100 hover:border-amber-400 hover:shadow-amber-950/60' 
-                  : 'border-black/10 bg-white text-black hover:border-black/30 hover:bg-black/[0.02] hover:shadow-xl'
+                  : 'border-stone-800 bg-stone-900 text-stone-100 hover:border-black hover:bg-stone-950 hover:shadow-2xl'
               }`}
             >
               {/* Background decorative watermark */}
@@ -1142,7 +1142,7 @@ export const App: React.FC = () => {
                   <div className={`w-16 h-16 rounded-2xl border flex items-center justify-center flex-shrink-0 transition-transform duration-500 group-hover:rotate-6 group-hover:scale-110 shadow-inner ${
                     isRenoir 
                       ? 'border-amber-500/40 bg-amber-500/10 text-amber-300' 
-                      : 'border-black/10 bg-black/5 text-red-600 group-hover:border-red-600/40'
+                      : 'border-stone-700 bg-stone-800 text-amber-400 group-hover:border-amber-400'
                   }`}>
                     <Icons.Book className="w-8 h-8" />
                   </div>
@@ -1152,22 +1152,18 @@ export const App: React.FC = () => {
                       <span className={`text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] px-3 py-1 rounded-full border ${
                         isRenoir 
                           ? 'border-amber-500/30 text-amber-400 bg-amber-500/10' 
-                          : 'border-red-600/30 text-red-600 bg-red-600/5'
+                          : 'border-amber-500/40 text-amber-300 bg-amber-500/10'
                       }`}>
                         {t.bookBadge}
                       </span>
-                      <span className={`text-xs font-mono opacity-60 ${isRenoir ? 'text-amber-200/70' : 'text-black/60'}`}>vozduh.wordpress.com</span>
+                      <span className={`text-xs font-mono opacity-60 ${isRenoir ? 'text-amber-200/70' : 'text-stone-400'}`}>vozduh.wordpress.com</span>
                     </div>
 
-                    <h3 className={`text-xl md:text-2xl font-serif font-bold tracking-tight transition-colors ${
-                      isRenoir ? 'text-white group-hover:text-amber-300' : 'text-black group-hover:text-red-600'
-                    }`}>
+                    <h3 className={`text-xl md:text-2xl font-serif font-bold tracking-tight text-white group-hover:text-amber-300 transition-colors`}>
                       {t.bookTitle}
                     </h3>
 
-                    <p className={`text-xs md:text-sm opacity-80 max-w-xl font-serif italic leading-relaxed ${
-                      isRenoir ? 'text-stone-300' : 'text-stone-700'
-                    }`}>
+                    <p className={`text-xs md:text-sm opacity-80 max-w-xl font-serif italic leading-relaxed text-stone-300`}>
                       {t.bookSubtitle}
                     </p>
                   </div>
@@ -1177,13 +1173,11 @@ export const App: React.FC = () => {
                   <span className={`text-xs md:text-sm font-black uppercase tracking-[0.2em] px-5 py-2.5 rounded-xl border transition-all ${
                     isRenoir 
                       ? 'border-amber-500/40 bg-amber-500/20 text-amber-300 group-hover:bg-amber-500 group-hover:text-amber-950' 
-                      : 'border-black/10 bg-black/5 text-black group-hover:bg-black/10 group-hover:border-black/30'
+                      : 'border-amber-500/40 bg-stone-800 text-amber-300 group-hover:bg-amber-400 group-hover:text-stone-950'
                   }`}>
                     {t.bookRead}
                   </span>
-                  <Icons.External className={`w-4 h-4 opacity-80 group-hover:opacity-100 group-hover:translate-x-1 transition-all ${
-                    isRenoir ? 'text-amber-300' : 'text-black'
-                  }`} />
+                  <Icons.External className={`w-4 h-4 opacity-80 group-hover:opacity-100 group-hover:translate-x-1 transition-all text-amber-300`} />
                 </div>
               </div>
             </a>
