@@ -926,41 +926,30 @@ export const App: React.FC = () => {
               <div className={`h-[1px] w-12 mx-auto ${isRenoir ? 'bg-amber-500/30' : 'bg-red-600/30'}`} />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 pt-2 items-start">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 pt-2">
               {/* Oracle */}
-              <div className="flex flex-col items-center gap-2 w-full">
-                <button 
-                  onClick={() => setActivePage('ORACLE')}
-                  className={`w-full group relative flex flex-col items-center justify-center text-center gap-3 p-5 rounded-2xl border transition-all duration-300 hover:scale-[1.02] shadow-md min-h-[140px] ${
-                    isRenoir 
-                      ? 'border-amber-900/40 bg-amber-900/10 hover:bg-amber-900/30 hover:border-amber-500/50' 
-                      : 'border-black/10 bg-black/[0.02] hover:bg-black hover:text-white'
-                  }`}
-                >
-                  <div className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all ${
-                    isRenoir ? 'border-amber-500/30 bg-amber-500/10' : 'border-black/10 bg-black/5 group-hover:border-white/20'
-                  }`}>
-                    <Icons.Sparkle className="w-5 h-5 opacity-60 group-hover:opacity-100 transition-opacity" />
-                  </div>
-                  <span className={`text-[10px] md:text-xs font-black uppercase tracking-[0.2em] ${
-                    isRenoir ? 'group-hover:text-amber-400' : 'group-hover:text-red-500'
-                  }`}>
-                    {t.oracle}
-                  </span>
-                  <p className="text-[10px] leading-snug opacity-0 group-hover:opacity-80 transition-all duration-300 transform group-hover:translate-y-0 translate-y-1 font-normal max-w-[180px]">
-                    {t.oracleDesc}
-                  </p>
-                </button>
-
-                <button
-                  onClick={() => setActivePage('ABOUT')}
-                  className={`text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all hover:underline cursor-pointer opacity-70 hover:opacity-100 ${
-                    isRenoir ? 'text-amber-400' : 'text-red-600'
-                  }`}
-                >
-                  {t.goToInstructions}
-                </button>
-              </div>
+              <button 
+                onClick={() => setActivePage('ORACLE')}
+                className={`group relative flex flex-col items-center justify-center text-center gap-3 p-5 rounded-2xl border transition-all duration-300 hover:scale-[1.02] shadow-md min-h-[140px] ${
+                  isRenoir 
+                    ? 'border-amber-900/40 bg-amber-900/10 hover:bg-amber-900/30 hover:border-amber-500/50' 
+                    : 'border-black/10 bg-white hover:bg-black/5 hover:border-black/30'
+                }`}
+              >
+                <div className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all ${
+                  isRenoir ? 'border-amber-500/30 bg-amber-500/10' : 'border-black/10 bg-black/5 group-hover:border-black/30'
+                }`}>
+                  <Icons.Sparkle className="w-5 h-5 opacity-60 group-hover:opacity-100 transition-opacity" />
+                </div>
+                <span className={`text-[10px] md:text-xs font-black uppercase tracking-[0.2em] ${
+                  isRenoir ? 'group-hover:text-amber-400' : 'group-hover:text-red-600'
+                }`}>
+                  {t.oracle}
+                </span>
+                <p className="text-[10px] leading-snug opacity-0 group-hover:opacity-80 transition-all duration-300 transform group-hover:translate-y-0 translate-y-1 font-normal max-w-[180px]">
+                  {t.oracleDesc}
+                </p>
+              </button>
 
               {/* Dream Oracle / Dream Analysis */}
               <a 
@@ -970,16 +959,16 @@ export const App: React.FC = () => {
                 className={`group relative flex flex-col items-center justify-center text-center gap-3 p-5 rounded-2xl border transition-all duration-300 hover:scale-[1.02] shadow-md min-h-[140px] ${
                   isRenoir 
                     ? 'border-amber-900/40 bg-amber-900/10 hover:bg-amber-900/30 hover:border-amber-500/50' 
-                    : 'border-black/10 bg-black/[0.02] hover:bg-black hover:text-white'
+                    : 'border-black/10 bg-white hover:bg-black/5 hover:border-black/30'
                 }`}
               >
                 <div className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all ${
-                  isRenoir ? 'border-amber-500/30 bg-amber-500/10' : 'border-black/10 bg-black/5 group-hover:border-white/20'
+                  isRenoir ? 'border-amber-500/30 bg-amber-500/10' : 'border-black/10 bg-black/5 group-hover:border-black/30'
                 }`}>
                   <Icons.Mind className="w-5 h-5 opacity-60 group-hover:opacity-100 transition-opacity" />
                 </div>
                 <span className={`text-[10px] md:text-xs font-black uppercase tracking-[0.2em] ${
-                  isRenoir ? 'group-hover:text-amber-400' : 'group-hover:text-red-500'
+                  isRenoir ? 'group-hover:text-amber-400' : 'group-hover:text-red-600'
                 }`}>
                   {t.dreamAnalysis}
                 </span>
@@ -996,16 +985,16 @@ export const App: React.FC = () => {
                 className={`group relative flex flex-col items-center justify-center text-center gap-3 p-5 rounded-2xl border transition-all duration-300 hover:scale-[1.02] shadow-md min-h-[140px] ${
                   isRenoir 
                     ? 'border-amber-900/40 bg-amber-900/10 hover:bg-amber-900/30 hover:border-amber-500/50' 
-                    : 'border-black/10 bg-black/[0.02] hover:bg-black hover:text-white'
+                    : 'border-black/10 bg-white hover:bg-black/5 hover:border-black/30'
                 }`}
               >
                 <div className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all ${
-                  isRenoir ? 'border-amber-500/30 bg-amber-500/10' : 'border-black/10 bg-black/5 group-hover:border-white/20'
+                  isRenoir ? 'border-amber-500/30 bg-amber-500/10' : 'border-black/10 bg-black/5 group-hover:border-black/30'
                 }`}>
                   <Icons.External className="w-5 h-5 opacity-60 group-hover:opacity-100 transition-opacity" />
                 </div>
                 <span className={`text-[10px] md:text-xs font-black uppercase tracking-[0.2em] ${
-                  isRenoir ? 'group-hover:text-amber-400' : 'group-hover:text-red-500'
+                  isRenoir ? 'group-hover:text-amber-400' : 'group-hover:text-red-600'
                 }`}>
                   {t.faithProject}
                 </span>
@@ -1022,16 +1011,16 @@ export const App: React.FC = () => {
                 className={`group relative flex flex-col items-center justify-center text-center gap-3 p-5 rounded-2xl border transition-all duration-300 hover:scale-[1.02] shadow-md min-h-[140px] ${
                   isRenoir 
                     ? 'border-amber-900/40 bg-amber-900/10 hover:bg-amber-900/30 hover:border-amber-500/50' 
-                    : 'border-black/10 bg-black/[0.02] hover:bg-black hover:text-white'
+                    : 'border-black/10 bg-white hover:bg-black/5 hover:border-black/30'
                 }`}
               >
                 <div className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all ${
-                  isRenoir ? 'border-amber-500/30 bg-amber-500/10' : 'border-black/10 bg-black/5 group-hover:border-white/20'
+                  isRenoir ? 'border-amber-500/30 bg-amber-500/10' : 'border-black/10 bg-black/5 group-hover:border-black/30'
                 }`}>
                   <Icons.External className="w-5 h-5 opacity-60 group-hover:opacity-100 transition-opacity" />
                 </div>
                 <span className={`text-[10px] md:text-xs font-black uppercase tracking-[0.2em] ${
-                  isRenoir ? 'group-hover:text-amber-400' : 'group-hover:text-red-500'
+                  isRenoir ? 'group-hover:text-amber-400' : 'group-hover:text-red-600'
                 }`}>
                   {t.glenHansardProject}
                 </span>
@@ -1051,7 +1040,7 @@ export const App: React.FC = () => {
               className={`group flex items-center gap-3 py-2 px-5 rounded-full border border-current/10 text-[10px] md:text-xs font-black uppercase tracking-[0.3em] cursor-pointer transition-all duration-300 hover:scale-105 ${
                 isRenoir 
                   ? 'bg-amber-900/20 text-amber-400 border-amber-500/30 hover:bg-amber-500 hover:text-amber-950' 
-                  : 'bg-black/5 text-black border-black/10 hover:bg-black hover:text-white'
+                  : 'bg-black/5 text-black border-black/10 hover:bg-black/10 hover:border-black/30'
               }`}
             >
               <span>{t.goToMusic}</span>
@@ -1140,7 +1129,7 @@ export const App: React.FC = () => {
               className={`group relative block p-8 md:p-10 rounded-3xl border transition-all duration-500 hover:scale-[1.01] shadow-2xl overflow-hidden ${
                 isRenoir 
                   ? 'border-amber-700/50 bg-gradient-to-br from-amber-950/80 via-amber-900/30 to-amber-950/90 text-amber-100 hover:border-amber-400 hover:shadow-amber-950/60' 
-                  : 'border-stone-800 bg-stone-900 text-stone-100 hover:border-black hover:bg-stone-950 hover:shadow-2xl'
+                  : 'border-black/10 bg-white text-black hover:border-black/30 hover:bg-black/[0.02] hover:shadow-xl'
               }`}
             >
               {/* Background decorative watermark */}
@@ -1153,7 +1142,7 @@ export const App: React.FC = () => {
                   <div className={`w-16 h-16 rounded-2xl border flex items-center justify-center flex-shrink-0 transition-transform duration-500 group-hover:rotate-6 group-hover:scale-110 shadow-inner ${
                     isRenoir 
                       ? 'border-amber-500/40 bg-amber-500/10 text-amber-300' 
-                      : 'border-stone-700 bg-stone-800 text-amber-400 group-hover:border-amber-400'
+                      : 'border-black/10 bg-black/5 text-red-600 group-hover:border-red-600/40'
                   }`}>
                     <Icons.Book className="w-8 h-8" />
                   </div>
@@ -1163,18 +1152,22 @@ export const App: React.FC = () => {
                       <span className={`text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] px-3 py-1 rounded-full border ${
                         isRenoir 
                           ? 'border-amber-500/30 text-amber-400 bg-amber-500/10' 
-                          : 'border-amber-500/40 text-amber-300 bg-amber-500/10'
+                          : 'border-red-600/30 text-red-600 bg-red-600/5'
                       }`}>
                         {t.bookBadge}
                       </span>
-                      <span className="text-xs font-mono opacity-60 text-amber-200/70">vozduh.wordpress.com</span>
+                      <span className={`text-xs font-mono opacity-60 ${isRenoir ? 'text-amber-200/70' : 'text-black/60'}`}>vozduh.wordpress.com</span>
                     </div>
 
-                    <h3 className="text-xl md:text-2xl font-serif font-bold tracking-tight text-white group-hover:text-amber-300 transition-colors">
+                    <h3 className={`text-xl md:text-2xl font-serif font-bold tracking-tight transition-colors ${
+                      isRenoir ? 'text-white group-hover:text-amber-300' : 'text-black group-hover:text-red-600'
+                    }`}>
                       {t.bookTitle}
                     </h3>
 
-                    <p className="text-xs md:text-sm opacity-80 max-w-xl font-serif italic leading-relaxed text-stone-300">
+                    <p className={`text-xs md:text-sm opacity-80 max-w-xl font-serif italic leading-relaxed ${
+                      isRenoir ? 'text-stone-300' : 'text-stone-700'
+                    }`}>
                       {t.bookSubtitle}
                     </p>
                   </div>
@@ -1184,11 +1177,13 @@ export const App: React.FC = () => {
                   <span className={`text-xs md:text-sm font-black uppercase tracking-[0.2em] px-5 py-2.5 rounded-xl border transition-all ${
                     isRenoir 
                       ? 'border-amber-500/40 bg-amber-500/20 text-amber-300 group-hover:bg-amber-500 group-hover:text-amber-950' 
-                      : 'border-amber-500/40 bg-stone-800 text-amber-300 group-hover:bg-amber-400 group-hover:text-stone-950'
+                      : 'border-black/10 bg-black/5 text-black group-hover:bg-black/10 group-hover:border-black/30'
                   }`}>
                     {t.bookRead}
                   </span>
-                  <Icons.External className="w-4 h-4 opacity-80 group-hover:opacity-100 group-hover:translate-x-1 transition-all text-amber-300" />
+                  <Icons.External className={`w-4 h-4 opacity-80 group-hover:opacity-100 group-hover:translate-x-1 transition-all ${
+                    isRenoir ? 'text-amber-300' : 'text-black'
+                  }`} />
                 </div>
               </div>
             </a>
@@ -1491,13 +1486,13 @@ export const App: React.FC = () => {
             <div className="grid grid-cols-1 gap-4">
                <button 
                   onClick={() => handleProfilingAnswer(0)}
-                  className={`py-6 px-8 rounded-3xl border-2 font-bold transition-all text-sm uppercase tracking-widest active:scale-95 text-center ${isRenoir ? 'border-amber-900/40 hover:bg-amber-900' : 'border-black/5 hover:bg-black hover:text-white'}`}
+                  className={`py-6 px-8 rounded-3xl border-2 font-bold transition-all text-sm uppercase tracking-widest active:scale-95 text-center ${isRenoir ? 'border-amber-900/40 hover:bg-amber-900' : 'border-black/10 bg-white hover:bg-black/5 hover:border-black/30 text-black'}`}
                >
                   {uiLanguage === 'RU' ? activeQuestions[profilingStep]?.a1_ru : activeQuestions[profilingStep]?.a1}
                </button>
                <button 
                   onClick={() => handleProfilingAnswer(1)}
-                  className={`py-6 px-8 rounded-3xl border-2 font-bold transition-all text-sm uppercase tracking-widest active:scale-95 text-center ${isRenoir ? 'border-amber-900/40 hover:bg-amber-900' : 'border-black/5 hover:bg-black hover:text-white'}`}
+                  className={`py-6 px-8 rounded-3xl border-2 font-bold transition-all text-sm uppercase tracking-widest active:scale-95 text-center ${isRenoir ? 'border-amber-900/40 hover:bg-amber-900' : 'border-black/10 bg-white hover:bg-black/5 hover:border-black/30 text-black'}`}
                >
                   {uiLanguage === 'RU' ? activeQuestions[profilingStep]?.a2_ru : activeQuestions[profilingStep]?.a2}
                </button>
@@ -2439,7 +2434,7 @@ export const App: React.FC = () => {
                        <a key={i} href={s.uri} target="_blank" rel="noopener noreferrer" className={`source-card-link p-5 border-2 rounded-2xl transition-all flex justify-between items-center shadow-md cursor-pointer opacity-100 group ${
                          isRenoir 
                            ? 'border-amber-400 bg-[#2b0c0c] hover:bg-amber-400 text-amber-100 hover:text-amber-950' 
-                           : 'border-black bg-white hover:bg-black text-black hover:text-white'
+                           : 'border-black/20 bg-white hover:bg-black/5 hover:border-black text-black'
                        }`}>
                          <div className="flex flex-col text-left truncate pr-2">
                             <span className={`text-[9px] font-black uppercase mb-1 tracking-widest opacity-100 ${isRenoir ? 'text-amber-400 group-hover:text-amber-950' : 'text-red-600 group-hover:text-red-400'}`}>REF. {(i+1).toString().padStart(2, '0')}</span>
