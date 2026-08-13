@@ -132,6 +132,19 @@ const TRANSLATIONS = {
     aboutFooter: "The questions can be about knowledge, they can be life questions, such as \"Should I quit my job?\", in which case the app will act as a crystal ball (DO NOT take it's advice seriously); they can be recommendations of a movie for the night or comparison questions, such as \"Coffee or Cake\".",
     consultBtn: "Consult the Oracle",
     musicQuote: "\"Born in Russia, Jacob is an independent musician raised on the likes of Damien Rice and Leonard Cohen. He's been writing songs since he was 20.\"",
+    appsTitle: "He also develops apps and websites",
+    faithProject: "Faith",
+    glenHansardProject: "In memory of Glen Hansard",
+    oracleDesc: "AI-powered engine for knowledge & philosophical council",
+    dreamDesc: "Jungian dream analysis & subconscious symbol interpreter",
+    faithDesc: "Interactive journey & artistic digital experiment",
+    hansardDesc: "Musical tribute & interactive tribute project",
+    goToMusic: "Go to Music",
+    goToInstructions: "Go to instructions",
+    bookBadge: "Book / Journal",
+    bookTitle: "Chronicle of Pilgrimage through Cyprus",
+    bookSubtitle: "An intimate literary logbook and reflections recorded along the ancient path across Cyprus.",
+    bookRead: "Read Book",
     musicConnect: "Connect & Support",
     musicLabels: ["My Music", "YouTube Profile", "Bandcamp support", "Official Merchandise", "Streaming Platforms", "Guestbook page"],
     goToOracle: "Go to Oracle",
@@ -176,6 +189,19 @@ const TRANSLATIONS = {
     aboutFooter: "Вопросы могут быть о знаниях или быть жизненными вопросами, такими как «Стоит ли мне уволиться с работы?», в этом случае приложение будет действовать как хрустальный шар (НЕ воспринимайте его советы серьезно); это могут быть рекомендации фильма на вечер или вопросы для сравнения, например, «Кофе или торт».",
     consultBtn: "Консультация Оракула",
     musicQuote: "\"Яков — независимый музыкант, родившийся в России и воспитанный на творчестве Дамьена Райса и Леонарда Коэна. Пишет песни с 20 лет.\"",
+    appsTitle: "Он также разрабатывает приложения и сайты",
+    faithProject: "Вера",
+    glenHansardProject: "Памяти Глена Хансарда",
+    oracleDesc: "ИИ-поисковик знаний и философского совета",
+    dreamDesc: "Юнгианский анализ сновидений и символов подсознания",
+    faithDesc: "Интерактивное путешествие и цифровой арт-проект",
+    hansardDesc: "Музыкальное посвящение и трибьют-проект",
+    goToMusic: "Перейти к музыке",
+    goToInstructions: "Инструкции",
+    bookBadge: "Книга / Дневник",
+    bookTitle: "Хроника паломничества по Кипру",
+    bookSubtitle: "Литературные заметки и размышления, записанные во время путешествия по древнему Кипру.",
+    bookRead: "Читать книгу",
     musicConnect: "Связь и поддержка",
     musicLabels: ["Моя музыка", "YouTube профиль", "Поддержка на Bandcamp", "Мерч", "Стриминг", "Гостевая книга"],
     goToOracle: "Перейти к Оракулу",
@@ -385,6 +411,7 @@ const MBTI_MAP: Record<string, { label: string, label_ru: string }> = {
 
 const Icons = {
   ArrowLeft: (props: any) => <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" {...props}><path d="M19 12H5M12 19l-7-7 7-7"/></svg>,
+  ArrowDown: (props: any) => <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" {...props}><path d="M12 5v14M19 12l-7 7-7-7"/></svg>,
   History: (props: any) => <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" {...props}><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>,
   Speaker: ({ muted, loading, ...props }: { muted: boolean, loading: boolean, [key: string]: any }) => (
     <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" {...props} className={`${loading ? 'animate-pulse' : ''} ${props.className || ''}`}>
@@ -398,7 +425,8 @@ const Icons = {
   External: (props: any) => <svg width="10" height="10" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" {...props}><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>,
   Refresh: (props: any) => <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" {...props}><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>,
   Search: (props: any) => <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" {...props}><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>,
-  Mind: (props: any) => <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" {...props}><path d="M12 21a9 9 0 1 1 0-18 9 9 0 0 1 0 18z"/><path d="M8 9.5h8M8 12h8M8 14.5h5"/></svg>
+  Mind: (props: any) => <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" {...props}><path d="M12 21a9 9 0 1 1 0-18 9 9 0 0 1 0 18z"/><path d="M8 9.5h8M8 12h8M8 14.5h5"/></svg>,
+  Book: (props: any) => <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" {...props}><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M12 6v10"/></svg>
 };
 
 const renderHyperlinkedText = (input: string | undefined, isRenoir: boolean, isVerdict: boolean = false) => {
@@ -889,6 +917,148 @@ export const App: React.FC = () => {
             </h2>
           </div>
 
+          {/* Apps and Websites Section */}
+          <div className="w-full max-w-4xl mx-auto text-center space-y-6 py-6 border-y border-current/10 animate-in fade-in slide-in-from-bottom duration-1000">
+            <div className="space-y-2">
+              <h3 className={`text-[11px] md:text-xs font-black uppercase tracking-[0.4em] opacity-70 ${isRenoir ? 'text-amber-400' : 'text-red-600'}`}>
+                {t.appsTitle}
+              </h3>
+              <div className={`h-[1px] w-12 mx-auto ${isRenoir ? 'bg-amber-500/30' : 'bg-red-600/30'}`} />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 pt-2 items-start">
+              {/* Oracle */}
+              <div className="flex flex-col items-center gap-2 w-full">
+                <button 
+                  onClick={() => setActivePage('ORACLE')}
+                  className={`w-full group relative flex flex-col items-center justify-center text-center gap-3 p-5 rounded-2xl border transition-all duration-300 hover:scale-[1.02] shadow-md min-h-[140px] ${
+                    isRenoir 
+                      ? 'border-amber-900/40 bg-amber-900/10 hover:bg-amber-900/30 hover:border-amber-500/50' 
+                      : 'border-black/10 bg-black/[0.02] hover:bg-black hover:text-white'
+                  }`}
+                >
+                  <div className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all ${
+                    isRenoir ? 'border-amber-500/30 bg-amber-500/10' : 'border-black/10 bg-black/5 group-hover:border-white/20'
+                  }`}>
+                    <Icons.Sparkle className="w-5 h-5 opacity-60 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                  <span className={`text-[10px] md:text-xs font-black uppercase tracking-[0.2em] ${
+                    isRenoir ? 'group-hover:text-amber-400' : 'group-hover:text-red-500'
+                  }`}>
+                    {t.oracle}
+                  </span>
+                  <p className="text-[10px] leading-snug opacity-0 group-hover:opacity-80 transition-all duration-300 transform group-hover:translate-y-0 translate-y-1 font-normal max-w-[180px]">
+                    {t.oracleDesc}
+                  </p>
+                </button>
+
+                <button
+                  onClick={() => setActivePage('ABOUT')}
+                  className={`text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all hover:underline cursor-pointer opacity-70 hover:opacity-100 ${
+                    isRenoir ? 'text-amber-400' : 'text-red-600'
+                  }`}
+                >
+                  {t.goToInstructions}
+                </button>
+              </div>
+
+              {/* Dream Oracle / Dream Analysis */}
+              <a 
+                href="https://dreamjung.onrender.com/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className={`group relative flex flex-col items-center justify-center text-center gap-3 p-5 rounded-2xl border transition-all duration-300 hover:scale-[1.02] shadow-md min-h-[140px] ${
+                  isRenoir 
+                    ? 'border-amber-900/40 bg-amber-900/10 hover:bg-amber-900/30 hover:border-amber-500/50' 
+                    : 'border-black/10 bg-black/[0.02] hover:bg-black hover:text-white'
+                }`}
+              >
+                <div className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all ${
+                  isRenoir ? 'border-amber-500/30 bg-amber-500/10' : 'border-black/10 bg-black/5 group-hover:border-white/20'
+                }`}>
+                  <Icons.Mind className="w-5 h-5 opacity-60 group-hover:opacity-100 transition-opacity" />
+                </div>
+                <span className={`text-[10px] md:text-xs font-black uppercase tracking-[0.2em] ${
+                  isRenoir ? 'group-hover:text-amber-400' : 'group-hover:text-red-500'
+                }`}>
+                  {t.dreamAnalysis}
+                </span>
+                <p className="text-[10px] leading-snug opacity-0 group-hover:opacity-80 transition-all duration-300 transform group-hover:translate-y-0 translate-y-1 font-normal max-w-[180px]">
+                  {t.dreamDesc}
+                </p>
+              </a>
+
+              {/* Faith */}
+              <a 
+                href="https://dramatise.info/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className={`group relative flex flex-col items-center justify-center text-center gap-3 p-5 rounded-2xl border transition-all duration-300 hover:scale-[1.02] shadow-md min-h-[140px] ${
+                  isRenoir 
+                    ? 'border-amber-900/40 bg-amber-900/10 hover:bg-amber-900/30 hover:border-amber-500/50' 
+                    : 'border-black/10 bg-black/[0.02] hover:bg-black hover:text-white'
+                }`}
+              >
+                <div className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all ${
+                  isRenoir ? 'border-amber-500/30 bg-amber-500/10' : 'border-black/10 bg-black/5 group-hover:border-white/20'
+                }`}>
+                  <Icons.External className="w-5 h-5 opacity-60 group-hover:opacity-100 transition-opacity" />
+                </div>
+                <span className={`text-[10px] md:text-xs font-black uppercase tracking-[0.2em] ${
+                  isRenoir ? 'group-hover:text-amber-400' : 'group-hover:text-red-500'
+                }`}>
+                  {t.faithProject}
+                </span>
+                <p className="text-[10px] leading-snug opacity-0 group-hover:opacity-80 transition-all duration-300 transform group-hover:translate-y-0 translate-y-1 font-normal max-w-[180px]">
+                  {t.faithDesc}
+                </p>
+              </a>
+
+              {/* In memory of Glen Hansard */}
+              <a 
+                href="https://hansard.onrender.com" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className={`group relative flex flex-col items-center justify-center text-center gap-3 p-5 rounded-2xl border transition-all duration-300 hover:scale-[1.02] shadow-md min-h-[140px] ${
+                  isRenoir 
+                    ? 'border-amber-900/40 bg-amber-900/10 hover:bg-amber-900/30 hover:border-amber-500/50' 
+                    : 'border-black/10 bg-black/[0.02] hover:bg-black hover:text-white'
+                }`}
+              >
+                <div className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all ${
+                  isRenoir ? 'border-amber-500/30 bg-amber-500/10' : 'border-black/10 bg-black/5 group-hover:border-white/20'
+                }`}>
+                  <Icons.External className="w-5 h-5 opacity-60 group-hover:opacity-100 transition-opacity" />
+                </div>
+                <span className={`text-[10px] md:text-xs font-black uppercase tracking-[0.2em] ${
+                  isRenoir ? 'group-hover:text-amber-400' : 'group-hover:text-red-500'
+                }`}>
+                  {t.glenHansardProject}
+                </span>
+                <p className="text-[10px] leading-snug opacity-0 group-hover:opacity-80 transition-all duration-300 transform group-hover:translate-y-0 translate-y-1 font-normal max-w-[180px]">
+                  {t.hansardDesc}
+                </p>
+              </a>
+            </div>
+          </div>
+
+          {/* Go to Music prompt */}
+          <div className="flex flex-col items-center justify-center pt-2 pb-2">
+            <button 
+              onClick={() => {
+                document.getElementById('soundcloud-player')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className={`group flex items-center gap-3 py-2 px-5 rounded-full border border-current/10 text-[10px] md:text-xs font-black uppercase tracking-[0.3em] cursor-pointer transition-all duration-300 hover:scale-105 ${
+                isRenoir 
+                  ? 'bg-amber-900/20 text-amber-400 border-amber-500/30 hover:bg-amber-500 hover:text-amber-950' 
+                  : 'bg-black/5 text-black border-black/10 hover:bg-black hover:text-white'
+              }`}
+            >
+              <span>{t.goToMusic}</span>
+              <Icons.ArrowDown className="w-4 h-4 animate-bounce group-hover:translate-y-0.5 transition-transform" />
+            </button>
+          </div>
+
           <div className="flex flex-col lg:flex-row items-center lg:items-center justify-between gap-12 lg:gap-24">
             
             {/* SoundCloud Widget Container */}
@@ -961,37 +1131,71 @@ export const App: React.FC = () => {
             </div>
           </div>
 
-          {/* Footer Back Button */}
-          <div className="pt-20 pb-20 text-center space-y-12">
-            <div className="space-y-4">
-              <span className={`text-[10px] font-black uppercase tracking-[0.6em] opacity-30 ${isRenoir ? 'text-amber-500' : 'text-red-900'}`}>{t.goToOracle}</span>
-              <div className={`h-[1px] w-12 mx-auto ${isRenoir ? 'bg-amber-500/30' : 'bg-red-600/30'}`} />
-            </div>
+          {/* Book / Pilgrimage Section */}
+          <div className="w-full max-w-4xl mx-auto pt-16 pb-4 animate-in fade-in slide-in-from-bottom duration-1000">
+            <a 
+              href="https://vozduh.wordpress.com" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className={`group relative block p-8 md:p-10 rounded-3xl border transition-all duration-500 hover:scale-[1.01] shadow-2xl overflow-hidden ${
+                isRenoir 
+                  ? 'border-amber-700/50 bg-gradient-to-br from-amber-950/80 via-amber-900/30 to-amber-950/90 text-amber-100 hover:border-amber-400 hover:shadow-amber-950/60' 
+                  : 'border-stone-800 bg-stone-900 text-stone-100 hover:border-black hover:bg-stone-950 hover:shadow-2xl'
+              }`}
+            >
+              {/* Background decorative watermark */}
+              <div className="absolute -right-8 -bottom-8 w-44 h-44 opacity-10 pointer-events-none group-hover:scale-125 transition-transform duration-700">
+                <Icons.Book className="w-full h-full" />
+              </div>
 
-            <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16">
-              <button 
-                onClick={() => setActivePage('ORACLE')}
-                className="group relative flex flex-col items-center gap-4 transition-all"
-              >
-                <div className={`w-20 h-20 md:w-24 md:h-24 rounded-full border flex items-center justify-center transition-all duration-700 group-hover:scale-110 shadow-lg ${isRenoir ? 'border-amber-900/30 bg-amber-900/5 group-hover:bg-amber-900/20 group-hover:border-amber-500/50' : 'border-black/5 bg-black/[0.02] group-hover:bg-black group-hover:text-white'}`}>
-                   <Icons.Sparkle className="w-8 h-8 md:w-10 md:h-10 opacity-40 group-hover:opacity-100 transition-opacity" />
+              <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="flex flex-col md:flex-row items-center md:items-start gap-6 text-center md:text-left">
+                  <div className={`w-16 h-16 rounded-2xl border flex items-center justify-center flex-shrink-0 transition-transform duration-500 group-hover:rotate-6 group-hover:scale-110 shadow-inner ${
+                    isRenoir 
+                      ? 'border-amber-500/40 bg-amber-500/10 text-amber-300' 
+                      : 'border-stone-700 bg-stone-800 text-amber-400 group-hover:border-amber-400'
+                  }`}>
+                    <Icons.Book className="w-8 h-8" />
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
+                      <span className={`text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] px-3 py-1 rounded-full border ${
+                        isRenoir 
+                          ? 'border-amber-500/30 text-amber-400 bg-amber-500/10' 
+                          : 'border-amber-500/40 text-amber-300 bg-amber-500/10'
+                      }`}>
+                        {t.bookBadge}
+                      </span>
+                      <span className="text-xs font-mono opacity-60 text-amber-200/70">vozduh.wordpress.com</span>
+                    </div>
+
+                    <h3 className="text-xl md:text-2xl font-serif font-bold tracking-tight text-white group-hover:text-amber-300 transition-colors">
+                      {t.bookTitle}
+                    </h3>
+
+                    <p className="text-xs md:text-sm opacity-80 max-w-xl font-serif italic leading-relaxed text-stone-300">
+                      {t.bookSubtitle}
+                    </p>
+                  </div>
                 </div>
-                <span className={`text-[11px] md:text-sm font-black uppercase tracking-[0.3em] transition-all ${isRenoir ? 'group-hover:text-amber-500' : 'group-hover:text-red-600'}`}>{t.oracle}</span>
-              </button>
 
-              <a 
-                href="https://dreamjung.onrender.com/" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="group relative flex flex-col items-center gap-4 transition-all"
-              >
-                <div className={`w-20 h-20 md:w-24 md:h-24 rounded-full border flex items-center justify-center transition-all duration-700 group-hover:scale-110 shadow-lg ${isRenoir ? 'border-amber-900/30 bg-amber-900/5 group-hover:bg-amber-900/20 group-hover:border-amber-500/50' : 'border-black/5 bg-black/[0.02] group-hover:bg-black group-hover:text-white'}`}>
-                   <Icons.Mind className="w-8 h-8 md:w-10 md:h-10 opacity-40 group-hover:opacity-100 transition-opacity" />
+                <div className="flex items-center gap-3 flex-shrink-0 pt-2 md:pt-0">
+                  <span className={`text-xs md:text-sm font-black uppercase tracking-[0.2em] px-5 py-2.5 rounded-xl border transition-all ${
+                    isRenoir 
+                      ? 'border-amber-500/40 bg-amber-500/20 text-amber-300 group-hover:bg-amber-500 group-hover:text-amber-950' 
+                      : 'border-amber-500/40 bg-stone-800 text-amber-300 group-hover:bg-amber-400 group-hover:text-stone-950'
+                  }`}>
+                    {t.bookRead}
+                  </span>
+                  <Icons.External className="w-4 h-4 opacity-80 group-hover:opacity-100 group-hover:translate-x-1 transition-all text-amber-300" />
                 </div>
-                <span className={`text-[11px] md:text-sm font-black uppercase tracking-[0.3em] transition-all ${isRenoir ? 'group-hover:text-amber-500' : 'group-hover:text-red-600'}`}>{t.dreamAnalysis}</span>
-              </a>
-            </div>
+              </div>
+            </a>
+          </div>
 
+          {/* Footer Instructions Section */}
+          <div className="pt-16 pb-20 text-center space-y-6">
             <div className="max-w-xl mx-auto space-y-6 px-6">
               <p className={`text-xs md:text-sm leading-relaxed opacity-60 ${isRenoir ? 'text-amber-100/80' : 'text-black/70'}`}>
                 {t.oracleDescription}

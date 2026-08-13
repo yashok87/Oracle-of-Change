@@ -22,6 +22,17 @@
     <link rel="manifest" href="./manifest.json" />
     <link rel="apple-touch-icon" href="https://api.dicebear.com/9.x/shapes/png?seed=Oracle&size=192&backgroundColor=000000" />
     
+    <script type="module">
+      try {
+        const RefreshRuntime = (await import('/@react-refresh')).default;
+        if (RefreshRuntime) {
+          RefreshRuntime.injectIntoGlobalHook(window);
+          window.$RefreshReg$ = () => {};
+          window.$RefreshSig$ = () => (type) => type;
+        }
+      } catch (e) {}
+      window.__vite_plugin_react_preamble_installed__ = true;
+    </script>
     <script src="https://w.soundcloud.com/player/api.js" async></script>
     
     <link rel="preconnect" href="https://image.pollinations.ai" />
@@ -102,6 +113,6 @@
   <body>
     <div id="root"></div>
     <div class="bg-grain"></div>
-    <script type="module" src="./index.tsx"></script>
+    <script type="module" src="/index.tsx"></script>
   </body>
 </html>
