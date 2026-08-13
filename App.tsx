@@ -2438,9 +2438,9 @@ export const App: React.FC = () => {
                        }`}>
                          <div className="flex flex-col text-left truncate pr-2">
                             <span className={`text-[9px] font-black uppercase mb-1 tracking-widest opacity-100 ${isRenoir ? 'text-amber-400 group-hover:text-amber-950' : 'text-red-600 group-hover:text-red-400'}`}>REF. {(i+1).toString().padStart(2, '0')}</span>
-                            <span className={`text-[11px] font-black uppercase leading-tight truncate max-w-[240px] opacity-100 ${isRenoir ? 'text-amber-100 group-hover:text-amber-950' : 'text-black group-hover:text-white'}`}>{s?.title || "Source"}</span>
+                            <span className={`text-[11px] font-black uppercase leading-tight truncate max-w-[240px] opacity-100 ${isRenoir ? 'text-amber-100 group-hover:text-amber-950' : 'text-black group-hover:text-red-600'}`}>{s?.title || "Source"}</span>
                          </div>
-                         <Icons.External className={`w-4 h-4 flex-shrink-0 opacity-100 ${isRenoir ? 'text-amber-400 group-hover:text-amber-950' : 'text-black group-hover:text-white'}`} />
+                         <Icons.External className={`w-4 h-4 flex-shrink-0 opacity-100 ${isRenoir ? 'text-amber-400 group-hover:text-amber-950' : 'text-black group-hover:text-red-600'}`} />
                        </a>
                       ))}
                       
