@@ -125,6 +125,7 @@ const TRANSLATIONS = {
     jacobMusic: "Jacob Kelbert's Music",
     youtubeChannel: "YouTube Channel",
     readMe: "(what I am, read me)",
+    otherProjects: "(other projects)",
     aboutTitle: "The Oracle\nof Chance",
     aboutSubtitle: "Information Engine & Philosophical Council",
     aboutPara1: "Oracle of Chance is an engine for knowledge, similar to any search engine, powered by the AI, which is designed to give information, compare entities or give advice on life matters.",
@@ -183,6 +184,7 @@ const TRANSLATIONS = {
     jacobMusic: "Музыка Якова Кельберта",
     youtubeChannel: "Видео на YouTube",
     readMe: "(кто я, прочти меня)",
+    otherProjects: "(другие проекты)",
     aboutTitle: "Оракул\nШанса",
     aboutSubtitle: "Движок знаний и Философский совет",
     aboutPara1: "Оракул Шанса — это поисковик знаний, подобный любой поисковой системе, работающий на базе ИИ. Он создан для предоставления информации, сравнения сущностей или получения советов по жизненным вопросам.",
@@ -840,13 +842,13 @@ export const App: React.FC = () => {
                 <div className="group-hover:translate-x-3 transition-transform duration-500 space-y-2">
                   <button 
                     onClick={() => { setActivePage('ORACLE'); setIsSideMenuOpen(false); }}
-                    className="block text-xl md:text-2xl font-black uppercase tracking-tighter leading-none"
+                    className="block text-xl md:text-2xl font-black uppercase tracking-tighter leading-none cursor-pointer"
                   >
                     {t.oracle}
                   </button>
                   <button 
                     onClick={() => { setActivePage('ABOUT'); setIsSideMenuOpen(false); }}
-                    className="block opacity-40 hover:opacity-100 transition-opacity"
+                    className="block opacity-40 hover:opacity-100 transition-opacity cursor-pointer"
                   >
                     <span className="text-[8px] md:text-[9px] font-bold uppercase tracking-widest leading-none">
                       {t.readMe}
@@ -855,23 +857,50 @@ export const App: React.FC = () => {
                 </div>
               </div>
   
-              <a 
-                href="https://dreamjung.onrender.com/" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                onClick={() => setIsSideMenuOpen(false)}
-                className="group block space-y-2 transition-all outline-none"
-              >
+              <div className="group space-y-2 transition-all outline-none">
                 <div className="flex items-center gap-3">
                    <span className="text-[10px] font-black uppercase tracking-widest opacity-20 group-hover:opacity-100 transition-opacity">02</span>
                    <div className={`h-px w-0 group-hover:w-4 transition-all duration-300 ${isRenoir ? 'bg-amber-500' : 'bg-red-600'}`} />
                 </div>
-                <span className="block text-xl md:text-2xl font-black uppercase tracking-tighter group-hover:translate-x-3 transition-transform duration-500 leading-none">{t.dreamAnalysis}</span>
-              </a>
+                <div className="group-hover:translate-x-3 transition-transform duration-500 space-y-2">
+                  <a 
+                    href="https://dreamjung.onrender.com/" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    onClick={() => setIsSideMenuOpen(false)}
+                    className="block text-xl md:text-2xl font-black uppercase tracking-tighter leading-none cursor-pointer"
+                  >
+                    {t.dreamAnalysis}
+                  </a>
+                  <button 
+                    onClick={() => { 
+                      setActivePage('MUSIC'); 
+                      setIsSideMenuOpen(false); 
+                      setTimeout(() => {
+                        const container = document.getElementById('jacob-music-page-container');
+                        if (container) {
+                          container.scrollTo({ top: 0, behavior: 'smooth' });
+                        }
+                      }, 100);
+                    }}
+                    className="block opacity-40 hover:opacity-100 transition-opacity cursor-pointer text-left"
+                  >
+                    <span className="text-[8px] md:text-[9px] font-bold uppercase tracking-widest leading-none">
+                      {t.otherProjects}
+                    </span>
+                  </button>
+                </div>
+              </div>
   
               <button 
-                onClick={() => { setActivePage('MUSIC'); setIsSideMenuOpen(false); }}
-                className="group text-left space-y-2 transition-all outline-none"
+                onClick={() => { 
+                  setActivePage('MUSIC'); 
+                  setIsSideMenuOpen(false); 
+                  setTimeout(() => {
+                    document.getElementById('music-section')?.scrollIntoView({ behavior: 'smooth' });
+                  }, 100);
+                }}
+                className="group text-left space-y-2 transition-all outline-none cursor-pointer"
               >
                 <div className="flex items-center gap-3">
                    <span className="text-[10px] font-black uppercase tracking-widest opacity-20 group-hover:opacity-100 transition-opacity">03</span>
@@ -882,7 +911,7 @@ export const App: React.FC = () => {
 
               <button 
                 onClick={() => { setActivePage('BOOK'); setIsSideMenuOpen(false); }}
-                className="group text-left space-y-2 transition-all outline-none"
+                className="group text-left space-y-2 transition-all outline-none cursor-pointer"
               >
                 <div className="flex items-center gap-3">
                    <span className="text-[10px] font-black uppercase tracking-widest opacity-20 group-hover:opacity-100 transition-opacity">04</span>
@@ -890,20 +919,6 @@ export const App: React.FC = () => {
                 </div>
                 <span className="block text-xl md:text-2xl font-black uppercase tracking-tighter group-hover:translate-x-3 transition-transform duration-500 leading-none">{t.bookBadge}</span>
               </button>
-
-              <a 
-                href="https://www.youtube.com/@yashok" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                onClick={() => setIsSideMenuOpen(false)}
-                className="group block space-y-2 transition-all outline-none"
-              >
-                <div className="flex items-center gap-3">
-                   <span className="text-[10px] font-black uppercase tracking-widest opacity-20 group-hover:opacity-100 transition-opacity">05</span>
-                   <div className={`h-px w-0 group-hover:w-4 transition-all duration-300 ${isRenoir ? 'bg-amber-500' : 'bg-red-600'}`} />
-                </div>
-                <span className="block text-xl md:text-2xl font-black uppercase tracking-tighter group-hover:translate-x-3 transition-transform duration-500 leading-none">{t.youtubeChannel}</span>
-              </a>
             </nav>
           </div>
   
@@ -1117,73 +1132,104 @@ export const App: React.FC = () => {
           <div className="py-6 md:py-10" />
 
           {/* Section 2: Music Section */}
-          <div id="music-section" className="flex flex-col lg:flex-row items-center lg:items-center justify-between gap-12 lg:gap-24 pt-4">
-            
-            {/* SoundCloud Widget Container */}
-            <div className="w-full lg:w-1/2 flex flex-col items-center gap-8">
-              <div className={`w-full max-w-[500px] aspect-[4/3] md:aspect-[560/450] shadow-[0_30px_100px_-20px_rgba(0,0,0,0.15)] rounded-2xl overflow-hidden bg-black/5 animate-in zoom-in-95 duration-1000 ${isRenoir ? 'border border-amber-900/40' : ''}`}>
-                 <iframe 
-                   id="soundcloud-player"
-                   width="100%" 
-                   height="100%" 
-                   scrolling="no" 
-                   frameBorder="no" 
-                   allow="autoplay" 
-                   src="https://w.soundcloud.com/player/?url=https://soundcloud.com/ykelbert&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true"
-                 >
-                   <a href="https://womanitely.com" style={{ display: 'none' }}>Womanitely.com</a>
-                 </iframe>
+          <div id="music-section" className="space-y-12 lg:space-y-16 pt-4">
+            <div className="flex flex-col lg:flex-row items-center lg:items-center justify-between gap-12 lg:gap-24">
+              {/* SoundCloud Widget Container */}
+              <div className="w-full lg:w-1/2 flex flex-col items-center gap-8">
+                <div className={`w-full max-w-[500px] aspect-[4/3] md:aspect-[560/450] shadow-[0_30px_100px_-20px_rgba(0,0,0,0.15)] rounded-2xl overflow-hidden bg-black/5 animate-in zoom-in-95 duration-1000 ${isRenoir ? 'border border-amber-900/40' : ''}`}>
+                   <iframe 
+                     id="soundcloud-player"
+                     width="100%" 
+                     height="100%" 
+                     scrolling="no" 
+                     frameBorder="no" 
+                     allow="autoplay" 
+                     src="https://w.soundcloud.com/player/?url=https://soundcloud.com/ykelbert&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true"
+                   >
+                     <a href="https://womanitely.com" style={{ display: 'none' }}>Womanitely.com</a>
+                   </iframe>
+                </div>
+
+                {/* Mobile/External Player Controls */}
+                <div className="flex items-center gap-8 md:gap-12 animate-in fade-in slide-in-from-bottom duration-1000 delay-300">
+                  <button onClick={handlePrev} className="group p-2 transition-transform active:scale-90 cursor-pointer">
+                    <Icons.ArrowLeft className="w-5 h-5 opacity-40 group-hover:opacity-100 group-hover:text-red-600 transition-all" />
+                  </button>
+                  <button 
+                    onClick={handleMusicToggle}
+                    className={`w-14 h-14 rounded-full flex items-center justify-center transition-all active:scale-95 shadow-xl cursor-pointer ${isRenoir ? 'bg-amber-100 text-[#0f0505] hover:bg-amber-500 hover:text-white' : 'bg-black text-white hover:bg-red-600'}`}
+                  >
+                    {isMusicMuted ? (
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                    ) : (
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                    )}
+                  </button>
+                  <button onClick={handleNext} className="group p-2 transition-transform active:scale-90 rotate-180 cursor-pointer">
+                    <Icons.ArrowLeft className="w-5 h-5 opacity-40 group-hover:opacity-100 group-hover:text-red-600 transition-all" />
+                  </button>
+                </div>
               </div>
 
-              {/* Mobile/External Player Controls */}
-              <div className="flex items-center gap-8 md:gap-12 animate-in fade-in slide-in-from-bottom duration-1000 delay-300">
-                <button onClick={handlePrev} className="group p-2 transition-transform active:scale-90">
-                  <Icons.ArrowLeft className="w-5 h-5 opacity-40 group-hover:opacity-100 group-hover:text-red-600 transition-all" />
-                </button>
-                <button 
-                  onClick={handleMusicToggle}
-                  className={`w-14 h-14 rounded-full flex items-center justify-center transition-all active:scale-95 shadow-xl ${isRenoir ? 'bg-amber-100 text-[#0f0505] hover:bg-amber-500 hover:text-white' : 'bg-black text-white hover:bg-red-600'}`}
-                >
-                  {isMusicMuted ? (
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-                  ) : (
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
-                  )}
-                </button>
-                <button onClick={handleNext} className="group p-2 transition-transform active:scale-90 rotate-180">
-                  <Icons.ArrowLeft className="w-5 h-5 opacity-40 group-hover:opacity-100 group-hover:text-red-600 transition-all" />
-                </button>
+              {/* Links Section */}
+              <div className="w-full lg:w-1/2 space-y-8 flex flex-col items-center lg:items-start">
+                <div className="space-y-2 text-center lg:text-left">
+                  <span className="text-[10px] font-black uppercase tracking-[0.5em] opacity-30">{t.musicConnect}</span>
+                  <div className={`h-[1px] w-12 mx-auto lg:mx-0 ${isRenoir ? 'bg-amber-500/30' : 'bg-red-600/30'}`} />
+                </div>
+                
+                <div className="flex flex-col gap-6 items-center lg:items-start w-full">
+                  {[
+                    { url: "https://soundcloud.com/ykelbert" },
+                    { url: "https://www.youtube.com/@yashok" },
+                    { url: "https://jkelbert.bandcamp.com/" },
+                    { url: "https://j-kelbert-shop.fourthwall.com/" },
+                    { url: "https://bnd.link/ykelbert" },
+                    { url: "https://dramatise.atabook.org/" }
+                  ].map((link, idx) => (
+                    <a 
+                      key={idx}
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group relative flex items-center gap-4 transition-all"
+                    >
+                      <span className="text-[9px] font-mono opacity-20 group-hover:opacity-100 transition-opacity">0{idx + 1}</span>
+                      <span className={`text-xs md:text-sm font-black uppercase tracking-[0.3em] transition-colors border-b pb-1 ${isRenoir ? 'group-hover:text-amber-500 border-amber-100/5 group-hover:border-amber-500/30' : 'group-hover:text-red-600 border-black/5 group-hover:border-red-600/30'}`}>
+                        {t.musicLabels[idx] || "Link"}
+                      </span>
+                    </a>
+                  ))}
+                </div>
               </div>
             </div>
 
-            {/* Links Section */}
-            <div className="w-full lg:w-1/2 space-y-8 flex flex-col items-center lg:items-start">
-              <div className="space-y-2 text-center lg:text-left">
-                <span className="text-[10px] font-black uppercase tracking-[0.5em] opacity-30">{t.musicConnect}</span>
-                <div className={`h-[1px] w-12 mx-auto lg:mx-0 ${isRenoir ? 'bg-amber-500/30' : 'bg-red-600/30'}`} />
-              </div>
-              
-              <div className="flex flex-col gap-6 items-center lg:items-start w-full">
+            {/* YouTube Videos Section */}
+            <div className="w-full max-w-5xl mx-auto pt-6 border-t border-current/10 animate-in fade-in slide-in-from-bottom duration-1000">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
                 {[
-                  { url: "https://soundcloud.com/ykelbert" },
-                  { url: "https://www.youtube.com/@yashok" },
-                  { url: "https://jkelbert.bandcamp.com/" },
-                  { url: "https://j-kelbert-shop.fourthwall.com/" },
-                  { url: "https://bnd.link/ykelbert" },
-                  { url: "https://dramatise.atabook.org/" }
-                ].map((link, idx) => (
-                  <a 
-                    key={idx}
-                    href={link.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group relative flex items-center gap-4 transition-all"
+                  { id: "lanBXjBw18U", title: "Dance Like It's Not The End" },
+                  { id: "8CrSxAMViN4", title: "Jacob Kelbert — Acoustic Track" },
+                  { id: "AFYLVJ_8JhM", title: "Jacob Kelbert — Song" }
+                ].map((video, vIdx) => (
+                  <div 
+                    key={vIdx}
+                    className={`group flex flex-col rounded-2xl border overflow-hidden transition-all duration-500 hover:scale-[1.02] shadow-md hover:shadow-2xl ${
+                      isRenoir 
+                        ? 'border-amber-900/40 bg-amber-950/40 hover:border-amber-500/60' 
+                        : 'border-stone-200 bg-stone-50/50 hover:border-black/30'
+                    }`}
                   >
-                    <span className="text-[9px] font-mono opacity-20 group-hover:opacity-100 transition-opacity">0{idx + 1}</span>
-                    <span className={`text-xs md:text-sm font-black uppercase tracking-[0.3em] transition-colors border-b pb-1 ${isRenoir ? 'group-hover:text-amber-500 border-amber-100/5 group-hover:border-amber-500/30' : 'group-hover:text-red-600 border-black/5 group-hover:border-red-600/30'}`}>
-                      {t.musicLabels[idx] || "Link"}
-                    </span>
-                  </a>
+                    <div className="relative w-full aspect-video bg-black/60 overflow-hidden">
+                      <iframe 
+                        className="w-full h-full border-0"
+                        src={`https://www.youtube-nocookie.com/embed/${video.id}`}
+                        title={video.title}
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allowFullScreen
+                      />
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>
