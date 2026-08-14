@@ -140,25 +140,33 @@ a,
 /* High-Fidelity Print & PDF Styles */
 @media print {
   @page {
-    margin: 1.8cm 1.5cm;
+    margin: 20mm 16mm;
     size: A4 portrait;
   }
   
-  html, body {
+  html, body, #root, #book_reader_wrapper {
     background: #ffffff !important;
     color: #111111 !important;
     font-size: 11pt !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    position: static !important;
   }
 
-  /* Hide navigation, UI controls, search bar, modals during print/PDF */
+  /* Hide navigation, UI controls, search bar, modals, backdrops during print */
   #book_reader_header,
   #book_editor_login_btn,
   #ai_translation_notice_banner,
   #book_search_input,
+  #oracle_background,
+  header,
+  nav,
   .no-print,
   button,
-  .fixed,
-  .sticky {
+  .backdrop-blur-md,
+  .backdrop-blur-xl {
     display: none !important;
   }
 
@@ -169,6 +177,9 @@ a,
     max-width: 100% !important;
     background: #ffffff !important;
     color: #111111 !important;
+    position: static !important;
+    overflow: visible !important;
+    height: auto !important;
   }
 
   #book_title_section {
@@ -176,6 +187,7 @@ a,
     margin-bottom: 2cm !important;
     border-bottom: 2px solid #333333 !important;
     page-break-after: avoid;
+    break-after: avoid;
   }
 
   h1 {
@@ -193,7 +205,7 @@ a,
 
   p {
     font-size: 11pt !important;
-    line-height: 1.6 !important;
+    line-height: 1.65 !important;
     text-align: justify !important;
     orphans: 3;
     widows: 3;
@@ -205,6 +217,7 @@ a,
     padding-left: 12pt !important;
     font-style: italic !important;
     page-break-inside: avoid;
+    break-inside: avoid;
   }
 
   figure {

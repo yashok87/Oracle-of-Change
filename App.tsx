@@ -2690,7 +2690,7 @@ export const App: React.FC = () => {
        {JacobMusicPage}
        {AboutPage}
        {activePage === 'BOOK' && (
-         <div className="fixed inset-0 z-[3000] overflow-y-auto">
+         <div id="book_reader_wrapper" className="fixed inset-0 z-[3000] overflow-y-auto">
            <BookReader
              onBack={() => setActivePage('MUSIC')}
              initialLang={uiLanguage === 'RU' ? 'ru' : 'en'}

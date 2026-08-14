@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { BookDocument, BookBlock } from '../src/bookTypes';
 import { fetchBookDocument, saveBookDocument, subscribeToBookDocument } from '../src/bookService';
 import { INITIAL_RU_DOC, INITIAL_EN_DOC } from '../src/initialBookData';
+import { printBookToPDF } from '../src/bookPrintHelper';
 
 interface BookReaderProps {
   onBack: () => void;
@@ -148,22 +149,19 @@ export const BookReader: React.FC<BookReaderProps> = ({
     }
   };
 
-  // Download PDF handler - triggers clean print-to-PDF formatting
-  const handleDownloadPDF = () => {
-    const prevTitle = document.title;
-    const author = lang === 'ru' ? 'Яков Кельберт' : 'Jacob Kelbert';
-    const bookTitle = doc.title || (lang === 'ru' ? 'Прогулки по острову' : 'Walks Around the Island');
-    document.title = `${author} - ${bookTitle}`;
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
 
-    // Clear search so all chapters/blocks are included in the generated PDF
-    if (searchQuery) {
-      setSearchQuery('');
+  // Download PDF handler - triggers standalone publication-grade PDF print
+  const handleDownloadPDF = async () => {
+    if (isGeneratingPdf) return;
+    setIsGeneratingPdf(true);
+    try {
+      await printBookToPDF(doc, lang);
+    } catch (err) {
+      console.error('PDF export failed:', err);
+    } finally {
+      setIsGeneratingPdf(false);
     }
-
-    setTimeout(() => {
-      window.print();
-      document.title = prevTitle;
-    }, 150);
   };
 
   // Handle Login submission
