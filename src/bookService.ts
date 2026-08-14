@@ -10,13 +10,15 @@ export async function fetchBookDocument(lang: 'ru' | 'en'): Promise<BookDocument
     const docRef = doc(db, COLLECTION_NAME, docId);
     const snap = await getDoc(docRef);
     if (snap.exists()) {
-      return snap.data() as BookDocument;
-    } else {
-      // Initialize with base scraped content
-      const initial = lang === 'ru' ? INITIAL_RU_DOC : INITIAL_EN_DOC;
-      await setDoc(docRef, initial);
-      return initial;
+      const data = snap.data() as BookDocument;
+      if (data && Array.isArray(data.blocks) && data.blocks.length > 0) {
+        return data;
+      }
     }
+    // Initialize with base content
+    const initial = lang === 'ru' ? INITIAL_RU_DOC : INITIAL_EN_DOC;
+    await setDoc(docRef, initial);
+    return initial;
   } catch (err) {
     console.warn(`Firestore read failed, falling back to local snapshot for ${lang}:`, err);
     return lang === 'ru' ? INITIAL_RU_DOC : INITIAL_EN_DOC;
