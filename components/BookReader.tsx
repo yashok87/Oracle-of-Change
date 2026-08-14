@@ -69,6 +69,13 @@ export const BookReader: React.FC<BookReaderProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [activeImageZoom, setActiveImageZoom] = useState<string | null>(null);
 
+  // Editor Search & Navigation state
+  const [editorSearchQuery, setEditorSearchQuery] = useState('');
+  const [editorMatchIndex, setEditorMatchIndex] = useState(0);
+  const [editorShowOnlyMatches, setEditorShowOnlyMatches] = useState(false);
+  const editorCanvasRef = useRef<HTMLDivElement>(null);
+  const blockRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
+
   const isRenoir = theme === 'IMPRESSIONIST';
 
   // Synchronize language when prop changes
@@ -141,6 +148,24 @@ export const BookReader: React.FC<BookReaderProps> = ({
     }
   };
 
+  // Download PDF handler - triggers clean print-to-PDF formatting
+  const handleDownloadPDF = () => {
+    const prevTitle = document.title;
+    const author = lang === 'ru' ? 'Яков Кельберт' : 'Jacob Kelbert';
+    const bookTitle = doc.title || (lang === 'ru' ? 'Прогулки по острову' : 'Walks Around the Island');
+    document.title = `${author} - ${bookTitle}`;
+
+    // Clear search so all chapters/blocks are included in the generated PDF
+    if (searchQuery) {
+      setSearchQuery('');
+    }
+
+    setTimeout(() => {
+      window.print();
+      document.title = prevTitle;
+    }, 150);
+  };
+
   // Handle Login submission
   const handleLoginSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -150,6 +175,8 @@ export const BookReader: React.FC<BookReaderProps> = ({
       setPasswordInput('');
       setLoginError('');
       setEditBlocks(JSON.parse(JSON.stringify(doc.blocks)));
+      setEditorSearchQuery('');
+      setEditorShowOnlyMatches(false);
       setIsEditorOpen(true);
     } else {
       setLoginError(lang === 'ru' ? 'Неверный пароль' : 'Incorrect password');
@@ -159,6 +186,8 @@ export const BookReader: React.FC<BookReaderProps> = ({
   const handleOpenEditor = () => {
     if (isAuthenticated) {
       setEditBlocks(JSON.parse(JSON.stringify(doc.blocks)));
+      setEditorSearchQuery('');
+      setEditorShowOnlyMatches(false);
       setIsEditorOpen(true);
     } else {
       setIsLoginModalOpen(true);
@@ -234,6 +263,14 @@ export const BookReader: React.FC<BookReaderProps> = ({
     };
     setEditBlocks(prev => [...prev, newBlock]);
     setActiveEditIndex(editBlocks.length);
+    setTimeout(() => {
+      if (editorCanvasRef.current) {
+        editorCanvasRef.current.scrollTo({
+          top: editorCanvasRef.current.scrollHeight,
+          behavior: 'smooth'
+        });
+      }
+    }, 100);
   };
 
   const handleDeleteBlock = (index: number) => {
@@ -262,6 +299,34 @@ export const BookReader: React.FC<BookReaderProps> = ({
     } catch (err: any) {
       setSaveStatus('error');
       setSaveErrorMsg(err?.message || 'Failed to save to Firestore');
+    }
+  };
+
+  // Editor Search Matches Indices
+  const editorMatchingIndices = useMemo(() => {
+    if (!editorSearchQuery.trim()) return [];
+    const q = editorSearchQuery.toLowerCase().trim();
+    const indices: number[] = [];
+    editBlocks.forEach((b, i) => {
+      const matchText = b.text && b.text.toLowerCase().includes(q);
+      const matchCaption = b.caption && b.caption.toLowerCase().includes(q);
+      if (matchText || matchCaption) {
+        indices.push(i);
+      }
+    });
+    return indices;
+  }, [editBlocks, editorSearchQuery]);
+
+  // Navigate matching search results in editor
+  const handleNavigateEditorMatch = (direction: 1 | -1) => {
+    if (editorMatchingIndices.length === 0) return;
+    const nextIdx = (editorMatchIndex + direction + editorMatchingIndices.length) % editorMatchingIndices.length;
+    setEditorMatchIndex(nextIdx);
+    const targetBlockIndex = editorMatchingIndices[nextIdx];
+    setActiveEditIndex(targetBlockIndex);
+    const el = blockRefs.current[targetBlockIndex];
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   };
 
@@ -561,6 +626,23 @@ export const BookReader: React.FC<BookReaderProps> = ({
               </button>
             </div>
 
+            {/* Download PDF button */}
+            <button
+              id="book_download_pdf_header_btn"
+              onClick={handleDownloadPDF}
+              className={`px-3 py-1.5 rounded-full border text-xs font-mono flex items-center gap-1.5 transition-all active:scale-95 shadow-xs cursor-pointer ${
+                isRenoir
+                  ? 'border-amber-800/60 bg-amber-950/50 text-amber-200 hover:bg-amber-900/60'
+                  : 'border-black/10 bg-white/70 text-stone-800 hover:bg-black/5'
+              }`}
+              title={lang === 'ru' ? 'Скачать PDF версию книги (Печать)' : 'Download PDF of book (Print)'}
+            >
+              <svg className="w-3.5 h-3.5 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <span>{lang === 'ru' ? 'PDF' : 'PDF'}</span>
+            </button>
+
             {/* Editor Login / Access Button */}
             <button
               id="book_editor_login_btn"
@@ -652,6 +734,18 @@ export const BookReader: React.FC<BookReaderProps> = ({
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
               </svg>
             </a>
+            <span>•</span>
+            <button
+              id="book_download_pdf_hero_btn"
+              onClick={handleDownloadPDF}
+              className="underline hover:opacity-100 flex items-center gap-1.5 font-semibold text-rose-600 dark:text-rose-400 cursor-pointer"
+              title={lang === 'ru' ? 'Скачать книгу в формате PDF' : 'Download Book as PDF'}
+            >
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <span>{lang === 'ru' ? 'Скачать PDF книги' : 'Download PDF of book'}</span>
+            </button>
             <span>•</span>
             <span>{doc.blocks.length} {lang === 'ru' ? 'фрагментов' : 'sections'}</span>
             {doc.updatedAt && (
@@ -806,7 +900,7 @@ export const BookReader: React.FC<BookReaderProps> = ({
           <div className="flex flex-wrap items-center justify-center gap-3 text-xs font-mono pt-2">
             <button
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-              className={`px-4 py-2 rounded-full border transition-all hover:scale-105 active:scale-95 ${
+              className={`px-4 py-2 rounded-full border transition-all hover:scale-105 active:scale-95 cursor-pointer ${
                 isRenoir
                   ? 'border-amber-800 bg-amber-950/60 text-amber-200 hover:bg-amber-900/60'
                   : 'border-stone-300 bg-white text-stone-800 hover:bg-stone-50'
@@ -814,9 +908,26 @@ export const BookReader: React.FC<BookReaderProps> = ({
             >
               ↑ {lang === 'ru' ? 'Наверх' : 'Back to top'}
             </button>
+
+            <button
+              id="book_download_pdf_footer_btn"
+              onClick={handleDownloadPDF}
+              className={`px-4 py-2 rounded-full border transition-all hover:scale-105 active:scale-95 flex items-center gap-1.5 cursor-pointer ${
+                isRenoir
+                  ? 'border-rose-900/50 bg-rose-950/40 text-rose-200 hover:bg-rose-900/60'
+                  : 'border-rose-300/60 bg-rose-50 text-rose-900 hover:bg-rose-100'
+              }`}
+              title={lang === 'ru' ? 'Скачать всю книгу в PDF формате' : 'Download Full Book in PDF'}
+            >
+              <svg className="w-4 h-4 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <span>{lang === 'ru' ? 'Скачать книгу (PDF)' : 'Download Book (PDF)'}</span>
+            </button>
+
             <button
               onClick={handleOpenEditor}
-              className={`px-4 py-2 rounded-full border transition-all hover:scale-105 active:scale-95 ${
+              className={`px-4 py-2 rounded-full border transition-all hover:scale-105 active:scale-95 cursor-pointer ${
                 isRenoir
                   ? 'bg-amber-600/20 text-amber-200 border-amber-600/40 hover:bg-amber-600/30'
                   : 'bg-red-600/10 text-red-900 border-red-600/20 hover:bg-red-600/20'
@@ -976,7 +1087,7 @@ export const BookReader: React.FC<BookReaderProps> = ({
             className="fixed inset-0 z-50 bg-stone-950/95 backdrop-blur-xl flex flex-col"
           >
             {/* RIBBON HEADER */}
-            <div className="bg-stone-900 text-stone-100 border-b border-stone-800 px-4 py-3 flex flex-wrap items-center justify-between gap-3 shrink-0 shadow-lg">
+            <div className="bg-stone-900 text-stone-100 border-b border-stone-800 px-4 py-3 flex flex-wrap items-center justify-between gap-3 shrink-0 shadow-lg z-20">
               
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center font-bold text-white shadow-md">
@@ -992,16 +1103,86 @@ export const BookReader: React.FC<BookReaderProps> = ({
                     </span>
                   </div>
                   <div className="text-[11px] text-stone-400 font-mono">
-                    Firebase Firestore Sync • {editBlocks.length} {lang === 'ru' ? 'фрагментов' : 'blocks'}
+                    Firebase Sync • {editBlocks.length} {lang === 'ru' ? 'фрагментов' : 'blocks'}
                   </div>
                 </div>
+              </div>
+
+              {/* EDITOR SEARCH BAR */}
+              <div className="flex items-center gap-1.5 bg-stone-950 border border-stone-700 rounded-lg px-2.5 py-1.5 shadow-inner">
+                <svg className="w-3.5 h-3.5 text-stone-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input
+                  id="editor_search_input"
+                  type="text"
+                  value={editorSearchQuery}
+                  onChange={(e) => {
+                    setEditorSearchQuery(e.target.value);
+                    setEditorMatchIndex(0);
+                  }}
+                  placeholder={lang === 'ru' ? 'Поиск в тексте редактора...' : 'Search editor text...'}
+                  className="bg-transparent text-stone-100 placeholder-stone-400 text-xs focus:outline-none w-36 sm:w-52"
+                />
+                
+                {editorSearchQuery && (
+                  <div className="flex items-center gap-1.5 text-[11px] font-mono border-l border-stone-700 pl-1.5">
+                    <span className="text-amber-400 whitespace-nowrap">
+                      {editorMatchingIndices.length > 0
+                        ? `${editorMatchIndex + 1}/${editorMatchingIndices.length}`
+                        : (lang === 'ru' ? '0' : '0')}
+                    </span>
+
+                    {editorMatchingIndices.length > 0 && (
+                      <div className="flex items-center gap-0.5">
+                        <button
+                          onClick={() => handleNavigateEditorMatch(-1)}
+                          className="w-5 h-5 rounded hover:bg-stone-800 text-stone-300 flex items-center justify-center cursor-pointer transition-colors"
+                          title="Previous match (▲)"
+                        >
+                          ▲
+                        </button>
+                        <button
+                          onClick={() => handleNavigateEditorMatch(1)}
+                          className="w-5 h-5 rounded hover:bg-stone-800 text-stone-300 flex items-center justify-center cursor-pointer transition-colors"
+                          title="Next match (▼)"
+                        >
+                          ▼
+                        </button>
+                      </div>
+                    )}
+
+                    <button
+                      onClick={() => setEditorShowOnlyMatches(!editorShowOnlyMatches)}
+                      className={`px-1.5 py-0.5 rounded text-[10px] uppercase font-mono cursor-pointer transition-colors ${
+                        editorShowOnlyMatches
+                          ? 'bg-amber-500 text-stone-950 font-bold'
+                          : 'text-stone-400 hover:text-stone-200'
+                      }`}
+                      title={lang === 'ru' ? 'Показать только совпадения' : 'Show matches only'}
+                    >
+                      {editorShowOnlyMatches ? (lang === 'ru' ? 'Фильтр ВКЛ' : 'Filter ON') : (lang === 'ru' ? 'Фильтр' : 'Filter')}
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setEditorSearchQuery('');
+                        setEditorShowOnlyMatches(false);
+                      }}
+                      className="text-stone-400 hover:text-stone-200 ml-1 text-xs cursor-pointer"
+                      title="Clear search"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* SAVE / ACTIONS */}
               <div className="flex items-center gap-2">
                 {saveStatus === 'saved' && (
                   <span className="text-xs text-emerald-400 font-mono flex items-center gap-1">
-                    ✓ {lang === 'ru' ? 'Сохранено в Firebase' : 'Saved to Firebase'}
+                    ✓ {lang === 'ru' ? 'Сохранено' : 'Saved'}
                   </span>
                 )}
                 {saveStatus === 'error' && (
@@ -1031,8 +1212,11 @@ export const BookReader: React.FC<BookReaderProps> = ({
               </div>
             </div>
 
-            {/* EDITOR CANVAS CONTAINER WITH FULL-HEIGHT CONTINUOUS WHITE SHEET */}
-            <div className="flex-1 overflow-y-auto p-4 sm:p-8 bg-[#1e1e1e] flex justify-center items-start">
+            {/* EDITOR CANVAS CONTAINER WITH PROMINENT VISIBLE SCROLLBAR */}
+            <div
+              ref={editorCanvasRef}
+              className="flex-1 w-full overflow-y-scroll editor-scrollbar p-4 sm:p-8 bg-[#1e1e1e] flex justify-center items-start relative select-text"
+            >
               <div
                 style={{ fontFamily: currentFontConfig.css }}
                 className="max-w-3xl w-full bg-[#FFFFFF] text-[#111111] shadow-2xl rounded-xl p-6 sm:p-14 my-4 mb-28 space-y-6 transition-all"
@@ -1045,21 +1229,45 @@ export const BookReader: React.FC<BookReaderProps> = ({
                   <p className="text-xs text-stone-500 font-mono">
                     {lang === 'ru' ? 'Режим редактирования и корректуры' : 'Editing and Proofreading Workspace'}
                   </p>
+                  {editorSearchQuery && (
+                    <div className="mt-2 text-xs text-amber-700 font-mono bg-amber-50 border border-amber-200 px-3 py-1 rounded inline-block">
+                      {lang === 'ru' ? `Поиск: "${editorSearchQuery}" • Найдено совпадений: ${editorMatchingIndices.length}` : `Searching: "${editorSearchQuery}" • Matches: ${editorMatchingIndices.length}`}
+                    </div>
+                  )}
                 </div>
 
                 {/* BLOCK LIST */}
                 {editBlocks.map((block, idx) => {
                   const isActive = activeEditIndex === idx;
+                  const isMatch = editorMatchingIndices.includes(idx);
+
+                  if (editorShowOnlyMatches && !isMatch) {
+                    return null;
+                  }
 
                   if (block.type === 'image') {
                     return (
                       <div
                         key={block.id || idx}
+                        ref={(el) => { blockRefs.current[idx] = el; }}
                         onClick={() => setActiveEditIndex(idx)}
-                        className={`p-3 rounded-lg border transition-all ${isActive ? 'border-blue-500 ring-2 ring-blue-500/20 bg-blue-50/10' : 'border-stone-200 hover:border-stone-300'}`}
+                        className={`p-3 rounded-lg border transition-all ${
+                          isActive
+                            ? 'border-blue-500 ring-2 ring-blue-500/20 bg-blue-50/10'
+                            : isMatch
+                              ? 'border-amber-400 ring-2 ring-amber-400/30 bg-amber-50/20'
+                              : 'border-stone-200 hover:border-stone-300'
+                        }`}
                       >
                         <div className="flex items-center justify-between text-xs text-stone-400 font-mono mb-2">
-                          <span>[Фотография #{idx + 1}]</span>
+                          <span className="flex items-center gap-1.5">
+                            <span>[Фотография #{idx + 1}]</span>
+                            {isMatch && (
+                              <span className="px-1.5 py-0.2 rounded bg-amber-200 text-amber-900 text-[10px] font-bold">
+                                Совпадение
+                              </span>
+                            )}
+                          </span>
                           <button
                             onClick={(e) => { e.stopPropagation(); handleDeleteBlock(idx); }}
                             className="text-red-500 hover:underline cursor-pointer"
@@ -1086,7 +1294,11 @@ export const BookReader: React.FC<BookReaderProps> = ({
 
                   if (block.type === 'divider' || block.text?.trim() === '***') {
                     return (
-                      <div key={block.id || idx} className="py-2 text-center text-stone-400 tracking-widest text-xs">
+                      <div
+                        key={block.id || idx}
+                        ref={(el) => { blockRefs.current[idx] = el; }}
+                        className="py-2 text-center text-stone-400 tracking-widest text-xs"
+                      >
                         * * *
                       </div>
                     );
@@ -1095,9 +1307,23 @@ export const BookReader: React.FC<BookReaderProps> = ({
                   return (
                     <div
                       key={block.id || idx}
+                      ref={(el) => { blockRefs.current[idx] = el; }}
                       onClick={() => setActiveEditIndex(idx)}
-                      className={`relative group p-2.5 rounded-lg transition-all ${isActive ? 'bg-amber-50/60 ring-1 ring-blue-400' : 'hover:bg-stone-50'}`}
+                      className={`relative group p-2.5 rounded-lg transition-all ${
+                        isActive
+                          ? 'bg-amber-50/60 ring-2 ring-blue-500'
+                          : isMatch
+                            ? 'bg-amber-100/50 ring-2 ring-amber-400'
+                            : 'hover:bg-stone-50'
+                      }`}
                     >
+                      {/* MATCH BADGE */}
+                      {isMatch && !isActive && (
+                        <div className="absolute top-1 right-2 text-[10px] font-mono text-amber-700 bg-amber-200/80 px-1.5 py-0.2 rounded font-bold">
+                          #{idx + 1}
+                        </div>
+                      )}
+
                       {/* MINI WORD TOOLBAR */}
                       {isActive && (
                         <div className="mb-2 p-1 bg-stone-100 border border-stone-300 rounded text-xs flex items-center gap-1 font-sans shadow-xs">
@@ -1196,6 +1422,32 @@ export const BookReader: React.FC<BookReaderProps> = ({
                   </button>
                 </div>
 
+              </div>
+
+              {/* FLOATING QUICK NAVIGATION WITHIN EDITOR */}
+              <div className="fixed bottom-6 right-10 z-30 flex flex-col gap-2">
+                <button
+                  onClick={() => {
+                    if (editorCanvasRef.current) {
+                      editorCanvasRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                  }}
+                  className="w-9 h-9 rounded-full bg-stone-900/90 hover:bg-stone-800 text-stone-200 shadow-xl border border-stone-700 flex items-center justify-center text-xs cursor-pointer transition-all active:scale-95"
+                  title="Scroll to Top of Document"
+                >
+                  ▲
+                </button>
+                <button
+                  onClick={() => {
+                    if (editorCanvasRef.current) {
+                      editorCanvasRef.current.scrollTo({ top: editorCanvasRef.current.scrollHeight, behavior: 'smooth' });
+                    }
+                  }}
+                  className="w-9 h-9 rounded-full bg-stone-900/90 hover:bg-stone-800 text-stone-200 shadow-xl border border-stone-700 flex items-center justify-center text-xs cursor-pointer transition-all active:scale-95"
+                  title="Scroll to Bottom of Document"
+                >
+                  ▼
+                </button>
               </div>
             </div>
 
