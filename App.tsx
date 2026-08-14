@@ -872,14 +872,16 @@ export const App: React.FC = () => {
                   >
                     {t.dreamAnalysis}
                   </a>
-                  <button 
-                    onClick={() => { 
+                  <a 
+                    href="#projects-section"
+                    onClick={(e) => { 
+                      e.preventDefault();
                       setActivePage('MUSIC'); 
                       setIsSideMenuOpen(false); 
                       setTimeout(() => {
-                        const container = document.getElementById('jacob-music-page-container');
-                        if (container) {
-                          container.scrollTo({ top: 0, behavior: 'smooth' });
+                        const target = document.getElementById('projects-section') || document.getElementById('jacob-music-page-container');
+                        if (target) {
+                          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
                         }
                       }, 100);
                     }}
@@ -888,7 +890,7 @@ export const App: React.FC = () => {
                     <span className="text-[8px] md:text-[9px] font-bold uppercase tracking-widest leading-none">
                       {t.otherProjects}
                     </span>
-                  </button>
+                  </a>
                 </div>
               </div>
   
@@ -932,6 +934,7 @@ export const App: React.FC = () => {
 
   const JacobMusicPage = (
     <div 
+      id="jacob-music-page-container"
       onScroll={(e) => {
         const container = e.currentTarget;
         const musicEl = document.getElementById('music-section');
@@ -971,7 +974,7 @@ export const App: React.FC = () => {
           </div>
 
           {/* Apps and Websites Section */}
-          <div className="w-full max-w-4xl mx-auto text-center space-y-6 py-6 border-y border-current/10 animate-in fade-in slide-in-from-bottom duration-1000">
+          <div id="projects-section" className="w-full max-w-4xl mx-auto text-center space-y-6 py-6 border-y border-current/10 animate-in fade-in slide-in-from-bottom duration-1000 scroll-mt-6">
             <div className="space-y-2">
               <h3 className={`text-[11px] md:text-xs font-black uppercase tracking-[0.4em] opacity-70 ${isRenoir ? 'text-amber-400' : 'text-red-600'}`}>
                 {t.appsTitle}
