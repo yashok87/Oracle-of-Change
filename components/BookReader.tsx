@@ -412,11 +412,17 @@ export const BookReader: React.FC<BookReaderProps> = ({
 
   const currentFontConfig = FONT_OPTIONS.find(f => f.id === selectedFont) || FONT_OPTIONS[0];
 
-  // Filter blocks if search query present
+  // Filter blocks if search query present (and exclude any stray 'Rate this:' artifacts)
   const displayBlocks = useMemo(() => {
-    if (!searchQuery.trim()) return doc.blocks;
+    const rawBlocks = (doc.blocks || []).filter(b => {
+      if (!b.text) return true;
+      const t = b.text.toLowerCase().trim();
+      return !t.startsWith('rate this:') && !t.startsWith('оцените:') && t !== 'rate this';
+    });
+
+    if (!searchQuery.trim()) return rawBlocks;
     const q = searchQuery.toLowerCase().trim();
-    return doc.blocks.filter(b => {
+    return rawBlocks.filter(b => {
       const matchText = b.text && b.text.toLowerCase().includes(q);
       const matchCaption = b.caption && b.caption.toLowerCase().includes(q);
       return matchText || matchCaption;
