@@ -2690,8 +2690,15 @@ export const App: React.FC = () => {
        {JacobMusicPage}
        {AboutPage}
        {activePage === 'BOOK' && (
-         <div className="fixed inset-0 z-[3000] overflow-hidden">
-           <BookReader onBack={() => setActivePage('MUSIC')} initialLang={uiLanguage === 'RU' ? 'ru' : 'en'} />
+         <div className="fixed inset-0 z-[3000] overflow-y-auto">
+           <BookReader
+             onBack={() => setActivePage('MUSIC')}
+             initialLang={uiLanguage === 'RU' ? 'ru' : 'en'}
+             theme={theme}
+             setTheme={setTheme}
+             uiLanguage={uiLanguage}
+             setUiLanguage={setUiLanguage}
+           />
          </div>
        )}
        {showProfilingModal && ProfilingModal}

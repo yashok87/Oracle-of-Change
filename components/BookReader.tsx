@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BookDocument, BookBlock } from '../src/bookTypes';
 import { fetchBookDocument, saveBookDocument, subscribeToBookDocument } from '../src/bookService';
@@ -7,16 +7,38 @@ import { INITIAL_RU_DOC, INITIAL_EN_DOC } from '../src/initialBookData';
 interface BookReaderProps {
   onBack: () => void;
   initialLang?: 'ru' | 'en';
+  theme?: 'SUPREMATIST' | 'IMPRESSIONIST';
+  setTheme?: React.Dispatch<React.SetStateAction<'SUPREMATIST' | 'IMPRESSIONIST'>>;
+  uiLanguage?: 'EN' | 'RU';
+  setUiLanguage?: React.Dispatch<React.SetStateAction<'EN' | 'RU'>>;
 }
 
-export const BookReader: React.FC<BookReaderProps> = ({ onBack, initialLang = 'ru' }) => {
-  const [lang, setLang] = useState<'ru' | 'en'>(initialLang);
+export const BookReader: React.FC<BookReaderProps> = ({
+  onBack,
+  initialLang = 'ru',
+  theme = 'SUPREMATIST',
+  setTheme,
+  uiLanguage = 'RU',
+  setUiLanguage
+}) => {
+  // Sync internal manuscript language with uiLanguage if provided
+  const [lang, setLang] = useState<'ru' | 'en'>(
+    uiLanguage ? (uiLanguage.toLowerCase() as 'ru' | 'en') : initialLang
+  );
+  
   const [doc, setDoc] = useState<BookDocument>(lang === 'ru' ? INITIAL_RU_DOC : INITIAL_EN_DOC);
   const [loading, setLoading] = useState(false);
   const [fontSize, setFontSize] = useState<'sm' | 'md' | 'lg' | 'xl'>('md');
   const [fontFamily, setFontFamily] = useState<'serif' | 'sans'>('serif');
-  const [themeMode, setThemeMode] = useState<'paper' | 'dark' | 'sepia'>('paper');
   
+  // Custom ambiance mode (auto-aligns with Mode A / Mode B by default)
+  const [ambianceOverride, setAmbianceOverride] = useState<'auto' | 'paper' | 'sepia' | 'dark' | 'stark'>('auto');
+
+  // Scroll Progress State
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
   // Editor Auth & Modal state
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
@@ -33,6 +55,18 @@ export const BookReader: React.FC<BookReaderProps> = ({ onBack, initialLang = 'r
   // Search filter
   const [searchQuery, setSearchQuery] = useState('');
   const [activeImageZoom, setActiveImageZoom] = useState<string | null>(null);
+
+  const isRenoir = theme === 'IMPRESSIONIST';
+
+  // Synchronize language when prop changes
+  useEffect(() => {
+    if (uiLanguage) {
+      const targetLang = uiLanguage.toLowerCase() as 'ru' | 'en';
+      if (targetLang !== lang) {
+        setLang(targetLang);
+      }
+    }
+  }, [uiLanguage]);
 
   // Load document on language change and subscribe to Firestore updates
   useEffect(() => {
@@ -63,6 +97,37 @@ export const BookReader: React.FC<BookReaderProps> = ({ onBack, initialLang = 'r
     };
   }, [lang]);
 
+  // Handle Scroll Progress
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollEl = containerRef.current || document.documentElement || document.body;
+      const scrollTop = window.scrollY || scrollEl.scrollTop || 0;
+      const scrollHeight = (scrollEl.scrollHeight || document.body.scrollHeight) - window.innerHeight;
+      
+      if (scrollHeight > 0) {
+        const progress = Math.min(100, Math.max(0, (scrollTop / scrollHeight) * 100));
+        setScrollProgress(progress);
+      }
+      setShowScrollTop(scrollTop > 400);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const handleLanguageChange = (newLang: 'ru' | 'en') => {
+    setLang(newLang);
+    if (setUiLanguage) {
+      setUiLanguage(newLang.toUpperCase() as 'EN' | 'RU');
+    }
+  };
+
+  const handleThemeToggle = () => {
+    if (setTheme) {
+      setTheme(t => t === 'SUPREMATIST' ? 'IMPRESSIONIST' : 'SUPREMATIST');
+    }
+  };
+
   // Handle Login submission
   const handleLoginSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,7 +136,6 @@ export const BookReader: React.FC<BookReaderProps> = ({ onBack, initialLang = 'r
       setIsLoginModalOpen(false);
       setPasswordInput('');
       setLoginError('');
-      // Open editor
       setEditBlocks(JSON.parse(JSON.stringify(doc.blocks)));
       setIsEditorOpen(true);
     } else {
@@ -178,204 +242,289 @@ export const BookReader: React.FC<BookReaderProps> = ({ onBack, initialLang = 'r
     }
   };
 
-  // Reading Theme Styling
-  const themeStyles = {
-    paper: {
-      bg: 'bg-[#F9F7F1]',
-      text: 'text-[#1F1E1D]',
-      headerBg: 'bg-[#F9F7F1]/90 backdrop-blur-md border-[#E3DFD5]',
-      cardBg: 'bg-[#FFFFFF] border-[#E8E4DA] shadow-xs',
-      accent: 'text-[#8A2424]',
-      subtext: 'text-[#666055]'
-    },
-    sepia: {
-      bg: 'bg-[#F4ECD8]',
-      text: 'text-[#2C2218]',
-      headerBg: 'bg-[#F4ECD8]/90 backdrop-blur-md border-[#DFD3BA]',
-      cardBg: 'bg-[#FAF3E3] border-[#DFD3BA] shadow-xs',
-      accent: 'text-[#9C381E]',
-      subtext: 'text-[#7D6B57]'
-    },
-    dark: {
-      bg: 'bg-[#151515]',
-      text: 'text-[#DCD8D0]',
-      headerBg: 'bg-[#151515]/90 backdrop-blur-md border-[#2A2A2A]',
-      cardBg: 'bg-[#1D1D1D] border-[#2E2E2E] shadow-sm',
-      accent: 'text-[#D4A373]',
-      subtext: 'text-[#9E988D]'
+  // Dynamic Theme Styling based on Mode A / Mode B & Reading ambiance
+  const currentAmbiance = ambianceOverride === 'auto'
+    ? (isRenoir ? 'dark' : 'paper')
+    : ambianceOverride;
+
+  const skinStyles = useMemo(() => {
+    switch (currentAmbiance) {
+      case 'dark':
+        return {
+          bg: isRenoir ? 'bg-[#0f0505]' : 'bg-[#121212]',
+          text: isRenoir ? 'text-[#fef3c7]' : 'text-[#f3ede4]',
+          headerBg: isRenoir ? 'bg-[#0f0505]/95 border-amber-900/30' : 'bg-[#121212]/95 border-stone-800',
+          accent: isRenoir ? 'text-amber-400' : 'text-stone-300',
+          accentBorder: isRenoir ? 'border-amber-600/70' : 'border-stone-500',
+          divider: isRenoir ? 'bg-amber-800/40 text-amber-500' : 'bg-stone-700 text-stone-400',
+          searchBg: isRenoir ? 'bg-amber-950/50 border-amber-800/50 text-amber-100 placeholder-amber-300/40 focus:border-amber-500 focus:ring-amber-500/30' : 'bg-stone-900 border-stone-700 text-stone-100 placeholder-stone-400 focus:border-stone-400 focus:ring-stone-600',
+          cardBg: isRenoir ? 'bg-amber-950/30 border-amber-900/30' : 'bg-stone-900/60 border-stone-800',
+          pillBg: isRenoir ? 'bg-amber-950/40 border-amber-900/30 text-amber-200' : 'bg-stone-900 border-stone-700 text-stone-200',
+          subtext: isRenoir ? 'text-amber-200/60' : 'text-stone-400',
+          heroTitle: isRenoir ? 'text-amber-100' : 'text-stone-100',
+          quoteText: isRenoir ? 'text-amber-200/90' : 'text-stone-200',
+          progressBg: isRenoir ? 'bg-gradient-to-r from-amber-600 via-amber-400 to-amber-500' : 'bg-gradient-to-r from-red-600 to-stone-400'
+        };
+      case 'sepia':
+        return {
+          bg: 'bg-[#F4ECD8]',
+          text: 'text-[#2C2218]',
+          headerBg: 'bg-[#F4ECD8]/95 border-[#DFD3BA]',
+          accent: 'text-[#9C381E]',
+          accentBorder: 'border-[#9C381E]',
+          divider: 'bg-[#DFD3BA] text-[#7D6B57]',
+          searchBg: 'bg-[#FAF3E3] border-[#DFD3BA] text-[#2C2218] placeholder-[#7D6B57]/60 focus:border-[#9C381E] focus:ring-[#9C381E]/30',
+          cardBg: 'bg-[#FAF3E3] border-[#DFD3BA]',
+          pillBg: 'bg-[#EADDC2] border-[#DFD3BA] text-[#2C2218]',
+          subtext: 'text-[#7D6B57]',
+          heroTitle: 'text-[#2C2218]',
+          quoteText: 'text-[#3E2E20]',
+          progressBg: 'bg-[#9C381E]'
+        };
+      case 'stark':
+        return {
+          bg: 'bg-[#FFFFFF]',
+          text: 'text-[#000000]',
+          headerBg: 'bg-[#FFFFFF]/95 border-black/10',
+          accent: 'text-[#DC2626]',
+          accentBorder: 'border-[#DC2626]',
+          divider: 'bg-black/15 text-black',
+          searchBg: 'bg-stone-100 border-stone-300 text-black placeholder-stone-500 focus:border-black focus:ring-black/20',
+          cardBg: 'bg-stone-50 border-black/10',
+          pillBg: 'bg-stone-100 border-black/10 text-black',
+          subtext: 'text-stone-600',
+          heroTitle: 'text-black',
+          quoteText: 'text-stone-900',
+          progressBg: 'bg-[#DC2626]'
+        };
+      case 'paper':
+      default:
+        return {
+          bg: 'bg-[#FAF8F5]',
+          text: 'text-[#1F1E1D]',
+          headerBg: 'bg-[#FAF8F5]/95 border-[#E5E0D8]',
+          accent: isRenoir ? 'text-amber-800' : 'text-[#8A2424]',
+          accentBorder: isRenoir ? 'border-amber-700' : 'border-[#8A2424]',
+          divider: 'bg-[#E5E0D8] text-[#666055]',
+          searchBg: 'bg-[#FFFFFF] border-[#E2DDD3] text-[#1F1E1D] placeholder-[#666055]/60 focus:border-stone-800 focus:ring-stone-400/30',
+          cardBg: 'bg-[#FFFFFF] border-[#E5E0D8]',
+          pillBg: 'bg-[#EFECE6] border-[#E5E0D8] text-[#1F1E1D]',
+          subtext: 'text-[#666055]',
+          heroTitle: 'text-[#1F1E1D]',
+          quoteText: 'text-[#2D2A26]',
+          progressBg: isRenoir ? 'bg-amber-700' : 'bg-red-600'
+        };
     }
-  }[themeMode];
+  }, [currentAmbiance, isRenoir]);
 
   const fontSizeClass = {
-    sm: 'text-[15px] leading-[1.7]',
-    md: 'text-[17px] sm:text-[18px] leading-[1.8]',
-    lg: 'text-[20px] sm:text-[21px] leading-[1.85]',
-    xl: 'text-[23px] sm:text-[24px] leading-[1.9]'
+    sm: 'text-[15px] sm:text-[16px] leading-[1.75]',
+    md: 'text-[17px] sm:text-[18.5px] leading-[1.85]',
+    lg: 'text-[20px] sm:text-[21.5px] leading-[1.9]',
+    xl: 'text-[23px] sm:text-[24.5px] leading-[1.95]'
   }[fontSize];
 
   const fontClass = fontFamily === 'serif' ? 'font-serif' : 'font-sans';
 
   // Filter blocks if search query present
-  const displayBlocks = doc.blocks.filter(b => {
-    if (!searchQuery.trim()) return true;
-    const q = searchQuery.toLowerCase();
-    return (b.text && b.text.toLowerCase().includes(q)) || (b.caption && b.caption.toLowerCase().includes(q));
-  });
+  const displayBlocks = useMemo(() => {
+    if (!searchQuery.trim()) return doc.blocks;
+    const q = searchQuery.toLowerCase().trim();
+    return doc.blocks.filter(b => {
+      const matchText = b.text && b.text.toLowerCase().includes(q);
+      const matchCaption = b.caption && b.caption.toLowerCase().includes(q);
+      return matchText || matchCaption;
+    });
+  }, [doc.blocks, searchQuery]);
 
   return (
-    <div id="book_reader_root" className={`min-h-screen ${themeStyles.bg} ${themeStyles.text} transition-colors duration-200 flex flex-col`}>
-      
-      {/* TOP HEADER BAR */}
-      <header id="book_reader_header" className={`sticky top-0 z-30 border-b px-4 py-3 sm:px-8 transition-colors ${themeStyles.headerBg}`}>
-        <div className="max-w-5xl mx-auto flex flex-wrap items-center justify-between gap-3">
+    <div
+      ref={containerRef}
+      id="book_reader_root"
+      className={`min-h-screen w-full ${skinStyles.bg} ${skinStyles.text} transition-colors duration-300 flex flex-col relative selection:bg-amber-500/30 selection:text-current`}
+    >
+      {/* READING PROGRESS TOP BAR */}
+      <div className="fixed top-0 left-0 right-0 h-[3px] z-50 bg-black/5 pointer-events-none">
+        <div
+          className={`h-full transition-all duration-150 ${skinStyles.progressBg}`}
+          style={{ width: `${scrollProgress}%` }}
+        />
+      </div>
+
+      {/* STICKY HEADER WITH GLOBAL SKIN & CONTROLS */}
+      <header
+        id="book_reader_header"
+        className={`sticky top-0 z-40 border-b backdrop-blur-xl px-4 py-3 sm:px-8 transition-colors ${skinStyles.headerBg}`}
+      >
+        <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-3">
           
-          {/* Left: Back & Title */}
+          {/* Left: Back to Main Application */}
           <div className="flex items-center gap-3">
             <button
               id="book_back_btn"
               onClick={onBack}
-              className="px-3 py-1.5 rounded-md border border-black/10 hover:border-black/30 dark:border-white/10 dark:hover:border-white/30 text-xs tracking-wider uppercase flex items-center gap-1.5 transition-all active:scale-95"
+              className={`px-3 py-1.5 rounded-full border text-xs tracking-wider uppercase font-mono flex items-center gap-1.5 transition-all active:scale-95 shadow-xs ${
+                isRenoir
+                  ? 'border-amber-900/40 bg-amber-950/40 text-amber-200 hover:bg-amber-900/60'
+                  : 'border-black/10 bg-white/60 text-stone-800 hover:bg-black/5'
+              }`}
             >
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
-              <span>{lang === 'ru' ? 'Оракул' : 'Oracle'}</span>
+              <span>{lang === 'ru' ? 'В Оракул' : 'To Oracle'}</span>
             </button>
 
-            <div className="hidden sm:block">
-              <span className="text-xs uppercase tracking-widest opacity-60 font-mono">
+            <div className="hidden md:flex items-center gap-2">
+              <span className={`text-[11px] uppercase tracking-[0.2em] font-mono font-bold ${skinStyles.subtext}`}>
                 {lang === 'ru' ? 'Яков Кельберт' : 'Jacob Kelbert'}
               </span>
-              <span className="mx-2 opacity-30">•</span>
-              <span className="text-xs font-semibold">
+              <span className="opacity-30">•</span>
+              <span className="text-xs font-semibold tracking-wide">
                 {lang === 'ru' ? 'Прогулки по острову' : 'Walks Around the Island'}
               </span>
             </div>
           </div>
 
-          {/* Center/Right: Language Toggle & Controls */}
+          {/* Right: Mode A/B Switcher + Language + Reader Controls */}
           <div className="flex items-center flex-wrap gap-2 sm:gap-3">
             
-            {/* Language Switcher */}
-            <div id="book_lang_toggle" className="inline-flex rounded-md p-0.5 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-xs font-mono">
+            {/* Master Theme Mode A / Mode B & Language Pill (Synchronized with Global UI) */}
+            <div className={`flex items-center p-0.5 rounded-full border backdrop-blur-xl ${skinStyles.pillBg}`}>
               <button
-                id="book_lang_ru_btn"
-                onClick={() => setLang('ru')}
-                className={`px-2.5 py-1 rounded transition-all ${lang === 'ru' ? 'bg-white dark:bg-[#2A2A2A] shadow-xs font-bold text-black dark:text-white' : 'opacity-60 hover:opacity-100'}`}
+                id="book_global_lang_btn"
+                onClick={() => handleLanguageChange(lang === 'ru' ? 'en' : 'ru')}
+                className="w-8 h-7 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center justify-center hover:opacity-80 transition-all"
+                title="Switch Language"
               >
-                Русский (Оригинал)
+                {lang.toUpperCase()}
               </button>
+
               <button
-                id="book_lang_en_btn"
-                onClick={() => setLang('en')}
-                className={`px-2.5 py-1 rounded transition-all ${lang === 'en' ? 'bg-white dark:bg-[#2A2A2A] shadow-xs font-bold text-black dark:text-white' : 'opacity-60 hover:opacity-100'}`}
+                id="book_global_theme_btn"
+                onClick={handleThemeToggle}
+                className={`px-3 h-7 rounded-full text-[9px] font-black uppercase tracking-widest transition-all shadow-xs ${
+                  isRenoir ? 'bg-amber-600 text-white' : 'bg-black text-white'
+                }`}
+                title="Toggle Mode A / Mode B"
               >
-                English (AI Translation)
+                {theme === 'SUPREMATIST' ? 'Mode A' : 'Mode B'}
               </button>
             </div>
 
-            {/* Typography / Theme dropdown controls */}
-            <div className="hidden md:flex items-center gap-1 border-l pl-2 border-black/10 dark:border-white/10">
-              
-              {/* Font toggle */}
+            {/* Reading Ambiance Palette Presets */}
+            <div className="hidden lg:flex items-center gap-1 pl-1 border-l border-black/10 dark:border-white/10">
               <button
-                id="book_font_toggle"
+                onClick={() => setAmbianceOverride('paper')}
+                className={`w-5 h-5 rounded-full border border-black/20 bg-[#FAF8F5] transition-transform ${ambianceOverride === 'paper' ? 'scale-110 ring-2 ring-stone-400' : 'hover:scale-105'}`}
+                title="Paper Mode"
+              />
+              <button
+                onClick={() => setAmbianceOverride('sepia')}
+                className={`w-5 h-5 rounded-full border border-black/20 bg-[#F4ECD8] transition-transform ${ambianceOverride === 'sepia' ? 'scale-110 ring-2 ring-[#9C381E]' : 'hover:scale-105'}`}
+                title="Sepia Mode"
+              />
+              <button
+                onClick={() => setAmbianceOverride('dark')}
+                className={`w-5 h-5 rounded-full border border-white/20 bg-[#0f0505] transition-transform ${ambianceOverride === 'dark' ? 'scale-110 ring-2 ring-amber-500' : 'hover:scale-105'}`}
+                title="Dark Obsidian / Amber Mode"
+              />
+              <button
+                onClick={() => setAmbianceOverride('stark')}
+                className={`w-5 h-5 rounded-full border border-black/20 bg-[#FFFFFF] transition-transform ${ambianceOverride === 'stark' ? 'scale-110 ring-2 ring-red-600' : 'hover:scale-105'}`}
+                title="Stark Mode"
+              />
+            </div>
+
+            {/* Typography Controls */}
+            <div className="hidden sm:flex items-center gap-1 pl-1 border-l border-black/10 dark:border-white/10 text-xs font-mono">
+              <button
                 onClick={() => setFontFamily(prev => prev === 'serif' ? 'sans' : 'serif')}
-                className="p-1.5 rounded hover:bg-black/5 dark:hover:bg-white/5 text-xs font-mono"
-                title="Toggle font family"
+                className="px-2 py-1 rounded hover:bg-black/5 dark:hover:bg-white/5 opacity-80 hover:opacity-100"
+                title="Toggle font"
               >
                 {fontFamily === 'serif' ? 'Serif' : 'Sans'}
               </button>
 
-              {/* Font Size */}
-              <div className="inline-flex text-xs font-mono">
+              <div className="inline-flex">
                 <button
-                  id="book_size_sm"
                   onClick={() => setFontSize('sm')}
                   className={`px-1.5 py-1 rounded ${fontSize === 'sm' ? 'font-bold underline' : 'opacity-60'}`}
                 >
                   A-
                 </button>
                 <button
-                  id="book_size_md"
                   onClick={() => setFontSize('md')}
                   className={`px-1.5 py-1 rounded ${fontSize === 'md' ? 'font-bold underline' : 'opacity-60'}`}
                 >
                   A
                 </button>
                 <button
-                  id="book_size_lg"
                   onClick={() => setFontSize('lg')}
                   className={`px-1.5 py-1 rounded ${fontSize === 'lg' ? 'font-bold underline' : 'opacity-60'}`}
                 >
                   A+
                 </button>
                 <button
-                  id="book_size_xl"
                   onClick={() => setFontSize('xl')}
                   className={`px-1.5 py-1 rounded ${fontSize === 'xl' ? 'font-bold underline' : 'opacity-60'}`}
                 >
                   A++
                 </button>
               </div>
-
-              {/* Theme modes */}
-              <div className="inline-flex gap-1 ml-1">
-                <button
-                  id="book_theme_paper"
-                  onClick={() => setThemeMode('paper')}
-                  className={`w-5 h-5 rounded-full border border-black/20 bg-[#F9F7F1] ${themeMode === 'paper' ? 'ring-2 ring-black/50' : ''}`}
-                  title="Paper mode"
-                />
-                <button
-                  id="book_theme_sepia"
-                  onClick={() => setThemeMode('sepia')}
-                  className={`w-5 h-5 rounded-full border border-black/20 bg-[#F4ECD8] ${themeMode === 'sepia' ? 'ring-2 ring-amber-700' : ''}`}
-                  title="Sepia mode"
-                />
-                <button
-                  id="book_theme_dark"
-                  onClick={() => setThemeMode('dark')}
-                  className={`w-5 h-5 rounded-full border border-white/20 bg-[#151515] ${themeMode === 'dark' ? 'ring-2 ring-white/50' : ''}`}
-                  title="Dark mode"
-                />
-              </div>
             </div>
 
-            {/* Login / Page Editor button */}
+            {/* Editor Login / Access Button */}
             <button
               id="book_editor_login_btn"
               onClick={handleOpenEditor}
-              className="px-3 py-1.5 rounded-md bg-stone-900 dark:bg-stone-100 text-stone-50 dark:text-stone-900 text-xs font-mono flex items-center gap-1.5 shadow-xs hover:bg-stone-800 dark:hover:bg-stone-200 transition-all active:scale-95 ml-1"
+              className={`px-3 py-1.5 rounded-full text-xs font-mono flex items-center gap-1.5 shadow-sm transition-all active:scale-95 ${
+                isAuthenticated
+                  ? 'bg-emerald-600 text-white hover:bg-emerald-700'
+                  : isRenoir
+                    ? 'bg-amber-900/60 hover:bg-amber-800 text-amber-100 border border-amber-700/50'
+                    : 'bg-stone-900 hover:bg-stone-800 text-stone-100'
+              }`}
             >
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
               </svg>
-              <span>{isAuthenticated ? (lang === 'ru' ? 'Редактор' : 'Word Editor') : (lang === 'ru' ? 'Вход / Редактор' : 'Login / Editor')}</span>
+              <span className="hidden xs:inline">
+                {isAuthenticated
+                  ? (lang === 'ru' ? 'Редактор' : 'Word Editor')
+                  : (lang === 'ru' ? 'Вход / Редактор' : 'Login / Editor')}
+              </span>
             </button>
 
           </div>
         </div>
       </header>
 
-      {/* ENGLISH TRANSLATION BANNER & ORIGINAL RUSSIAN LINK */}
+      {/* AI TRANSLATION NOTICE BANNER */}
       {lang === 'en' && (
-        <div id="ai_translation_notice_banner" className="bg-amber-500/10 border-b border-amber-500/20 px-4 py-2.5 text-xs text-amber-900 dark:text-amber-200">
+        <div
+          id="ai_translation_notice_banner"
+          className={`border-b px-4 py-2.5 text-xs transition-colors ${
+            isRenoir
+              ? 'bg-amber-950/60 border-amber-900/40 text-amber-200'
+              : 'bg-amber-500/10 border-amber-500/20 text-amber-900'
+          }`}
+        >
           <div className="max-w-4xl mx-auto flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <span className="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-800 dark:text-amber-300 font-mono font-semibold uppercase text-[10px] tracking-wider">
+              <span className="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-800 dark:text-amber-300 font-mono font-bold uppercase text-[10px] tracking-wider">
                 AI Translation
               </span>
               <span>
-                This English version was translated with Gemini AI from the original Russian text by Jacob Kelbert.
+                English edition rendered by Gemini AI based on the original Russian manuscript by Jacob Kelbert.
               </span>
             </div>
             <button
               id="switch_to_russian_link"
-              onClick={() => setLang('ru')}
-              className="font-semibold underline hover:text-amber-700 dark:hover:text-amber-100 flex items-center gap-1"
+              onClick={() => handleLanguageChange('ru')}
+              className="font-semibold underline hover:opacity-80 flex items-center gap-1 cursor-pointer"
             >
-              <span>Read original in Russian (Оригинал на русском)</span>
+              <span>Read in Russian (Оригинал на русском)</span>
               <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
               </svg>
@@ -384,27 +533,29 @@ export const BookReader: React.FC<BookReaderProps> = ({ onBack, initialLang = 'r
         </div>
       )}
 
-      {/* MAIN CONTENT CONTAINER */}
+      {/* MAIN SCROLLABLE CONTENT BODY */}
       <main className="flex-1 max-w-4xl w-full mx-auto px-5 sm:px-10 py-10 sm:py-16">
         
-        {/* HERO TITLE & METADATA */}
+        {/* HERO TITLE SECTION */}
         <div id="book_title_section" className="text-center mb-12 sm:mb-16 border-b border-black/10 dark:border-white/10 pb-10">
-          <div className="inline-block mb-3 px-3 py-1 rounded-full border border-black/10 dark:border-white/10 text-[11px] font-mono tracking-widest uppercase opacity-70">
+          <div className={`inline-block mb-3 px-3 py-1 rounded-full border border-black/10 dark:border-white/10 text-[11px] font-mono tracking-widest uppercase opacity-75`}>
             {lang === 'ru' ? 'Паломнические записки • Кипр' : 'Pilgrimage Chronicles • Cyprus'}
           </div>
-          <h1 className="text-3xl sm:text-5xl font-serif font-bold tracking-tight mb-4 text-stone-900 dark:text-stone-100">
+
+          <h1 className={`text-3xl sm:text-5xl font-serif font-bold tracking-tight mb-4 ${skinStyles.heroTitle}`}>
             {doc.title || (lang === 'ru' ? 'Прогулки по острову' : 'Walks Around the Island')}
           </h1>
-          <p className="text-base sm:text-lg font-serif italic text-stone-600 dark:text-stone-400 max-w-xl mx-auto mb-5">
+
+          <p className={`text-base sm:text-lg font-serif italic max-w-xl mx-auto mb-5 ${skinStyles.subtext}`}>
             {lang === 'ru' ? 'Яков Кельберт' : 'Jacob Kelbert'}
           </p>
 
-          <div className="flex flex-wrap items-center justify-center gap-4 text-xs font-mono opacity-60">
+          <div className={`flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-xs font-mono ${skinStyles.subtext}`}>
             <a
               href={doc.originalUrl || 'https://vozduh.wordpress.com/2025/08/01/travels_cyprus/'}
               target="_blank"
               rel="noreferrer"
-              className="underline hover:opacity-100 flex items-center gap-1"
+              className="underline hover:opacity-100 flex items-center gap-1 font-medium"
             >
               <span>{lang === 'ru' ? 'Первоисточник на WordPress' : 'Original WordPress Post'}</span>
               <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -422,84 +573,99 @@ export const BookReader: React.FC<BookReaderProps> = ({ onBack, initialLang = 'r
           </div>
         </div>
 
-        {/* SEARCH BAR */}
-        <div className="mb-10 max-w-md mx-auto">
-          <div className="relative">
+        {/* HIGH-CONTRAST READABLE SEARCH BAR */}
+        <div className="mb-12 max-w-lg mx-auto">
+          <div className="relative shadow-sm rounded-xl overflow-hidden">
             <input
               id="book_search_input"
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={lang === 'ru' ? 'Поиск по тексту (напр. Харлампий, монастырь)...' : 'Search text (e.g. Haralampios, monastery)...'}
-              className="w-full pl-9 pr-8 py-2 rounded-lg bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-sm focus:outline-none focus:ring-1 focus:ring-amber-600 transition-all font-sans"
+              placeholder={lang === 'ru' ? 'Поиск по тексту (напр. Харлампий, монастырь, Троодос)...' : 'Search manuscript (e.g. Haralampios, monastery, Troodos)...'}
+              className={`w-full pl-10 pr-9 py-3 rounded-xl border text-sm font-sans focus:outline-none transition-all ${skinStyles.searchBg}`}
             />
-            <svg className="w-4 h-4 absolute left-3 top-3 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg
+              className={`w-4 h-4 absolute left-3.5 top-3.5 pointer-events-none ${skinStyles.subtext}`}
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="absolute right-2.5 top-2.5 text-xs opacity-50 hover:opacity-100 p-0.5"
+                className={`absolute right-3 top-3 text-xs p-1 rounded-full hover:bg-black/10 dark:hover:bg-white/10 ${skinStyles.subtext} hover:opacity-100 transition-opacity`}
+                title="Clear search"
               >
                 ✕
               </button>
             )}
           </div>
           {searchQuery && (
-            <p className="text-xs font-mono opacity-60 text-center mt-2">
+            <p className={`text-xs font-mono text-center mt-2.5 ${skinStyles.subtext}`}>
               {lang === 'ru' ? `Найдено фрагментов: ${displayBlocks.length}` : `Matches found: ${displayBlocks.length}`}
             </p>
           )}
         </div>
 
-        {/* READING FLOW */}
-        <article className={`space-y-6 ${fontSizeClass} ${fontClass}`}>
+        {/* MANUSCRIPT READING FLOW */}
+        <article className={`space-y-6 sm:space-y-7 ${fontSizeClass} ${fontClass}`}>
+          {displayBlocks.length === 0 && (
+            <div className="text-center py-16 opacity-60 font-mono text-sm">
+              {lang === 'ru' ? 'По вашему запросу ничего не найдено.' : 'No matches found for your search.'}
+            </div>
+          )}
+
           {displayBlocks.map((block, idx) => {
             
-            // Render Divider / Section Asterisks
+            // Section Divider / Asterisks
             if (block.type === 'divider' || block.text?.trim() === '***') {
               return (
-                <div key={block.id || idx} className="py-6 flex items-center justify-center gap-3 opacity-40">
-                  <div className="w-12 h-px bg-current" />
-                  <span className="font-serif tracking-widest text-sm">❦</span>
-                  <div className="w-12 h-px bg-current" />
+                <div key={block.id || idx} className="py-8 flex items-center justify-center gap-4 opacity-50">
+                  <div className={`w-14 h-px ${skinStyles.divider}`} />
+                  <span className={`font-serif tracking-widest text-base ${skinStyles.accent}`}>❦</span>
+                  <div className={`w-14 h-px ${skinStyles.divider}`} />
                 </div>
               );
             }
 
-            // Render Headings
+            // Headings
             if (block.type === 'heading') {
               return (
                 <h2
                   key={block.id || idx}
-                  className="text-2xl sm:text-3xl font-serif font-bold pt-6 pb-2 text-stone-900 dark:text-stone-100"
+                  className={`text-2xl sm:text-3xl font-serif font-bold pt-8 pb-3 ${skinStyles.heroTitle}`}
                 >
                   {block.text}
                 </h2>
               );
             }
 
-            // Render Images & Captions
+            // Images with zoom click & captions
             if (block.type === 'image') {
               return (
                 <figure
                   key={block.id || idx}
-                  className="my-8 rounded-xl overflow-hidden bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 shadow-md group"
+                  className={`my-10 rounded-2xl overflow-hidden border shadow-lg group transition-colors ${skinStyles.cardBg}`}
                 >
-                  <div className="relative overflow-hidden cursor-zoom-in" onClick={() => block.src && setActiveImageZoom(block.src)}>
+                  <div
+                    className="relative overflow-hidden cursor-zoom-in bg-black/10 flex items-center justify-center min-h-[220px]"
+                    onClick={() => block.src && setActiveImageZoom(block.src)}
+                  >
                     <img
                       src={block.src}
-                      alt={block.caption || block.alt || 'Cyprus travel visual'}
+                      alt={block.caption || block.alt || 'Manuscript illustration'}
                       referrerPolicy="no-referrer"
                       loading="lazy"
-                      className="w-full h-auto max-h-[680px] object-contain mx-auto transition-transform duration-300 group-hover:scale-[1.01]"
+                      className="w-full h-auto max-h-[720px] object-contain mx-auto transition-transform duration-500 group-hover:scale-[1.01]"
                     />
-                    <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity bg-black/60 text-white text-xs px-2 py-1 rounded backdrop-blur-sm pointer-events-none">
-                      {lang === 'ru' ? 'Нажмите для увеличения' : 'Click to enlarge'}
+                    <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity bg-black/75 text-white text-xs px-2.5 py-1 rounded-md backdrop-blur-sm pointer-events-none font-mono">
+                      {lang === 'ru' ? '🔍 Нажмите для увеличения' : '🔍 Click to enlarge'}
                     </div>
                   </div>
                   {block.caption && (
-                    <figcaption className="px-4 py-3 text-center text-sm font-sans italic opacity-75 border-t border-black/5 dark:border-white/5">
+                    <figcaption className={`px-5 py-3.5 text-center text-sm font-sans italic border-t border-black/5 dark:border-white/5 ${skinStyles.subtext}`}>
                       {block.caption}
                     </figcaption>
                   )}
@@ -507,19 +673,19 @@ export const BookReader: React.FC<BookReaderProps> = ({ onBack, initialLang = 'r
               );
             }
 
-            // Render Quotes
+            // Blockquotes
             if (block.type === 'quote') {
               return (
                 <blockquote
                   key={block.id || idx}
-                  className="border-l-2 border-amber-600/70 pl-5 py-2 my-4 italic opacity-90"
+                  className={`border-l-3 ${skinStyles.accentBorder} pl-5 py-2.5 my-6 italic ${skinStyles.quoteText}`}
                 >
                   {block.text}
                 </blockquote>
               );
             }
 
-            // Custom Inline Styles if any
+            // Custom Inline Styles
             const inlineStyles: React.CSSProperties = {
               fontWeight: block.customStyle?.bold ? 'bold' : undefined,
               fontStyle: block.customStyle?.italic ? 'italic' : undefined,
@@ -541,29 +707,59 @@ export const BookReader: React.FC<BookReaderProps> = ({ onBack, initialLang = 'r
           })}
         </article>
 
-        {/* FOOTER OF ARTICLE */}
-        <div className="mt-16 pt-10 border-t border-black/10 dark:border-white/10 text-center space-y-4">
-          <div className="text-sm font-serif italic opacity-70">
-            — {lang === 'ru' ? 'Конец паломнических заметок' : 'End of pilgrimage memoirs'} —
+        {/* BOTTOM NAVIGATION & FOOTER */}
+        <div className="mt-20 pt-12 border-t border-black/10 dark:border-white/10 text-center space-y-6">
+          <div className={`text-sm font-serif italic ${skinStyles.subtext}`}>
+            — {lang === 'ru' ? 'Конец паломнических заметок' : 'End of pilgrimage chronicles'} —
           </div>
           
-          <div className="flex flex-wrap items-center justify-center gap-4 text-xs font-mono pt-2">
+          <div className="flex flex-wrap items-center justify-center gap-3 text-xs font-mono pt-2">
             <button
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-              className="px-3 py-1.5 rounded border border-black/20 dark:border-white/20 hover:bg-black/5 dark:hover:bg-white/5"
+              className={`px-4 py-2 rounded-full border transition-all hover:scale-105 active:scale-95 ${
+                isRenoir
+                  ? 'border-amber-800 bg-amber-950/60 text-amber-200 hover:bg-amber-900/60'
+                  : 'border-stone-300 bg-white text-stone-800 hover:bg-stone-50'
+              }`}
             >
               ↑ {lang === 'ru' ? 'Наверх' : 'Back to top'}
             </button>
             <button
               onClick={handleOpenEditor}
-              className="px-3 py-1.5 rounded bg-amber-600/10 text-amber-900 dark:text-amber-200 border border-amber-600/30 hover:bg-amber-600/20"
+              className={`px-4 py-2 rounded-full border transition-all hover:scale-105 active:scale-95 ${
+                isRenoir
+                  ? 'bg-amber-600/20 text-amber-200 border-amber-600/40 hover:bg-amber-600/30'
+                  : 'bg-red-600/10 text-red-900 border-red-600/20 hover:bg-red-600/20'
+              }`}
             >
-              ✍ {lang === 'ru' ? 'Предложить правки в редакторе' : 'Edit / Make corrections'}
+              ✍ {lang === 'ru' ? 'Предложить правки в редакторе' : 'Suggest corrections in editor'}
             </button>
           </div>
         </div>
 
       </main>
+
+      {/* FLOATING BACK TO TOP BUTTON */}
+      <AnimatePresence>
+        {showScrollTop && (
+          <motion.button
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            className={`fixed bottom-8 right-8 z-40 p-3 rounded-full shadow-2xl backdrop-blur-md border transition-transform hover:scale-110 active:scale-95 ${
+              isRenoir
+                ? 'bg-amber-900/90 border-amber-700 text-amber-100 shadow-amber-950/50'
+                : 'bg-stone-900/90 border-stone-700 text-white'
+            }`}
+            title="Scroll to Top"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+            </svg>
+          </motion.button>
+        )}
+      </AnimatePresence>
 
       {/* IMAGE ZOOM MODAL */}
       <AnimatePresence>
@@ -573,17 +769,17 @@ export const BookReader: React.FC<BookReaderProps> = ({ onBack, initialLang = 'r
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setActiveImageZoom(null)}
-            className="fixed inset-0 z-50 bg-black/90 p-4 sm:p-10 flex items-center justify-center cursor-zoom-out backdrop-blur-md"
+            className="fixed inset-0 z-50 bg-black/95 p-4 sm:p-10 flex items-center justify-center cursor-zoom-out backdrop-blur-lg"
           >
             <img
               src={activeImageZoom}
-              alt="Zoomed"
+              alt="Zoomed Visual"
               referrerPolicy="no-referrer"
-              className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+              className="max-w-full max-h-full object-contain rounded-xl shadow-2xl"
             />
             <button
               onClick={() => setActiveImageZoom(null)}
-              className="absolute top-5 right-5 text-white/70 hover:text-white text-2xl font-mono p-2"
+              className="absolute top-6 right-6 text-white/80 hover:text-white text-3xl font-mono p-2 bg-black/40 rounded-full"
             >
               ✕
             </button>
@@ -599,13 +795,17 @@ export const BookReader: React.FC<BookReaderProps> = ({ onBack, initialLang = 'r
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+            className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex items-center justify-center p-4"
           >
             <motion.div
-              initial={{ scale: 0.95, y: 10 }}
+              initial={{ scale: 0.95, y: 15 }}
               animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.95, y: 10 }}
-              className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl max-w-sm w-full p-6 shadow-2xl text-stone-900 dark:text-stone-100"
+              exit={{ scale: 0.95, y: 15 }}
+              className={`border rounded-2xl max-w-sm w-full p-6 shadow-2xl ${
+                isRenoir
+                  ? 'bg-[#180a0a] border-amber-900/50 text-amber-100'
+                  : 'bg-white border-stone-300 text-stone-900'
+              }`}
             >
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
@@ -616,21 +816,21 @@ export const BookReader: React.FC<BookReaderProps> = ({ onBack, initialLang = 'r
                 </div>
                 <button
                   onClick={() => { setIsLoginModalOpen(false); setLoginError(''); }}
-                  className="text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 text-sm font-mono"
+                  className="text-stone-400 hover:text-current text-sm font-mono p-1"
                 >
                   ✕
                 </button>
               </div>
 
-              <p className="text-xs text-stone-600 dark:text-stone-400 mb-5 leading-relaxed">
+              <p className="text-xs opacity-75 mb-5 leading-relaxed">
                 {lang === 'ru'
-                  ? 'Введите пароль администратора для внесения правок и сохранения их в базу данных Firebase.'
-                  : 'Enter the editor password to make corrections and synchronize them with the Firebase database.'}
+                  ? 'Введите пароль администратора для редактирования и синхронизации с базой Firebase.'
+                  : 'Enter the administrator password to make corrections and synchronize them with Firestore.'}
               </p>
 
               <form onSubmit={handleLoginSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-mono uppercase tracking-wider mb-1 text-stone-500 dark:text-stone-400">
+                  <label className="block text-xs font-mono uppercase tracking-wider mb-1.5 opacity-70">
                     {lang === 'ru' ? 'Пароль' : 'Password'}
                   </label>
                   <input
@@ -640,25 +840,31 @@ export const BookReader: React.FC<BookReaderProps> = ({ onBack, initialLang = 'r
                     value={passwordInput}
                     onChange={(e) => { setPasswordInput(e.target.value); setLoginError(''); }}
                     placeholder="••••••••••••"
-                    className="w-full px-3 py-2 rounded-md bg-stone-100 dark:bg-stone-800 border border-stone-300 dark:border-stone-700 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    className={`w-full px-3.5 py-2.5 rounded-xl border text-sm font-mono focus:outline-none transition-all ${
+                      isRenoir
+                        ? 'bg-amber-950/40 border-amber-900/60 text-amber-100 placeholder-amber-400/40 focus:border-amber-500'
+                        : 'bg-stone-100 border-stone-300 text-stone-900 placeholder-stone-400 focus:border-black'
+                    }`}
                   />
                   {loginError && (
                     <p className="text-xs text-red-500 mt-1.5 font-medium">{loginError}</p>
                   )}
                 </div>
 
-                <div className="flex items-center justify-end gap-2 pt-2">
+                <div className="flex items-center justify-end gap-2 pt-3">
                   <button
                     type="button"
                     onClick={() => { setIsLoginModalOpen(false); setLoginError(''); }}
-                    className="px-3 py-1.5 text-xs rounded border border-stone-300 dark:border-stone-700 hover:bg-stone-100 dark:hover:bg-stone-800"
+                    className="px-3.5 py-1.5 text-xs rounded-lg border border-black/10 dark:border-white/10 opacity-70 hover:opacity-100"
                   >
                     {lang === 'ru' ? 'Отмена' : 'Cancel'}
                   </button>
                   <button
                     id="book_login_submit_btn"
                     type="submit"
-                    className="px-4 py-1.5 text-xs font-semibold rounded bg-amber-600 text-white hover:bg-amber-700 shadow-sm transition-all"
+                    className={`px-4 py-2 text-xs font-semibold rounded-lg text-white shadow-md transition-all active:scale-95 ${
+                      isRenoir ? 'bg-amber-600 hover:bg-amber-500' : 'bg-stone-900 hover:bg-stone-800'
+                    }`}
                   >
                     {lang === 'ru' ? 'Войти в редактор' : 'Unlock Editor'}
                   </button>
@@ -669,7 +875,7 @@ export const BookReader: React.FC<BookReaderProps> = ({ onBack, initialLang = 'r
         )}
       </AnimatePresence>
 
-      {/* RICH TEXT PAGE EDITOR MODAL (MICROSOFT WORD STYLE) */}
+      {/* RICH TEXT PAGE EDITOR (WORD STYLE) */}
       <AnimatePresence>
         {isEditorOpen && (
           <motion.div
@@ -677,13 +883,13 @@ export const BookReader: React.FC<BookReaderProps> = ({ onBack, initialLang = 'r
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-stone-900/80 backdrop-blur-md flex flex-col"
+            className="fixed inset-0 z-50 bg-stone-950/90 backdrop-blur-xl flex flex-col"
           >
-            {/* WORD STYLE RIBBON HEADER */}
-            <div className="bg-stone-900 text-stone-100 border-b border-stone-800 px-4 py-2.5 flex flex-wrap items-center justify-between gap-3 shrink-0 shadow-lg">
+            {/* RIBBON HEADER */}
+            <div className="bg-stone-900 text-stone-100 border-b border-stone-800 px-4 py-3 flex flex-wrap items-center justify-between gap-3 shrink-0 shadow-lg">
               
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded bg-blue-600 flex items-center justify-center font-bold text-white shadow-xs">
+                <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center font-bold text-white shadow-md">
                   W
                 </div>
                 <div>
@@ -691,12 +897,12 @@ export const BookReader: React.FC<BookReaderProps> = ({ onBack, initialLang = 'r
                     <span className="font-bold text-sm">
                       {lang === 'ru' ? 'Редактор рукописи' : 'Manuscript Word Editor'}
                     </span>
-                    <span className="px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-400 font-mono text-[10px] uppercase">
+                    <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 font-mono text-[10px] uppercase">
                       {lang === 'ru' ? 'Русская версия' : 'English Edition'}
                     </span>
                   </div>
                   <div className="text-[11px] text-stone-400 font-mono">
-                    Firebase Firestore Sync • {editBlocks.length} {lang === 'ru' ? 'абзацев' : 'blocks'}
+                    Firebase Firestore Sync • {editBlocks.length} {lang === 'ru' ? 'фрагментов' : 'blocks'}
                   </div>
                 </div>
               </div>
@@ -718,9 +924,9 @@ export const BookReader: React.FC<BookReaderProps> = ({ onBack, initialLang = 'r
                   id="editor_save_firebase_btn"
                   onClick={handleSaveToFirebase}
                   disabled={saveStatus === 'saving'}
-                  className="px-4 py-1.5 rounded bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold flex items-center gap-1.5 shadow-md transition-all active:scale-95 disabled:opacity-50"
+                  className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold flex items-center gap-1.5 shadow-md transition-all active:scale-95 disabled:opacity-50"
                 >
-                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
                   </svg>
                   <span>{saveStatus === 'saving' ? (lang === 'ru' ? 'Сохранение...' : 'Saving...') : (lang === 'ru' ? 'Сохранить в Firebase' : 'Save to Firebase')}</span>
@@ -728,21 +934,19 @@ export const BookReader: React.FC<BookReaderProps> = ({ onBack, initialLang = 'r
 
                 <button
                   onClick={() => setIsEditorOpen(false)}
-                  className="px-3 py-1.5 rounded bg-stone-800 hover:bg-stone-700 text-stone-300 text-xs font-mono"
+                  className="px-3.5 py-2 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-300 text-xs font-mono"
                 >
                   {lang === 'ru' ? 'Закрыть' : 'Close'}
                 </button>
               </div>
             </div>
 
-            {/* EDITOR WORKSPACE */}
-            <div className="flex-1 overflow-y-auto p-4 sm:p-8 bg-[#222222] flex justify-center">
-              
-              {/* VIRTUAL PAPER SHEET */}
-              <div className="max-w-3xl w-full bg-[#FFFFFF] text-[#111111] shadow-2xl rounded-sm p-8 sm:p-14 min-h-[90vh] space-y-6 font-serif">
+            {/* EDITOR CANVAS CONTAINER */}
+            <div className="flex-1 overflow-y-auto p-4 sm:p-8 bg-[#1e1e1e] flex justify-center">
+              <div className="max-w-3xl w-full bg-[#FFFFFF] text-[#111111] shadow-2xl rounded-lg p-8 sm:p-14 min-h-[90vh] space-y-6 font-serif">
                 
                 <div className="text-center pb-6 border-b border-stone-200">
-                  <h2 className="text-2xl font-bold font-serif mb-1">
+                  <h2 className="text-2xl font-bold font-serif mb-1 text-stone-900">
                     {doc.title}
                   </h2>
                   <p className="text-xs text-stone-500 font-mono">
@@ -759,7 +963,7 @@ export const BookReader: React.FC<BookReaderProps> = ({ onBack, initialLang = 'r
                       <div
                         key={block.id || idx}
                         onClick={() => setActiveEditIndex(idx)}
-                        className={`p-3 rounded border transition-all ${isActive ? 'border-blue-500 ring-2 ring-blue-500/20 bg-blue-50/10' : 'border-stone-200 hover:border-stone-300'}`}
+                        className={`p-3 rounded-lg border transition-all ${isActive ? 'border-blue-500 ring-2 ring-blue-500/20 bg-blue-50/10' : 'border-stone-200 hover:border-stone-300'}`}
                       >
                         <div className="flex items-center justify-between text-xs text-stone-400 font-mono mb-2">
                           <span>[Фотография #{idx + 1}]</span>
@@ -781,7 +985,7 @@ export const BookReader: React.FC<BookReaderProps> = ({ onBack, initialLang = 'r
                           value={block.caption || ''}
                           onChange={(e) => handleUpdateBlockCaption(idx, e.target.value)}
                           placeholder={lang === 'ru' ? 'Подпись к иллюстрации...' : 'Image caption...'}
-                          className="w-full px-2 py-1 text-xs italic font-sans border border-stone-300 rounded bg-stone-50 focus:bg-white focus:outline-blue-500"
+                          className="w-full px-3 py-1.5 text-xs italic font-sans border border-stone-300 rounded-md bg-stone-50 focus:bg-white focus:outline-blue-500"
                         />
                       </div>
                     );
@@ -799,9 +1003,9 @@ export const BookReader: React.FC<BookReaderProps> = ({ onBack, initialLang = 'r
                     <div
                       key={block.id || idx}
                       onClick={() => setActiveEditIndex(idx)}
-                      className={`relative group p-2 rounded transition-all ${isActive ? 'bg-amber-50/40 ring-1 ring-blue-400' : 'hover:bg-stone-50'}`}
+                      className={`relative group p-2.5 rounded-lg transition-all ${isActive ? 'bg-amber-50/50 ring-1 ring-blue-400' : 'hover:bg-stone-50'}`}
                     >
-                      {/* MINI WORD TOOLBAR ON ACTIVE BLOCK */}
+                      {/* MINI WORD TOOLBAR */}
                       {isActive && (
                         <div className="mb-2 p-1 bg-stone-100 border border-stone-300 rounded text-xs flex items-center gap-1 font-sans shadow-xs">
                           <button
