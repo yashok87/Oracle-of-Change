@@ -41,11 +41,11 @@ export function subscribeToBookDocument(lang: 'ru' | 'en', callback: (doc: BookD
   const docId = lang === 'ru' ? 'cyprus_travels_ru' : 'cyprus_travels_en';
   const docRef = doc(db, COLLECTION_NAME, docId);
 
-  const unsubscribe = onSnapshot(docRef, (snap) => {
-    if (snap.exists()) {
+  const unsubscribe = onSnapshot(docRef, (snap: any) => {
+    if (snap && snap.exists && snap.exists()) {
       callback(snap.data() as BookDocument);
     }
-  }, (err) => {
+  }, (err: any) => {
     console.warn('Firestore subscription notice:', err);
   });
 

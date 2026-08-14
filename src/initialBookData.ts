@@ -1,6 +1,6 @@
 import { BookBlock, BookDocument } from './bookTypes';
-import ruBlocksJson from '../ru_blocks.json';
-import enBlocksJson from '../en_blocks.json';
+import ruBlocksJson from './ru_blocks.json';
+import enBlocksJson from './en_blocks.json';
 
 export const INITIAL_RU_DOC: BookDocument = {
   id: 'cyprus_travels_ru',
