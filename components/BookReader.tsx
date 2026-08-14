@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BookDocument, BookBlock } from '../src/bookTypes';
-import { fetchBookDocument, saveBookDocument, subscribeToBookDocument } from '../src/bookService';
+import { fetchBookDocument, saveBookDocument, subscribeToBookDocument, resetBookToInitial } from '../src/bookService';
 import { INITIAL_RU_DOC, INITIAL_EN_DOC } from '../src/initialBookData';
 import { printBookToPDF } from '../src/bookPrintHelper';
 
@@ -150,6 +150,42 @@ export const BookReader: React.FC<BookReaderProps> = ({
   };
 
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncMessage, setSyncMessage] = useState<string | null>(null);
+
+  // Force fetch fresh manuscript from Cloud with cache stripped
+  const handleForceRefresh = async () => {
+    setIsSyncing(true);
+    try {
+      const fresh = await fetchBookDocument(lang);
+      setDoc(fresh);
+      setSyncMessage(lang === 'ru' ? 'Обновлено' : 'Synced');
+      setTimeout(() => setSyncMessage(null), 2500);
+    } catch {
+      setSyncMessage(lang === 'ru' ? 'Ошибка' : 'Error');
+      setTimeout(() => setSyncMessage(null), 2500);
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  // Restore clean manuscript version from code definition into Firestore
+  const handleResetToCleanOriginal = async () => {
+    if (!confirm(lang === 'ru' ? 'Восстановить оригинальный чистый текст рукописи и перезаписать его в облачную базу данных?' : 'Reset to original clean manuscript text and overwrite in Cloud Firestore?')) {
+      return;
+    }
+    setSaveStatus('saving');
+    try {
+      const restored = await resetBookToInitial(lang);
+      setDoc(restored);
+      setEditBlocks(JSON.parse(JSON.stringify(restored.blocks)));
+      setSaveStatus('saved');
+      setTimeout(() => setSaveStatus('idle'), 2500);
+    } catch (err: any) {
+      setSaveStatus('error');
+      setSaveErrorMsg(err?.message || 'Reset failed');
+    }
+  };
 
   // Download PDF handler - triggers standalone publication-grade PDF print
   const handleDownloadPDF = async () => {
@@ -629,6 +665,26 @@ export const BookReader: React.FC<BookReaderProps> = ({
                 A++
               </button>
             </div>
+
+            {/* Cloud Sync & Fresh Load Button */}
+            <button
+              id="book_force_refresh_btn"
+              onClick={handleForceRefresh}
+              disabled={isSyncing}
+              className={`px-2.5 py-1.5 rounded-full border text-xs font-mono flex items-center gap-1.5 transition-all active:scale-95 shadow-xs cursor-pointer ${
+                isRenoir
+                  ? 'border-amber-800/60 bg-amber-950/50 text-amber-200 hover:bg-amber-900/60'
+                  : 'border-black/10 bg-white/70 text-stone-800 hover:bg-black/5'
+              }`}
+              title={lang === 'ru' ? 'Загрузить свежую копию из базы (сбросить кэш)' : 'Sync fresh copy from Cloud (bypass cache)'}
+            >
+              <svg className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin text-amber-400' : 'text-emerald-500'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              <span className="hidden sm:inline">
+                {isSyncing ? (lang === 'ru' ? 'Синхронизация...' : 'Syncing...') : (syncMessage || (lang === 'ru' ? 'Синхронизация' : 'Sync'))}
+              </span>
+            </button>
 
             {/* Download PDF button */}
             <button
@@ -1194,6 +1250,19 @@ export const BookReader: React.FC<BookReaderProps> = ({
                     ⚠ {saveErrorMsg || 'Error'}
                   </span>
                 )}
+
+                <button
+                  id="editor_reset_initial_btn"
+                  onClick={handleResetToCleanOriginal}
+                  disabled={saveStatus === 'saving'}
+                  className="px-3 py-2 rounded-lg bg-amber-950/70 hover:bg-amber-900 border border-amber-600/40 text-amber-200 text-xs font-mono flex items-center gap-1.5 shadow-sm transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
+                  title={lang === 'ru' ? 'Восстановить оригинальный чистый текст книги из базы' : 'Reset to original clean book text in database'}
+                >
+                  <svg className="w-3.5 h-3.5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  <span>{lang === 'ru' ? 'Восстановить оригинал' : 'Reset Original'}</span>
+                </button>
                 
                 <button
                   id="editor_save_firebase_btn"

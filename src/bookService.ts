@@ -15,7 +15,7 @@ export async function fetchBookDocument(lang: 'ru' | 'en'): Promise<BookDocument
         return data;
       }
     }
-    // Initialize with base content
+    // Initialize with base content if empty or missing
     const initial = lang === 'ru' ? INITIAL_RU_DOC : INITIAL_EN_DOC;
     await setDoc(docRef, initial);
     return initial;
@@ -39,6 +39,19 @@ export async function saveBookDocument(document: BookDocument): Promise<void> {
   }
 }
 
+export async function resetBookToInitial(lang: 'ru' | 'en'): Promise<BookDocument> {
+  const docId = lang === 'ru' ? 'cyprus_travels_ru' : 'cyprus_travels_en';
+  const docRef = doc(db, COLLECTION_NAME, docId);
+  const initial = lang === 'ru' ? INITIAL_RU_DOC : INITIAL_EN_DOC;
+  const updatedDoc: BookDocument = {
+    ...initial,
+    updatedAt: new Date().toISOString(),
+    updatedBy: 'Admin (Reset to initial)'
+  };
+  await setDoc(docRef, updatedDoc);
+  return updatedDoc;
+}
+
 export function subscribeToBookDocument(lang: 'ru' | 'en', callback: (doc: BookDocument) => void): () => void {
   const docId = lang === 'ru' ? 'cyprus_travels_ru' : 'cyprus_travels_en';
   const docRef = doc(db, COLLECTION_NAME, docId);
@@ -53,3 +66,4 @@ export function subscribeToBookDocument(lang: 'ru' | 'en', callback: (doc: BookD
 
   return unsubscribe;
 }
+

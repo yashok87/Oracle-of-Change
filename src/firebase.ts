@@ -33,8 +33,15 @@ export function doc(_db: any, collection: string, id: string): FirestoreDocRef {
 
 export async function getDoc<T = any>(docRef: FirestoreDocRef): Promise<FirestoreDocSnapshot<T>> {
   try {
-    const url = `${BASE_URL}/${docRef.path}?key=${API_KEY}`;
-    const res = await fetch(url);
+    const url = `${BASE_URL}/${docRef.path}?key=${API_KEY}&_cb=${Date.now()}`;
+    const res = await fetch(url, {
+      cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    });
     if (!res.ok) {
       if (res.status === 404) {
         return {
@@ -78,7 +85,7 @@ export async function getDoc<T = any>(docRef: FirestoreDocRef): Promise<Firestor
 }
 
 export async function setDoc<T = any>(docRef: FirestoreDocRef, data: T): Promise<void> {
-  const url = `${BASE_URL}/${docRef.path}?key=${API_KEY}`;
+  const url = `${BASE_URL}/${docRef.path}?key=${API_KEY}&_cb=${Date.now()}`;
   const payload = {
     fields: {
       payload: {
@@ -93,7 +100,9 @@ export async function setDoc<T = any>(docRef: FirestoreDocRef, data: T): Promise
   const res = await fetch(url, {
     method: 'PATCH',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache'
     },
     body: JSON.stringify(payload)
   });
