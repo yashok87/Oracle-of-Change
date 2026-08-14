@@ -7,6 +7,7 @@ import { consultOracle, regenerateOracleImage, translateOracleResponse, speakTex
 import { RatioIndicator } from './components/RatioIndicator';
 import { LoadingScreen } from './components/LoadingScreen';
 import { ThemeBackground } from './components/ThemeBackground';
+import { BookReader } from './components/BookReader';
 
 type Theme = 'SUPREMATIST' | 'IMPRESSIONIST';
 type Language = 'EN' | 'RU';
@@ -557,7 +558,7 @@ export const App: React.FC = () => {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [learningProfile, setLearningProfile] = useState<LearningProfile | null>(null);
   const [selectedImageModel, setSelectedImageModel] = useState<string>('flux');
-  const [activePage, setActivePage] = useState<'ORACLE' | 'MUSIC' | 'ABOUT'>('MUSIC');
+  const [activePage, setActivePage] = useState<'ORACLE' | 'MUSIC' | 'ABOUT' | 'BOOK'>('MUSIC');
   const [musicScrollSection, setMusicScrollSection] = useState<'APPS' | 'MUSIC' | 'BOOK'>('APPS');
   const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
   const [isMusicMuted, setIsMusicMuted] = useState(true);
@@ -879,6 +880,17 @@ export const App: React.FC = () => {
                 <span className="block text-xl md:text-2xl font-black uppercase tracking-tighter group-hover:translate-x-3 transition-transform duration-500 leading-none">{t.jacobMusic}</span>
               </button>
 
+              <button 
+                onClick={() => { setActivePage('BOOK'); setIsSideMenuOpen(false); }}
+                className="group text-left space-y-2 transition-all outline-none"
+              >
+                <div className="flex items-center gap-3">
+                   <span className="text-[10px] font-black uppercase tracking-widest opacity-20 group-hover:opacity-100 transition-opacity">04</span>
+                   <div className={`h-px w-0 group-hover:w-4 transition-all duration-300 ${isRenoir ? 'bg-amber-500' : 'bg-red-600'}`} />
+                </div>
+                <span className="block text-xl md:text-2xl font-black uppercase tracking-tighter group-hover:translate-x-3 transition-transform duration-500 leading-none">{t.bookBadge}</span>
+              </button>
+
               <a 
                 href="https://www.youtube.com/@yashok" 
                 target="_blank" 
@@ -887,7 +899,7 @@ export const App: React.FC = () => {
                 className="group block space-y-2 transition-all outline-none"
               >
                 <div className="flex items-center gap-3">
-                   <span className="text-[10px] font-black uppercase tracking-widest opacity-20 group-hover:opacity-100 transition-opacity">04</span>
+                   <span className="text-[10px] font-black uppercase tracking-widest opacity-20 group-hover:opacity-100 transition-opacity">05</span>
                    <div className={`h-px w-0 group-hover:w-4 transition-all duration-300 ${isRenoir ? 'bg-amber-500' : 'bg-red-600'}`} />
                 </div>
                 <span className="block text-xl md:text-2xl font-black uppercase tracking-tighter group-hover:translate-x-3 transition-transform duration-500 leading-none">{t.youtubeChannel}</span>
@@ -1179,11 +1191,9 @@ export const App: React.FC = () => {
 
           {/* Section 3: Book / Pilgrimage Section */}
           <div id="book-section" className="w-full max-w-4xl mx-auto pt-16 pb-4 animate-in fade-in slide-in-from-bottom duration-1000">
-            <a 
-              href="https://vozduh.wordpress.com" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className={`group relative block p-8 md:p-10 rounded-3xl border transition-all duration-500 hover:scale-[1.01] shadow-2xl overflow-hidden ${
+            <button 
+              onClick={() => setActivePage('BOOK')}
+              className={`group relative w-full text-left p-8 md:p-10 rounded-3xl border transition-all duration-500 hover:scale-[1.01] shadow-2xl overflow-hidden cursor-pointer ${
                 isRenoir 
                   ? 'border-amber-700/50 bg-gradient-to-br from-amber-950/80 via-amber-900/30 to-amber-950/90 text-amber-100 hover:border-amber-400 hover:shadow-amber-950/60' 
                   : 'border-stone-800/80 bg-stone-900/80 text-stone-100 hover:border-black hover:bg-stone-950 hover:shadow-2xl'
@@ -1234,10 +1244,10 @@ export const App: React.FC = () => {
                   }`}>
                     {t.bookRead}
                   </span>
-                  <Icons.External className={`w-4 h-4 transition-all text-amber-300 opacity-90 group-hover:opacity-100 group-hover:translate-x-1`} />
+                  <Icons.ArrowLeft className={`w-4 h-4 rotate-180 transition-all text-amber-300 opacity-90 group-hover:opacity-100 group-hover:translate-x-1`} />
                 </div>
               </div>
-            </a>
+            </button>
           </div>
 
           {/* Footer Instructions Section */}
@@ -2679,6 +2689,11 @@ export const App: React.FC = () => {
        {GlassSidebar}
        {JacobMusicPage}
        {AboutPage}
+       {activePage === 'BOOK' && (
+         <div className="fixed inset-0 z-[3000] overflow-hidden">
+           <BookReader onBack={() => setActivePage('MUSIC')} initialLang={uiLanguage === 'RU' ? 'ru' : 'en'} />
+         </div>
+       )}
        {showProfilingModal && ProfilingModal}
        {showCalibrationPopup && CalibrationPopup}
        {PerspectivesModal}

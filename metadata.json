@@ -1,5 +1,8 @@
 {
   "name": "Jacob Kelbert - Home to The Oracle and Dream Analysis Apps",
   "description": "Jacob Kelbert is an independent musician and producer. This website contains also two AI engines: Oracle, a philosophical app, and a tool for Dream Analysis.",
-  "requestFramePermissions": []
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
 }

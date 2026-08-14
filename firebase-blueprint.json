@@ -1,0 +1,18 @@
+{
+  "entities": {
+    "book_documents": {
+      "title": "Book Document",
+      "description": "Stores edited versions of the Cyprus pilgrimage book",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "language": { "type": "string" },
+        "blocks": { "type": "array" },
+        "updatedAt": { "type": "string" },
+        "updatedBy": { "type": "string" }
+      },
+      "required": ["id", "language", "blocks", "updatedAt"]
+    }
+  }
+}
