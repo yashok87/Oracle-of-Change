@@ -13,6 +13,18 @@ interface BookReaderProps {
   setUiLanguage?: React.Dispatch<React.SetStateAction<'EN' | 'RU'>>;
 }
 
+export type FontOption = 'pt-serif' | 'merriweather' | 'lora' | 'garamond' | 'playfair' | 'inter' | 'mono';
+
+const FONT_OPTIONS: { id: FontOption; nameRu: string; nameEn: string; css: string }[] = [
+  { id: 'pt-serif', nameRu: 'PT Serif (Классика)', nameEn: 'PT Serif (Classic)', css: '"PT Serif", Georgia, serif' },
+  { id: 'merriweather', nameRu: 'Merriweather (Книжный)', nameEn: 'Merriweather (Book)', css: '"Merriweather", Georgia, serif' },
+  { id: 'lora', nameRu: 'Lora (Изящный)', nameEn: 'Lora (Elegant)', css: '"Lora", Georgia, serif' },
+  { id: 'garamond', nameRu: 'EB Garamond (Антиква)', nameEn: 'EB Garamond (Antiqua)', css: '"EB Garamond", Garamond, serif' },
+  { id: 'playfair', nameRu: 'Playfair Display', nameEn: 'Playfair Display', css: '"Playfair Display", Georgia, serif' },
+  { id: 'inter', nameRu: 'Inter (Без засечек)', nameEn: 'Inter (Modern Sans)', css: '"Inter", -apple-system, sans-serif' },
+  { id: 'mono', nameRu: 'JetBrains Mono', nameEn: 'JetBrains Mono', css: '"JetBrains Mono", Courier, monospace' },
+];
+
 export const BookReader: React.FC<BookReaderProps> = ({
   onBack,
   initialLang = 'ru',
@@ -29,7 +41,8 @@ export const BookReader: React.FC<BookReaderProps> = ({
   const [doc, setDoc] = useState<BookDocument>(lang === 'ru' ? INITIAL_RU_DOC : INITIAL_EN_DOC);
   const [loading, setLoading] = useState(false);
   const [fontSize, setFontSize] = useState<'sm' | 'md' | 'lg' | 'xl'>('md');
-  const [fontFamily, setFontFamily] = useState<'serif' | 'sans'>('serif');
+  const [selectedFont, setSelectedFont] = useState<FontOption>('pt-serif');
+  const [showFontMenu, setShowFontMenu] = useState(false);
   
   // Custom ambiance mode (auto-aligns with Mode A / Mode B by default)
   const [ambianceOverride, setAmbianceOverride] = useState<'auto' | 'paper' | 'sepia' | 'dark' | 'stark'>('auto');
@@ -213,6 +226,16 @@ export const BookReader: React.FC<BookReaderProps> = ({
     setActiveEditIndex(index + 1);
   };
 
+  const handleAddBlockAtEnd = () => {
+    const newBlock: BookBlock = {
+      id: `block_custom_${Date.now()}`,
+      type: 'paragraph',
+      text: lang === 'ru' ? 'Новый фрагмент текста...' : 'New section text...'
+    };
+    setEditBlocks(prev => [...prev, newBlock]);
+    setActiveEditIndex(editBlocks.length);
+  };
+
   const handleDeleteBlock = (index: number) => {
     if (confirm(lang === 'ru' ? 'Удалить этот фрагмент?' : 'Delete this block?')) {
       setEditBlocks(prev => prev.filter((_, i) => i !== index));
@@ -324,7 +347,7 @@ export const BookReader: React.FC<BookReaderProps> = ({
     xl: 'text-[23px] sm:text-[24.5px] leading-[1.95]'
   }[fontSize];
 
-  const fontClass = fontFamily === 'serif' ? 'font-serif' : 'font-sans';
+  const currentFontConfig = FONT_OPTIONS.find(f => f.id === selectedFont) || FONT_OPTIONS[0];
 
   // Filter blocks if search query present
   const displayBlocks = useMemo(() => {
@@ -386,7 +409,7 @@ export const BookReader: React.FC<BookReaderProps> = ({
             </div>
           </div>
 
-          {/* Right: Mode A/B Switcher + Language + Reader Controls */}
+          {/* Right: Mode A/B Switcher + Language + Fonts + Reader Controls */}
           <div className="flex items-center flex-wrap gap-2 sm:gap-3">
             
             {/* Master Theme Mode A / Mode B & Language Pill (Synchronized with Global UI) */}
@@ -436,42 +459,106 @@ export const BookReader: React.FC<BookReaderProps> = ({
               />
             </div>
 
-            {/* Typography Controls */}
-            <div className="hidden sm:flex items-center gap-1 pl-1 border-l border-black/10 dark:border-white/10 text-xs font-mono">
+            {/* FONT SELECTOR DROPDOWN */}
+            <div className="relative">
               <button
-                onClick={() => setFontFamily(prev => prev === 'serif' ? 'sans' : 'serif')}
-                className="px-2 py-1 rounded hover:bg-black/5 dark:hover:bg-white/5 opacity-80 hover:opacity-100"
-                title="Toggle font"
+                id="book_font_selector_btn"
+                onClick={() => setShowFontMenu(!showFontMenu)}
+                className={`px-2.5 py-1 rounded-lg border text-xs font-mono flex items-center gap-1.5 transition-all ${
+                  isRenoir
+                    ? 'border-amber-900/50 bg-amber-950/40 text-amber-200 hover:bg-amber-900/50'
+                    : 'border-black/10 bg-white/60 text-stone-800 hover:bg-black/5'
+                }`}
+                title="Choose Typography / Font"
               >
-                {fontFamily === 'serif' ? 'Serif' : 'Sans'}
+                <span className="text-[11px]">🔤</span>
+                <span className="hidden sm:inline font-sans font-medium text-[11.5px]">
+                  {lang === 'ru' ? currentFontConfig.nameRu.split(' ')[0] : currentFontConfig.nameEn.split(' ')[0]}
+                </span>
+                <svg className="w-3 h-3 opacity-60" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
               </button>
 
-              <div className="inline-flex">
-                <button
-                  onClick={() => setFontSize('sm')}
-                  className={`px-1.5 py-1 rounded ${fontSize === 'sm' ? 'font-bold underline' : 'opacity-60'}`}
-                >
-                  A-
-                </button>
-                <button
-                  onClick={() => setFontSize('md')}
-                  className={`px-1.5 py-1 rounded ${fontSize === 'md' ? 'font-bold underline' : 'opacity-60'}`}
-                >
-                  A
-                </button>
-                <button
-                  onClick={() => setFontSize('lg')}
-                  className={`px-1.5 py-1 rounded ${fontSize === 'lg' ? 'font-bold underline' : 'opacity-60'}`}
-                >
-                  A+
-                </button>
-                <button
-                  onClick={() => setFontSize('xl')}
-                  className={`px-1.5 py-1 rounded ${fontSize === 'xl' ? 'font-bold underline' : 'opacity-60'}`}
-                >
-                  A++
-                </button>
-              </div>
+              <AnimatePresence>
+                {showFontMenu && (
+                  <>
+                    <div
+                      className="fixed inset-0 z-40"
+                      onClick={() => setShowFontMenu(false)}
+                    />
+                    <motion.div
+                      initial={{ opacity: 0, y: 5, scale: 0.96 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 5, scale: 0.96 }}
+                      className={`absolute right-0 top-full mt-1.5 z-50 w-56 rounded-xl border shadow-xl p-1.5 ${
+                        isRenoir
+                          ? 'bg-[#180a0a] border-amber-900/60 text-amber-100 shadow-black/80'
+                          : 'bg-white border-stone-200 text-stone-900 shadow-stone-400/20'
+                      }`}
+                    >
+                      <div className="text-[10px] font-mono uppercase tracking-wider px-2.5 py-1 opacity-50 border-b border-black/5 dark:border-white/5 mb-1">
+                        {lang === 'ru' ? 'Шрифт рукописи' : 'Typography'}
+                      </div>
+                      {FONT_OPTIONS.map((f) => {
+                        const isSelected = f.id === selectedFont;
+                        return (
+                          <button
+                            key={f.id}
+                            onClick={() => {
+                              setSelectedFont(f.id);
+                              setShowFontMenu(false);
+                            }}
+                            style={{ fontFamily: f.css }}
+                            className={`w-full text-left px-2.5 py-1.5 rounded-lg text-sm flex items-center justify-between transition-colors ${
+                              isSelected
+                                ? isRenoir
+                                  ? 'bg-amber-600/30 text-amber-300 font-bold'
+                                  : 'bg-stone-100 text-stone-950 font-bold'
+                                : 'hover:bg-black/5 dark:hover:bg-white/5 opacity-80 hover:opacity-100'
+                            }`}
+                          >
+                            <span>{lang === 'ru' ? f.nameRu : f.nameEn}</span>
+                            {isSelected && <span className="text-xs">✓</span>}
+                          </button>
+                        );
+                      })}
+                    </motion.div>
+                  </>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Typography Size Controls */}
+            <div className="hidden sm:flex items-center gap-0.5 text-xs font-mono border-l border-black/10 dark:border-white/10 pl-1.5">
+              <button
+                onClick={() => setFontSize('sm')}
+                className={`px-1.5 py-1 rounded ${fontSize === 'sm' ? 'font-bold underline' : 'opacity-60'}`}
+                title="Small text"
+              >
+                A-
+              </button>
+              <button
+                onClick={() => setFontSize('md')}
+                className={`px-1.5 py-1 rounded ${fontSize === 'md' ? 'font-bold underline' : 'opacity-60'}`}
+                title="Standard text"
+              >
+                A
+              </button>
+              <button
+                onClick={() => setFontSize('lg')}
+                className={`px-1.5 py-1 rounded ${fontSize === 'lg' ? 'font-bold underline' : 'opacity-60'}`}
+                title="Large text"
+              >
+                A+
+              </button>
+              <button
+                onClick={() => setFontSize('xl')}
+                className={`px-1.5 py-1 rounded ${fontSize === 'xl' ? 'font-bold underline' : 'opacity-60'}`}
+                title="Extra large text"
+              >
+                A++
+              </button>
             </div>
 
             {/* Editor Login / Access Button */}
@@ -534,7 +621,10 @@ export const BookReader: React.FC<BookReaderProps> = ({
       )}
 
       {/* MAIN SCROLLABLE CONTENT BODY */}
-      <main className="flex-1 max-w-4xl w-full mx-auto px-5 sm:px-10 py-10 sm:py-16">
+      <main
+        style={{ fontFamily: currentFontConfig.css }}
+        className="flex-1 max-w-4xl w-full mx-auto px-5 sm:px-10 py-10 sm:py-16"
+      >
         
         {/* HERO TITLE SECTION */}
         <div id="book_title_section" className="text-center mb-12 sm:mb-16 border-b border-black/10 dark:border-white/10 pb-10">
@@ -542,11 +632,11 @@ export const BookReader: React.FC<BookReaderProps> = ({
             {lang === 'ru' ? 'Паломнические записки • Кипр' : 'Pilgrimage Chronicles • Cyprus'}
           </div>
 
-          <h1 className={`text-3xl sm:text-5xl font-serif font-bold tracking-tight mb-4 ${skinStyles.heroTitle}`}>
+          <h1 className={`text-3xl sm:text-5xl font-bold tracking-tight mb-4 ${skinStyles.heroTitle}`}>
             {doc.title || (lang === 'ru' ? 'Прогулки по острову' : 'Walks Around the Island')}
           </h1>
 
-          <p className={`text-base sm:text-lg font-serif italic max-w-xl mx-auto mb-5 ${skinStyles.subtext}`}>
+          <p className={`text-base sm:text-lg italic max-w-xl mx-auto mb-5 ${skinStyles.subtext}`}>
             {lang === 'ru' ? 'Яков Кельберт' : 'Jacob Kelbert'}
           </p>
 
@@ -610,7 +700,7 @@ export const BookReader: React.FC<BookReaderProps> = ({
         </div>
 
         {/* MANUSCRIPT READING FLOW */}
-        <article className={`space-y-6 sm:space-y-7 ${fontSizeClass} ${fontClass}`}>
+        <article className={`space-y-6 sm:space-y-7 ${fontSizeClass}`}>
           {displayBlocks.length === 0 && (
             <div className="text-center py-16 opacity-60 font-mono text-sm">
               {lang === 'ru' ? 'По вашему запросу ничего не найдено.' : 'No matches found for your search.'}
@@ -624,7 +714,7 @@ export const BookReader: React.FC<BookReaderProps> = ({
               return (
                 <div key={block.id || idx} className="py-8 flex items-center justify-center gap-4 opacity-50">
                   <div className={`w-14 h-px ${skinStyles.divider}`} />
-                  <span className={`font-serif tracking-widest text-base ${skinStyles.accent}`}>❦</span>
+                  <span className={`tracking-widest text-base ${skinStyles.accent}`}>❦</span>
                   <div className={`w-14 h-px ${skinStyles.divider}`} />
                 </div>
               );
@@ -635,7 +725,7 @@ export const BookReader: React.FC<BookReaderProps> = ({
               return (
                 <h2
                   key={block.id || idx}
-                  className={`text-2xl sm:text-3xl font-serif font-bold pt-8 pb-3 ${skinStyles.heroTitle}`}
+                  className={`text-2xl sm:text-3xl font-bold pt-8 pb-3 ${skinStyles.heroTitle}`}
                 >
                   {block.text}
                 </h2>
@@ -699,7 +789,7 @@ export const BookReader: React.FC<BookReaderProps> = ({
               <p
                 key={block.id || idx}
                 style={inlineStyles}
-                className="leading-relaxed font-serif text-justify sm:text-left transition-colors"
+                className="leading-relaxed text-justify sm:text-left transition-colors"
               >
                 {block.text}
               </p>
@@ -709,7 +799,7 @@ export const BookReader: React.FC<BookReaderProps> = ({
 
         {/* BOTTOM NAVIGATION & FOOTER */}
         <div className="mt-20 pt-12 border-t border-black/10 dark:border-white/10 text-center space-y-6">
-          <div className={`text-sm font-serif italic ${skinStyles.subtext}`}>
+          <div className={`text-sm italic ${skinStyles.subtext}`}>
             — {lang === 'ru' ? 'Конец паломнических заметок' : 'End of pilgrimage chronicles'} —
           </div>
           
@@ -883,7 +973,7 @@ export const BookReader: React.FC<BookReaderProps> = ({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-stone-950/90 backdrop-blur-xl flex flex-col"
+            className="fixed inset-0 z-50 bg-stone-950/95 backdrop-blur-xl flex flex-col"
           >
             {/* RIBBON HEADER */}
             <div className="bg-stone-900 text-stone-100 border-b border-stone-800 px-4 py-3 flex flex-wrap items-center justify-between gap-3 shrink-0 shadow-lg">
@@ -924,7 +1014,7 @@ export const BookReader: React.FC<BookReaderProps> = ({
                   id="editor_save_firebase_btn"
                   onClick={handleSaveToFirebase}
                   disabled={saveStatus === 'saving'}
-                  className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold flex items-center gap-1.5 shadow-md transition-all active:scale-95 disabled:opacity-50"
+                  className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold flex items-center gap-1.5 shadow-md transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
                 >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
@@ -934,19 +1024,22 @@ export const BookReader: React.FC<BookReaderProps> = ({
 
                 <button
                   onClick={() => setIsEditorOpen(false)}
-                  className="px-3.5 py-2 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-300 text-xs font-mono"
+                  className="px-3.5 py-2 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-300 text-xs font-mono cursor-pointer"
                 >
                   {lang === 'ru' ? 'Закрыть' : 'Close'}
                 </button>
               </div>
             </div>
 
-            {/* EDITOR CANVAS CONTAINER */}
-            <div className="flex-1 overflow-y-auto p-4 sm:p-8 bg-[#1e1e1e] flex justify-center">
-              <div className="max-w-3xl w-full bg-[#FFFFFF] text-[#111111] shadow-2xl rounded-lg p-8 sm:p-14 min-h-[90vh] space-y-6 font-serif">
+            {/* EDITOR CANVAS CONTAINER WITH FULL-HEIGHT CONTINUOUS WHITE SHEET */}
+            <div className="flex-1 overflow-y-auto p-4 sm:p-8 bg-[#1e1e1e] flex justify-center items-start">
+              <div
+                style={{ fontFamily: currentFontConfig.css }}
+                className="max-w-3xl w-full bg-[#FFFFFF] text-[#111111] shadow-2xl rounded-xl p-6 sm:p-14 my-4 mb-28 space-y-6 transition-all"
+              >
                 
                 <div className="text-center pb-6 border-b border-stone-200">
-                  <h2 className="text-2xl font-bold font-serif mb-1 text-stone-900">
+                  <h2 className="text-2xl font-bold mb-1 text-stone-900">
                     {doc.title}
                   </h2>
                   <p className="text-xs text-stone-500 font-mono">
@@ -969,7 +1062,7 @@ export const BookReader: React.FC<BookReaderProps> = ({
                           <span>[Фотография #{idx + 1}]</span>
                           <button
                             onClick={(e) => { e.stopPropagation(); handleDeleteBlock(idx); }}
-                            className="text-red-500 hover:underline"
+                            className="text-red-500 hover:underline cursor-pointer"
                           >
                             Удалить
                           </button>
@@ -993,7 +1086,7 @@ export const BookReader: React.FC<BookReaderProps> = ({
 
                   if (block.type === 'divider' || block.text?.trim() === '***') {
                     return (
-                      <div key={block.id || idx} className="py-2 text-center text-stone-400 font-serif tracking-widest text-xs">
+                      <div key={block.id || idx} className="py-2 text-center text-stone-400 tracking-widest text-xs">
                         * * *
                       </div>
                     );
@@ -1003,28 +1096,28 @@ export const BookReader: React.FC<BookReaderProps> = ({
                     <div
                       key={block.id || idx}
                       onClick={() => setActiveEditIndex(idx)}
-                      className={`relative group p-2.5 rounded-lg transition-all ${isActive ? 'bg-amber-50/50 ring-1 ring-blue-400' : 'hover:bg-stone-50'}`}
+                      className={`relative group p-2.5 rounded-lg transition-all ${isActive ? 'bg-amber-50/60 ring-1 ring-blue-400' : 'hover:bg-stone-50'}`}
                     >
                       {/* MINI WORD TOOLBAR */}
                       {isActive && (
                         <div className="mb-2 p-1 bg-stone-100 border border-stone-300 rounded text-xs flex items-center gap-1 font-sans shadow-xs">
                           <button
                             onClick={() => handleToggleStyle(idx, 'bold')}
-                            className={`w-6 h-6 rounded font-bold ${block.customStyle?.bold ? 'bg-stone-300' : 'hover:bg-stone-200'}`}
+                            className={`w-6 h-6 rounded font-bold cursor-pointer ${block.customStyle?.bold ? 'bg-stone-300' : 'hover:bg-stone-200'}`}
                             title="Bold"
                           >
                             B
                           </button>
                           <button
                             onClick={() => handleToggleStyle(idx, 'italic')}
-                            className={`w-6 h-6 rounded italic font-serif ${block.customStyle?.italic ? 'bg-stone-300' : 'hover:bg-stone-200'}`}
+                            className={`w-6 h-6 rounded italic cursor-pointer ${block.customStyle?.italic ? 'bg-stone-300' : 'hover:bg-stone-200'}`}
                             title="Italic"
                           >
                             I
                           </button>
                           <button
                             onClick={() => handleToggleStyle(idx, 'underline')}
-                            className={`w-6 h-6 rounded underline ${block.customStyle?.underline ? 'bg-stone-300' : 'hover:bg-stone-200'}`}
+                            className={`w-6 h-6 rounded underline cursor-pointer ${block.customStyle?.underline ? 'bg-stone-300' : 'hover:bg-stone-200'}`}
                             title="Underline"
                           >
                             U
@@ -1034,21 +1127,21 @@ export const BookReader: React.FC<BookReaderProps> = ({
 
                           <button
                             onClick={() => handleSetAlignment(idx, 'left')}
-                            className="px-1.5 py-0.5 rounded hover:bg-stone-200 text-[10px]"
+                            className="px-1.5 py-0.5 rounded hover:bg-stone-200 text-[10px] cursor-pointer"
                             title="Left"
                           >
                             Left
                           </button>
                           <button
                             onClick={() => handleSetAlignment(idx, 'center')}
-                            className="px-1.5 py-0.5 rounded hover:bg-stone-200 text-[10px]"
+                            className="px-1.5 py-0.5 rounded hover:bg-stone-200 text-[10px] cursor-pointer"
                             title="Center"
                           >
                             Center
                           </button>
                           <button
                             onClick={() => handleSetAlignment(idx, 'justify')}
-                            className="px-1.5 py-0.5 rounded hover:bg-stone-200 text-[10px]"
+                            className="px-1.5 py-0.5 rounded hover:bg-stone-200 text-[10px] cursor-pointer"
                             title="Justify"
                           >
                             Justify
@@ -1058,7 +1151,7 @@ export const BookReader: React.FC<BookReaderProps> = ({
 
                           <button
                             onClick={() => handleAddParagraphBelow(idx)}
-                            className="px-1.5 py-0.5 rounded bg-blue-100 hover:bg-blue-200 text-blue-800 text-[11px]"
+                            className="px-1.5 py-0.5 rounded bg-blue-100 hover:bg-blue-200 text-blue-800 text-[11px] cursor-pointer"
                             title="Add paragraph below"
                           >
                             + Абзац
@@ -1066,7 +1159,7 @@ export const BookReader: React.FC<BookReaderProps> = ({
 
                           <button
                             onClick={() => handleDeleteBlock(idx)}
-                            className="px-1.5 py-0.5 rounded hover:bg-red-100 text-red-600 text-[11px] ml-auto"
+                            className="px-1.5 py-0.5 rounded hover:bg-red-100 text-red-600 text-[11px] ml-auto cursor-pointer"
                             title="Delete"
                           >
                             ✕
@@ -1084,11 +1177,24 @@ export const BookReader: React.FC<BookReaderProps> = ({
                           textDecoration: block.customStyle?.underline ? 'underline' : 'none',
                           textAlign: block.customStyle?.align || 'inherit'
                         }}
-                        className="w-full bg-transparent border-0 resize-none font-serif text-[17px] leading-relaxed text-stone-900 focus:outline-none"
+                        className="w-full bg-transparent border-0 resize-none text-[17px] leading-relaxed text-stone-900 focus:outline-none"
                       />
                     </div>
                   );
                 })}
+
+                {/* END OF DOCUMENT ACTIONS */}
+                <div className="pt-10 pb-6 border-t border-stone-200 text-center space-y-3">
+                  <p className="text-xs text-stone-400 font-mono">
+                    — {lang === 'ru' ? 'Конец документа рукописи' : 'End of manuscript document'} —
+                  </p>
+                  <button
+                    onClick={handleAddBlockAtEnd}
+                    className="px-4 py-2 rounded-lg border border-dashed border-stone-300 hover:border-stone-500 text-xs font-mono text-stone-600 hover:text-stone-900 transition-colors cursor-pointer"
+                  >
+                    + {lang === 'ru' ? 'Добавить фрагмент в конец книги' : 'Add block at end of book'}
+                  </button>
+                </div>
 
               </div>
             </div>
