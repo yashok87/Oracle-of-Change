@@ -874,47 +874,47 @@ export const App: React.FC = () => {
         {/* Watermark-style subtle Learning Style button below navigation */}
         {activePage === 'ORACLE' && (
           learningProfile ? (
-            <div className={`group flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-2xl border backdrop-blur-md transition-all shadow-sm ${
+            <div className={`group flex items-center gap-3 px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl border-2 backdrop-blur-md transition-all shadow-md ${
               isRenoir
-                ? 'bg-amber-950/40 border-amber-900/40 text-amber-100/90'
-                : 'bg-white/60 border-black/10 text-black/80'
+                ? 'bg-amber-950/50 border-amber-900/50 text-amber-100'
+                : 'bg-white/80 border-black/15 text-black'
             }`}>
-              <div className={isRenoir ? 'text-amber-400 opacity-90' : 'text-red-600 opacity-90'}>
-                <Icons.Encyclopedia className="w-4 h-4 opacity-80" />
+              <div className={isRenoir ? 'text-amber-400' : 'text-red-600'}>
+                <Icons.Encyclopedia className="w-6 h-6 opacity-90" />
               </div>
-              <div className="flex flex-col text-left leading-none">
-                <span className="text-[6.5px] sm:text-[7px] font-black uppercase tracking-[0.2em] opacity-50">
+              <div className="flex flex-col text-left leading-tight">
+                <span className="text-[8px] sm:text-[9px] font-black uppercase tracking-[0.25em] opacity-60">
                   {t.profileActive}
                 </span>
-                <span className="text-[8px] sm:text-[8.5px] font-bold tracking-tight whitespace-nowrap mt-0.5">
+                <span className="text-[11px] sm:text-[12px] md:text-[13px] font-bold tracking-tight whitespace-nowrap mt-0.5">
                   {learningProfile.type} • {learningProfile.label}
                 </span>
               </div>
-              <div className="flex items-center gap-1 ml-1 pl-1.5 border-l border-current/15">
-                <button onClick={startProfiling} className="text-[7.5px] font-black uppercase opacity-50 hover:opacity-100 hover:underline px-0.5" title="Change profile">edit</button>
-                <button onClick={cancelProfile} className="text-[9px] text-red-500 opacity-60 hover:opacity-100 font-bold px-0.5" title="Clear profile">✕</button>
+              <div className="flex items-center gap-1.5 ml-2 pl-2 border-l border-current/20">
+                <button onClick={startProfiling} className="text-[9px] sm:text-[10px] font-black uppercase opacity-60 hover:opacity-100 hover:underline px-1" title="Change profile">edit</button>
+                <button onClick={cancelProfile} className="text-[12px] text-red-500 opacity-70 hover:opacity-100 font-bold px-1" title="Clear profile">✕</button>
               </div>
             </div>
           ) : (
             <button
               onClick={startProfiling}
-              className={`group relative flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-2xl border transition-all duration-300 backdrop-blur-md shadow-sm cursor-pointer ${
+              className={`group relative flex items-center gap-3.5 px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl border-2 transition-all duration-300 backdrop-blur-md shadow-md cursor-pointer ${
                 isRenoir
-                  ? 'bg-amber-950/20 border-amber-900/30 text-amber-200/70 hover:text-amber-100 hover:bg-amber-950/45 hover:border-amber-700/50'
-                  : 'bg-white/40 border-black/10 text-black/60 hover:text-black hover:bg-white/80 hover:border-black/20'
+                  ? 'bg-amber-950/35 border-amber-900/40 text-amber-200/80 hover:text-amber-100 hover:bg-amber-950/60 hover:border-amber-600/60'
+                  : 'bg-white/60 border-black/15 text-black/70 hover:text-black hover:bg-white/95 hover:border-black/30'
               }`}
               title={(t as any).adaptOracleSub || t.learningStyle}
             >
-              <div className={`transition-all duration-300 group-hover:scale-105 ${
-                isRenoir ? 'text-amber-400/80 group-hover:text-amber-300' : 'text-black/70 group-hover:text-black'
+              <div className={`transition-all duration-300 group-hover:scale-110 ${
+                isRenoir ? 'text-amber-400 group-hover:text-amber-300' : 'text-black/80 group-hover:text-black'
               }`}>
-                <Icons.Encyclopedia className="w-4 h-4 sm:w-4.5 sm:h-4.5 opacity-70 group-hover:opacity-100 transition-opacity" />
+                <Icons.Encyclopedia className="w-6 h-6 sm:w-7 sm:h-7 opacity-80 group-hover:opacity-100 transition-opacity" />
               </div>
-              <div className="flex flex-col text-left leading-none">
-                <span className="text-[6.5px] sm:text-[7px] font-black uppercase tracking-[0.2em] opacity-50 group-hover:opacity-80 transition-opacity">
+              <div className="flex flex-col text-left leading-tight">
+                <span className="text-[8px] sm:text-[9px] font-black uppercase tracking-[0.25em] opacity-60 group-hover:opacity-90 transition-opacity">
                   {(t as any).adaptOracleHeader || "ADAPT ORACLE"}
                 </span>
-                <span className="text-[7.5px] sm:text-[8px] font-bold tracking-tight opacity-75 group-hover:opacity-100 transition-opacity whitespace-nowrap mt-0.5">
+                <span className="text-[11px] sm:text-[12px] md:text-[13px] font-bold tracking-tight opacity-90 group-hover:opacity-100 transition-opacity whitespace-nowrap mt-0.5">
                   {(t as any).adaptOracleSub || "To your style"}
                 </span>
               </div>
@@ -2683,21 +2683,21 @@ export const App: React.FC = () => {
     );
   } else {
     mainContent = (
-      <div className="z-10 w-full max-w-xl md:max-w-2xl flex flex-col items-center justify-center my-auto px-2 space-y-2 sm:space-y-3 md:space-y-3.5">
-        <div className="space-y-0.5 text-center">
+      <div className="z-10 w-full max-w-xl md:max-w-2xl flex flex-col items-center justify-center my-auto px-4 space-y-4 sm:space-y-5 md:space-y-6">
+        <div className="space-y-1 text-center">
           <h1 
             onClick={triggerConfetti}
-            className="text-2xl sm:text-3xl md:text-4xl font-black uppercase tracking-tighter leading-none whitespace-pre-wrap select-none drop-shadow-md cursor-pointer py-0.5"
+            className="text-3xl sm:text-4xl md:text-5xl font-black uppercase tracking-tighter leading-tight whitespace-pre-wrap select-none drop-shadow-xl cursor-pointer py-1"
           >
             {(t as any)?.title || "The Oracle"}
           </h1>
         </div>
 
-        <form onSubmit={e => { e.preventDefault(); runQuery(inputRef.current?.value || ""); }} className="w-full space-y-2 sm:space-y-3 md:space-y-3.5 flex flex-col items-center">
+        <form onSubmit={e => { e.preventDefault(); runQuery(inputRef.current?.value || ""); }} className="w-full space-y-4 sm:space-y-5 flex flex-col items-center">
           <div className="w-full max-w-md sm:max-w-lg relative">
             {!inputValue && (
               <div 
-                className={`absolute inset-0 flex items-center justify-center pointer-events-none transition-all duration-500 text-center text-sm sm:text-base md:text-lg font-light italic
+                className={`absolute inset-0 flex items-center justify-center pointer-events-none transition-all duration-500 text-center text-base sm:text-lg md:text-xl font-light italic
                   ${isInputFocused ? 'opacity-10' : 'opacity-30'}`}
               >
                 {suggestions[ghostIndex]}
@@ -2708,27 +2708,27 @@ export const App: React.FC = () => {
               onChange={handleInputChange} 
               onFocus={() => setIsInputFocused(true)}
               onBlur={() => setIsInputFocused(false)}
-              className="w-full bg-transparent border-b-2 border-current/10 pb-1 text-center text-sm sm:text-base md:text-lg font-light focus:outline-none focus:border-current transition-all placeholder:opacity-10 relative z-10" 
+              className="w-full bg-transparent border-b-2 md:border-b-4 border-current/15 pb-2 text-center text-base sm:text-lg md:text-xl font-light focus:outline-none focus:border-current transition-all placeholder:opacity-10 relative z-10" 
             />
           </div>
-          <div className="flex flex-col items-center gap-2 sm:gap-2.5 w-full">
-            <div className="flex gap-2 sm:gap-3">
-              <button type="button" onClick={() => { if(isManual) setState(s => ({ ...s, chaosScore: 50, logicScore: 50 })); setIsManual(!isManual); }} className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 rounded-full text-[8px] md:text-[8.5px] font-black uppercase tracking-widest border-2 transition-all shadow-md ${isManual ? (isRenoir ? 'bg-amber-100/15 border-amber-100/40 text-amber-100 ring-1 ring-red-500' : 'bg-zinc-100 border-black/40 text-black ring-1 ring-red-600') : 'opacity-40 border-current hover:opacity-100'}`}>
+          <div className="flex flex-col items-center gap-3 sm:gap-4 w-full">
+            <div className="flex gap-2.5 sm:gap-3">
+              <button type="button" onClick={() => { if(isManual) setState(s => ({ ...s, chaosScore: 50, logicScore: 50 })); setIsManual(!isManual); }} className={`flex items-center gap-2 px-3.5 sm:px-5 py-2 rounded-full text-[9px] sm:text-[10px] md:text-[11px] font-black uppercase tracking-widest border-2 transition-all shadow-md ${isManual ? (isRenoir ? 'bg-amber-100/15 border-amber-100/40 text-amber-100 ring-1 ring-red-500' : 'bg-zinc-100 border-black/40 text-black ring-1 ring-red-600') : 'opacity-50 border-current hover:opacity-100'}`}>
                 <Icons.Settings /> {isManual ? t.cancelManual : t.manualCalibration}
               </button>
-              <button type="button" onClick={handleRandomRequest} className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 rounded-full text-[8px] md:text-[8.5px] font-black uppercase tracking-widest border-2 transition-all shadow-md border-amber-500/50 text-amber-600 hover:bg-amber-500 hover:text-white`}>
+              <button type="button" onClick={handleRandomRequest} className={`flex items-center gap-2 px-3.5 sm:px-5 py-2 rounded-full text-[9px] sm:text-[10px] md:text-[11px] font-black uppercase tracking-widest border-2 transition-all shadow-md border-amber-500/50 text-amber-600 hover:bg-amber-500 hover:text-white`}>
                 <Icons.Sparkle /> {t.randomRequest}
               </button>
             </div>
             
             {isManual && (
-              <div className={`w-full max-w-[280px] p-3.5 sm:p-4 border-2 rounded-2xl space-y-2.5 backdrop-blur-xl relative animate-in slide-in-from-top-4 ${isRenoir ? 'border-amber-900/40 bg-amber-950/20 text-amber-100/80' : 'border-black/5 bg-zinc-50/50 text-black/60'}`}>
-                <div className="flex justify-between items-end text-[8.5px] font-black uppercase tracking-[0.2em]">
+              <div className={`w-full max-w-[320px] p-4 sm:p-5 border-2 rounded-2xl space-y-3 backdrop-blur-xl relative animate-in slide-in-from-top-4 ${isRenoir ? 'border-amber-900/40 bg-amber-950/20 text-amber-100/80' : 'border-black/5 bg-zinc-50/50 text-black/60'}`}>
+                <div className="flex justify-between items-end text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em]">
                    <span className="opacity-40">{t.logic}</span>
-                   <span className={`text-[14px] font-black leading-none ${isRenoir ? 'text-amber-500' : 'text-red-600'}`}>{state.chaosScore}%</span>
+                   <span className={`text-[16px] sm:text-[18px] font-black leading-none ${isRenoir ? 'text-amber-500' : 'text-red-600'}`}>{state.chaosScore}%</span>
                    <span className="text-red-600 opacity-60">{t.chaos}</span>
                 </div>
-                <div className="relative h-5 flex items-center">
+                <div className="relative h-6 flex items-center">
                    <div className={`absolute left-0 right-0 h-[1px] ${isRenoir ? 'bg-amber-900/40' : 'bg-black/10'}`} />
                    <input 
                      type="range" 
@@ -2742,12 +2742,12 @@ export const App: React.FC = () => {
               </div>
             )}
             
-            <div className="relative w-full max-w-[260px] sm:max-w-[280px] h-20 sm:h-22 md:h-24 mt-0.5">
+            <div className="relative w-full max-w-[280px] sm:max-w-[320px] md:max-w-[340px] h-24 sm:h-28 md:h-30 mt-1">
               {curiosities.map((item, idx) => {
                 if (!item) return null;
                 const position = (idx - curiosityOffset + 3) % 3;
                 const scale = 1 - position * 0.05;
-                const translateY = position * 7;
+                const translateY = position * 8;
                 
                 return (
                   <button
@@ -2758,21 +2758,21 @@ export const App: React.FC = () => {
                       transform: `translateY(${translateY}px) scale(${scale})`,
                       zIndex: 10 - position
                     }}
-                    className={`absolute top-0 left-0 w-full p-2.5 sm:p-3.5 border rounded-2xl flex flex-col text-left transition-all duration-500 ease-in-out group active:scale-95 ${isRenoir ? 'border-amber-900 bg-[#1e0a0a] text-amber-100/80' : 'border-zinc-300 bg-white text-black/60 hover:bg-zinc-50'}`}
+                    className={`absolute top-0 left-0 w-full p-3.5 sm:p-4 md:p-4.5 border rounded-2xl flex flex-col text-left transition-all duration-500 ease-in-out group active:scale-95 shadow-sm ${isRenoir ? 'border-amber-900 bg-[#1e0a0a] text-amber-100/80' : 'border-zinc-300 bg-white text-black/60 hover:bg-zinc-50'}`}
                   >
                     <div className="flex flex-col">
-                      <span className={`text-[11px] sm:text-xs font-bold leading-tight mb-0.5 transition-colors`}>
+                      <span className={`text-xs sm:text-sm font-bold leading-tight mb-1 transition-colors`}>
                         {item?.title || "Curiosity"}
                       </span>
-                      <p className="text-[9px] sm:text-[9.5px] leading-snug line-clamp-1 opacity-70 italic">{item.desc}</p>
+                      <p className="text-[10px] sm:text-[11px] leading-relaxed line-clamp-1 opacity-75 italic">{item.desc}</p>
                     </div>
                   </button>
                 );
               })}
             </div>
 
-            <button type="submit" className={`w-16 h-16 sm:w-20 sm:h-20 md:w-22 md:h-22 mt-1 font-black uppercase transition-all hover:scale-105 active:scale-95 shadow-xl flex items-center justify-center group ${theme === 'SUPREMATIST' ? 'rounded-none rotate-3 hover:rotate-0' : 'rounded-[24px] sm:rounded-[32px] md:rounded-[36px] scale-95 hover:scale-100'} ${isRenoir ? 'bg-amber-900 text-white' : 'bg-black text-white'}`}>
-              <span className={`tracking-[0.1em] group-hover:tracking-[0.2em] transition-all leading-tight text-center px-2 ${uiLanguage === 'RU' ? 'text-[9px] sm:text-[10px] md:text-[11px]' : 'text-[10px] sm:text-xs md:text-sm'}`}>{t.ask}</span>
+            <button type="submit" className={`w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 mt-2 font-black uppercase transition-all hover:scale-105 active:scale-95 shadow-2xl flex items-center justify-center group ${theme === 'SUPREMATIST' ? 'rounded-none rotate-3 hover:rotate-0' : 'rounded-[32px] sm:rounded-[40px] md:rounded-[48px] scale-95 hover:scale-100'} ${isRenoir ? 'bg-amber-900 text-white' : 'bg-black text-white'}`}>
+              <span className={`tracking-[0.1em] group-hover:tracking-[0.2em] transition-all leading-tight text-center px-3 ${uiLanguage === 'RU' ? 'text-[10px] sm:text-[11px] md:text-[12px]' : 'text-xs sm:text-sm md:text-base'}`}>{t.ask}</span>
             </button>
           </div>
         </form>
@@ -2783,7 +2783,7 @@ export const App: React.FC = () => {
   const isRevealed = state.status === 'REVEALED';
 
   return (
-    <div className={`relative ${isRevealed ? 'min-h-screen pt-24 pb-24 px-6 md:px-8 overflow-y-auto' : 'h-screen max-h-screen w-full flex flex-col items-center justify-between p-3 sm:p-4 md:p-6 overflow-hidden'} ${isRenoir ? 'bg-[#0f0505] text-amber-100 font-serif' : 'bg-white text-black font-sans'}`}>
+    <div className={`relative ${isRevealed ? 'min-h-screen pt-24 pb-24 px-6 md:px-8 overflow-y-auto' : 'min-h-[100dvh] w-full flex flex-col items-center justify-between p-4 sm:p-6 md:p-8 overflow-y-auto'} ${isRenoir ? 'bg-[#0f0505] text-amber-100 font-serif' : 'bg-white text-black font-sans'}`}>
        <ThemeBackground theme={theme} />
        {GlobalUI}
        {HistorySidebar}
@@ -2806,7 +2806,7 @@ export const App: React.FC = () => {
        {showCalibrationPopup && CalibrationPopup}
        {PerspectivesModal}
        {mainContent}
-       {state.status === 'IDLE' && <footer className="pt-1 pb-1 text-[7.5px] sm:text-[8px] opacity-20 tracking-1em font-black select-none uppercase text-center shrink-0 mb-0.5">{t.footer}</footer>}
+       {state.status === 'IDLE' && <footer className="pt-3 pb-2 text-[8px] sm:text-[9px] opacity-25 tracking-1em font-black select-none uppercase text-center shrink-0">{t.footer}</footer>}
     </div>
   );
 };
