@@ -228,6 +228,38 @@ export const BookReader: React.FC<BookReaderProps> = ({
     }
   };
 
+  // Switch manuscript language directly inside the open editor
+  const handleSwitchEditorLanguage = async (targetLang: 'ru' | 'en') => {
+    if (targetLang === lang) return;
+    
+    // Check if there are unsaved modifications
+    const isModified = JSON.stringify(editBlocks) !== JSON.stringify(doc.blocks);
+    if (isModified) {
+      const confirmSwitch = confirm(
+        lang === 'ru' 
+          ? 'У вас есть несохранённые изменения в текущей рукописи. Переключить язык без сохранения?' 
+          : 'You have unsaved changes in the current manuscript. Switch language without saving?'
+      );
+      if (!confirmSwitch) return;
+    }
+
+    setSaveStatus('idle');
+    setEditorSearchQuery('');
+    setEditorShowOnlyMatches(false);
+    handleLanguageChange(targetLang);
+
+    try {
+      const newDoc = await fetchBookDocument(targetLang);
+      setDoc(newDoc);
+      setEditBlocks(JSON.parse(JSON.stringify(newDoc.blocks)));
+      if (editorCanvasRef.current) {
+        editorCanvasRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    } catch (e) {
+      console.error('Failed to load manuscript for language switch:', e);
+    }
+  };
+
   // Editor Actions
   const handleUpdateBlockText = (index: number, newText: string) => {
     setEditBlocks(prev => {
@@ -1158,13 +1190,42 @@ export const BookReader: React.FC<BookReaderProps> = ({
                     <span className="font-bold text-sm">
                       {lang === 'ru' ? 'Редактор рукописи' : 'Manuscript Word Editor'}
                     </span>
-                    <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 font-mono text-[10px] uppercase">
-                      {lang === 'ru' ? 'Русская версия' : 'English Edition'}
-                    </span>
                   </div>
                   <div className="text-[11px] text-stone-400 font-mono">
                     Firebase Sync • {editBlocks.length} {lang === 'ru' ? 'фрагментов' : 'blocks'}
                   </div>
+                </div>
+
+                {/* IN-EDITOR LANGUAGE SWITCHER */}
+                <div className="flex items-center bg-stone-950 p-1 rounded-lg border border-stone-700 shadow-inner ml-1 sm:ml-3">
+                  <button
+                    id="editor_switch_lang_ru_btn"
+                    type="button"
+                    onClick={() => handleSwitchEditorLanguage('ru')}
+                    className={`px-3 py-1 text-xs font-mono font-bold rounded transition-all cursor-pointer flex items-center gap-1.5 ${
+                      lang === 'ru'
+                        ? 'bg-amber-500 text-stone-950 shadow-sm'
+                        : 'text-stone-400 hover:text-stone-200'
+                    }`}
+                    title="Переключить на русскую рукопись"
+                  >
+                    <span>RU</span>
+                    <span className="hidden sm:inline text-[10px] font-normal">Русский</span>
+                  </button>
+                  <button
+                    id="editor_switch_lang_en_btn"
+                    type="button"
+                    onClick={() => handleSwitchEditorLanguage('en')}
+                    className={`px-3 py-1 text-xs font-mono font-bold rounded transition-all cursor-pointer flex items-center gap-1.5 ${
+                      lang === 'en'
+                        ? 'bg-amber-500 text-stone-950 shadow-sm'
+                        : 'text-stone-400 hover:text-stone-200'
+                    }`}
+                    title="Switch to English manuscript"
+                  >
+                    <span>EN</span>
+                    <span className="hidden sm:inline text-[10px] font-normal">English</span>
+                  </button>
                 </div>
               </div>
 

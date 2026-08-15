@@ -5,24 +5,34 @@ import './index.css';
 import { App } from './App';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
-// Register Service Worker for PWA
+// Purge legacy caches and register Service Worker for PWA
+if (typeof window !== 'undefined' && 'caches' in window) {
+  caches.keys().then((keys) => {
+    keys.forEach((key) => {
+      if (key !== 'oracle-v6') {
+        caches.delete(key).catch(() => {});
+      }
+    });
+  }).catch(() => {});
+}
+
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js')
       .then(registration => {
-        console.log('Oracle SW registered:', registration.scope);
+        // Immediately check for updates
+        registration.update().catch(() => {});
         
         // Check for updates periodically
         setInterval(() => {
-          registration.update();
-        }, 1000 * 60 * 60); // Every hour
+          registration.update().catch(() => {});
+        }, 1000 * 60 * 15); // Every 15 minutes
 
         registration.onupdatefound = () => {
           const installingWorker = registration.installing;
           if (installingWorker) {
             installingWorker.onstatechange = () => {
               if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                // New content is available; please refresh.
                 console.log('New content available, refreshing...');
                 window.location.reload();
               }
@@ -49,3 +59,4 @@ root.render(
     </ErrorBoundary>
   </React.StrictMode>
 );
+
