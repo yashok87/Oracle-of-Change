@@ -961,7 +961,7 @@ export const App: React.FC = () => {
         className={`fixed left-0 top-0 bottom-0 z-[2000] flex transition-all duration-700 ease-in-out 
           ${isSideMenuOpen ? 'w-[280px] sm:w-[320px] translate-x-0' : 'w-[280px] sm:w-[320px] -translate-x-full'}`}
       >
-        <div className={`w-full h-full max-h-screen backdrop-blur-[40px] border-r p-6 sm:p-8 md:p-10 flex flex-col justify-between shadow-2xl relative overflow-y-auto overflow-x-hidden scrollbar-thin
+        <div className={`w-full h-full max-h-screen backdrop-blur-[40px] border-r p-6 sm:p-8 md:p-10 flex flex-col justify-between shadow-2xl relative overflow-y-auto overflow-x-hidden subtle-scrollbar scrollbar-thin
           ${isRenoir ? 'bg-amber-950/25 border-amber-900/20 text-amber-100/90' : 'bg-white/40 border-black/5 text-black/90'}`}>
           
           <div className="space-y-8 sm:space-y-12 md:space-y-16 mt-4 md:mt-8">
@@ -1545,7 +1545,7 @@ export const App: React.FC = () => {
   const HistorySidebar = (
     <div className={`fixed inset-0 z-[1000] flex justify-end transition-all ${showHistory ? 'visible opacity-100' : 'invisible opacity-0'}`}>
       <div className={`fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 cursor-pointer ${showHistory ? 'opacity-100' : 'opacity-0'}`} onClick={() => setShowHistory(false)} />
-      <div className={`relative z-[1010] w-full max-sm:max-w-full max-w-sm h-full p-6 md:p-12 shadow-2xl overflow-y-auto flex flex-col transition-transform duration-500 transform ${showHistory ? 'translate-x-0' : 'translate-x-full'} ${isRenoir ? 'bg-[#1e0a0a] text-amber-100 border-l border-amber-900/10' : 'bg-white text-black border-l border-black/5'}`}>
+      <div className={`relative z-[1010] w-full max-sm:max-w-full max-w-sm h-full p-6 md:p-12 shadow-2xl overflow-y-auto subtle-scrollbar flex flex-col transition-transform duration-500 transform ${showHistory ? 'translate-x-0' : 'translate-x-full'} ${isRenoir ? 'bg-[#1e0a0a] text-amber-100 border-l border-amber-900/10' : 'bg-white text-black border-l border-black/5'}`}>
          <div className="flex justify-between items-center mb-10">
             <h2 className="text-xl md:text-2xl font-black uppercase tracking-tighter">{t.history}</h2>
             <button onClick={() => setShowHistory(false)} className="p-2 hover:rotate-90 transition-transform bg-current/5 rounded-full"><Icons.Close /></button>

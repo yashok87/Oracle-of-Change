@@ -85,13 +85,13 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ theme = 'SUPREMATI
 
   if (theme === 'IMPRESSIONIST') {
      return (
-        <div className="flex flex-col items-center justify-center h-full w-full relative">
+        <div className="flex flex-col items-center justify-center my-auto w-full relative z-10 py-12">
            <div className="absolute top-1/3 left-1/4 w-64 h-64 bg-[#7c2d12] rounded-full blur-[80px] opacity-40 animate-pulse" />
            <div className="absolute bottom-1/3 right-1/4 w-48 h-48 bg-[#1e1b4b] rounded-full blur-[60px] opacity-50 animate-bounce" style={{ animationDuration: '3s' }} />
            
-           <div className="relative z-10 flex flex-col items-center">
-             <div className="w-4 h-4 bg-amber-500 rounded-full shadow-[0_0_20px_rgba(245,158,11,0.8)] animate-ping" />
-             <h2 className="text-xl font-serif italic text-amber-100/80 tracking-widest mt-12 animate-pulse">
+           <div className="relative z-10 flex flex-col items-center justify-center text-center">
+             <div className="w-5 h-5 bg-amber-500 rounded-full shadow-[0_0_24px_rgba(245,158,11,0.9)] animate-ping mb-8" />
+             <h2 className="text-xl md:text-2xl font-serif italic text-amber-100/90 tracking-widest animate-pulse">
                 {t.impressionist}
              </h2>
            </div>
@@ -101,16 +101,16 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ theme = 'SUPREMATI
   }
 
   return (
-    <div className="flex flex-col items-center justify-center h-full w-full relative">
+    <div className="flex flex-col items-center justify-center my-auto w-full relative z-10 py-12">
       <div 
-        className="w-24 h-24 bg-black mb-8 transition-transform duration-700 ease-in-out"
+        className="w-20 h-20 sm:w-24 sm:h-24 bg-black mb-8 transition-transform duration-700 ease-in-out shadow-2xl"
         style={{ transform: `rotate(${rotation}deg)` }}
       />
       
-      <div className="absolute top-1/4 left-10 w-12 h-12 bg-red-600 rounded-full animate-bounce delay-100" />
-      <div className="absolute bottom-1/4 right-10 w-48 h-8 bg-blue-600 -rotate-12 animate-pulse" />
+      <div className="absolute top-1/4 left-10 w-12 h-12 bg-red-600 rounded-full animate-bounce delay-100 opacity-60" />
+      <div className="absolute bottom-1/4 right-10 w-48 h-8 bg-blue-600 -rotate-12 animate-pulse opacity-50" />
       
-      <h2 className="text-xl font-bold tracking-widest uppercase mt-12 animate-pulse">
+      <h2 className="text-lg sm:text-xl font-bold tracking-widest uppercase animate-pulse text-center">
         {t.suprematist}
       </h2>
       {ProgressBar}
