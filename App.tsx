@@ -2618,11 +2618,11 @@ export const App: React.FC = () => {
     );
   } else {
     mainContent = (
-      <div className="z-10 w-full max-w-2xl flex flex-col items-center justify-center space-y-4 md:space-y-6 h-full">
+      <div className="z-10 w-full max-w-2xl flex flex-col items-center my-auto pt-14 sm:pt-16 pb-8 space-y-3 sm:space-y-4 md:space-y-5">
         <div className="space-y-1 text-center">
           <h1 
             onClick={triggerConfetti}
-            className="text-2xl md:text-4xl font-black uppercase tracking-tighter leading-[0.8] whitespace-pre-wrap select-none drop-shadow-2xl cursor-pointer"
+            className="text-2xl sm:text-3xl md:text-4xl font-black uppercase tracking-tighter leading-tight whitespace-pre-wrap select-none drop-shadow-2xl cursor-pointer py-1"
           >
             {(t as any)?.title || "The Oracle"}
           </h1>
@@ -2639,7 +2639,7 @@ export const App: React.FC = () => {
           </div>
         )}
 
-        <form onSubmit={e => { e.preventDefault(); runQuery(inputRef.current?.value || ""); }} className="w-full space-y-5 md:space-y-6 flex flex-col items-center">
+        <form onSubmit={e => { e.preventDefault(); runQuery(inputRef.current?.value || ""); }} className="w-full space-y-4 sm:space-y-5 flex flex-col items-center">
           <div className="w-full max-lg relative">
             {!inputValue && (
               <div 
@@ -2657,12 +2657,12 @@ export const App: React.FC = () => {
               className="w-full bg-transparent border-b-2 md:border-b-4 border-current/10 pb-2 text-center text-base md:text-xl font-light focus:outline-none focus:border-current transition-all placeholder:opacity-10 relative z-10" 
             />
           </div>
-          <div className="flex flex-col items-center gap-4 w-full">
+          <div className="flex flex-col items-center gap-3 sm:gap-4 w-full">
             <div className="flex gap-3">
-              <button type="button" onClick={() => { if(isManual) setState(s => ({ ...s, chaosScore: 50, logicScore: 50 })); setIsManual(!isManual); }} className={`flex items-center gap-2 px-5 py-2 rounded-full text-[8px] md:text-[9px] font-black uppercase tracking-widest border-2 transition-all shadow-xl ${isManual ? (isRenoir ? 'bg-amber-100/15 border-amber-100/40 text-amber-100 ring-1 ring-red-500' : 'bg-zinc-100 border-black/40 text-black ring-1 ring-red-600') : 'opacity-40 border-current hover:opacity-100'}`}>
+              <button type="button" onClick={() => { if(isManual) setState(s => ({ ...s, chaosScore: 50, logicScore: 50 })); setIsManual(!isManual); }} className={`flex items-center gap-2 px-4 sm:px-5 py-2 rounded-full text-[8px] md:text-[9px] font-black uppercase tracking-widest border-2 transition-all shadow-xl ${isManual ? (isRenoir ? 'bg-amber-100/15 border-amber-100/40 text-amber-100 ring-1 ring-red-500' : 'bg-zinc-100 border-black/40 text-black ring-1 ring-red-600') : 'opacity-40 border-current hover:opacity-100'}`}>
                 <Icons.Settings /> {isManual ? t.cancelManual : t.manualCalibration}
               </button>
-              <button type="button" onClick={handleRandomRequest} className={`flex items-center gap-2 px-5 py-2 rounded-full text-[8px] md:text-[9px] font-black uppercase tracking-widest border-2 transition-all shadow-xl border-amber-500/50 text-amber-600 hover:bg-amber-500 hover:text-white`}>
+              <button type="button" onClick={handleRandomRequest} className={`flex items-center gap-2 px-4 sm:px-5 py-2 rounded-full text-[8px] md:text-[9px] font-black uppercase tracking-widest border-2 transition-all shadow-xl border-amber-500/50 text-amber-600 hover:bg-amber-500 hover:text-white`}>
                 <Icons.Sparkle /> {t.randomRequest}
               </button>
             </div>
@@ -2688,12 +2688,12 @@ export const App: React.FC = () => {
               </div>
             )}
             
-            <div className="relative w-full max-w-[280px] h-32 mt-0.5">
+            <div className="relative w-full max-w-[280px] h-28 sm:h-32 mt-0.5">
               {curiosities.map((item, idx) => {
                 if (!item) return null;
                 const position = (idx - curiosityOffset + 3) % 3;
                 const scale = 1 - position * 0.05;
-                const translateY = position * 12;
+                const translateY = position * 10;
                 
                 return (
                   <button
@@ -2704,10 +2704,10 @@ export const App: React.FC = () => {
                       transform: `translateY(${translateY}px) scale(${scale})`,
                       zIndex: 10 - position
                     }}
-                    className={`absolute top-0 left-0 w-full p-5 border rounded-2xl flex flex-col text-left transition-all duration-500 ease-in-out group active:scale-95 ${isRenoir ? 'border-amber-900 bg-[#1e0a0a] text-amber-100/80' : 'border-zinc-300 bg-white text-black/60 hover:bg-zinc-50'}`}
+                    className={`absolute top-0 left-0 w-full p-4 sm:p-5 border rounded-2xl flex flex-col text-left transition-all duration-500 ease-in-out group active:scale-95 ${isRenoir ? 'border-amber-900 bg-[#1e0a0a] text-amber-100/80' : 'border-zinc-300 bg-white text-black/60 hover:bg-zinc-50'}`}
                   >
                     <div className="flex flex-col">
-                      <span className={`text-xs font-bold leading-tight mb-2 transition-colors`}>
+                      <span className={`text-xs font-bold leading-tight mb-1.5 transition-colors`}>
                         {item?.title || "Curiosity"}
                       </span>
                       <p className="text-[10px] leading-relaxed line-clamp-1 opacity-70 italic">{item.desc}</p>
@@ -2717,8 +2717,8 @@ export const App: React.FC = () => {
               })}
             </div>
 
-            <button type="submit" className={`w-24 h-24 md:w-28 md:h-28 mt-[-12px] font-black uppercase transition-all hover:scale-105 active:scale-95 shadow-2xl flex items-center justify-center group ${theme === 'SUPREMATIST' ? 'rounded-none rotate-3 hover:rotate-0' : 'rounded-[40px] md:rounded-[50px] scale-95 hover:scale-100'} ${isRenoir ? 'bg-amber-900 text-white' : 'bg-black text-white'}`}>
-              <span className={`tracking-[0.1em] group-hover:tracking-[0.2em] transition-all leading-tight text-center px-4 ${uiLanguage === 'RU' ? 'text-[10px] md:text-[12px]' : 'text-xs md:text-sm'}`}>{t.ask}</span>
+            <button type="submit" className={`w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 mt-2 font-black uppercase transition-all hover:scale-105 active:scale-95 shadow-2xl flex items-center justify-center group ${theme === 'SUPREMATIST' ? 'rounded-none rotate-3 hover:rotate-0' : 'rounded-[32px] sm:rounded-[40px] md:rounded-[50px] scale-95 hover:scale-100'} ${isRenoir ? 'bg-amber-900 text-white' : 'bg-black text-white'}`}>
+              <span className={`tracking-[0.1em] group-hover:tracking-[0.2em] transition-all leading-tight text-center px-3 ${uiLanguage === 'RU' ? 'text-[10px] md:text-[12px]' : 'text-xs md:text-sm'}`}>{t.ask}</span>
             </button>
           </div>
         </form>
@@ -2726,7 +2726,7 @@ export const App: React.FC = () => {
         {!learningProfile && (
           <button 
             onClick={startProfiling}
-            className={`mt-12 flex items-center gap-3 px-8 py-3 rounded-full border font-black uppercase tracking-[0.4em] text-[10px] transition-all hover:scale-105 active:scale-95 shadow-lg ${isRenoir ? 'bg-amber-900/10 border-amber-900/40 text-amber-500' : 'bg-zinc-100 border-black/5 text-black'}`}
+            className={`mt-4 sm:mt-6 flex items-center gap-3 px-6 sm:px-8 py-2.5 sm:py-3 rounded-full border font-black uppercase tracking-[0.4em] text-[9px] sm:text-[10px] transition-all hover:scale-105 active:scale-95 shadow-lg ${isRenoir ? 'bg-amber-900/10 border-amber-900/40 text-amber-500' : 'bg-zinc-100 border-black/5 text-black'}`}
           >
             <Icons.Mind /> {t.learningStyle}
           </button>
@@ -2738,7 +2738,7 @@ export const App: React.FC = () => {
   const isRevealed = state.status === 'REVEALED';
 
   return (
-    <div className={`relative ${isRevealed ? 'min-h-screen pt-24 pb-24 px-6 md:px-8 overflow-y-auto' : 'h-screen w-full flex flex-col items-center justify-center p-4 overflow-hidden'} ${isRenoir ? 'bg-[#0f0505] text-amber-100 font-serif' : 'bg-white text-black font-sans'}`}>
+    <div className={`relative ${isRevealed ? 'min-h-screen pt-24 pb-24 px-6 md:px-8 overflow-y-auto' : 'min-h-[100dvh] w-full flex flex-col items-center justify-between p-4 sm:p-6 overflow-y-auto'} ${isRenoir ? 'bg-[#0f0505] text-amber-100 font-serif' : 'bg-white text-black font-sans'}`}>
        <ThemeBackground theme={theme} />
        {GlobalUI}
        {HistorySidebar}
@@ -2761,7 +2761,7 @@ export const App: React.FC = () => {
        {showCalibrationPopup && CalibrationPopup}
        {PerspectivesModal}
        {mainContent}
-       {state.status === 'IDLE' && <footer className="absolute bottom-6 text-[8px] opacity-10 tracking-1em font-black select-none uppercase">{t.footer}</footer>}
+       {state.status === 'IDLE' && <footer className="pt-4 pb-2 text-[8px] opacity-20 tracking-1em font-black select-none uppercase text-center shrink-0">{t.footer}</footer>}
     </div>
   );
 };
