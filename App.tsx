@@ -853,77 +853,83 @@ export const App: React.FC = () => {
   const GlobalUI = (
     <>
       {CompactMusicPlayer}
-      <div className="fixed top-5 right-4 z-[2500] flex flex-col items-end gap-2">
-        <div className="flex gap-2.5 sm:gap-3 items-center">
-          <div className={`flex p-1 rounded-full border backdrop-blur-xl ${isRenoir ? 'bg-amber-950/40 border-amber-900/20' : 'bg-white/40 border-black/5'}`}>
-            <button onClick={() => setUiLanguage(l => l === 'EN' ? 'RU' : 'EN')} className="w-7 h-7 sm:w-8 sm:h-8 rounded-full text-[9px] font-black">{uiLanguage}</button>
-            <button onClick={() => setTheme(t => t === 'SUPREMATIST' ? 'IMPRESSIONIST' : 'SUPREMATIST')} className={`px-2.5 sm:px-3 h-7 sm:h-8 rounded-full text-[8px] sm:text-[9px] font-black ${isRenoir ? 'bg-amber-700 text-white' : 'bg-black text-white'}`}>
-              {theme === 'SUPREMATIST' ? 'Mode A' : 'Mode B'}
-            </button>
-          </div>
-          <NavButton onClick={() => {
-            if (showHistory) {
-              setShowHistory(false);
-              setActivePage('ORACLE');
-            } else {
-              setShowHistory(true);
-            }
-          }}><Icons.History /></NavButton>
+      <div className="fixed top-5 right-4 z-[2500] flex gap-2.5 sm:gap-3 items-center">
+        <div className={`flex p-1 rounded-full border backdrop-blur-xl ${isRenoir ? 'bg-amber-950/40 border-amber-900/20' : 'bg-white/40 border-black/5'}`}>
+          <button onClick={() => setUiLanguage(l => l === 'EN' ? 'RU' : 'EN')} className="w-7 h-7 sm:w-8 sm:h-8 rounded-full text-[9px] font-black">{uiLanguage}</button>
+          <button onClick={() => setTheme(t => t === 'SUPREMATIST' ? 'IMPRESSIONIST' : 'SUPREMATIST')} className={`px-2.5 sm:px-3 h-7 sm:h-8 rounded-full text-[8px] sm:text-[9px] font-black ${isRenoir ? 'bg-amber-700 text-white' : 'bg-black text-white'}`}>
+            {theme === 'SUPREMATIST' ? 'Mode A' : 'Mode B'}
+          </button>
         </div>
-
-        {/* Watermark-style subtle Learning Style button below navigation */}
-        {activePage === 'ORACLE' && (
-          learningProfile ? (
-            <div className={`group flex items-center gap-3 px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl border-2 backdrop-blur-md transition-all shadow-md ${
-              isRenoir
-                ? 'bg-amber-950/50 border-amber-900/50 text-amber-100'
-                : 'bg-white/80 border-black/15 text-black'
-            }`}>
-              <div className={isRenoir ? 'text-amber-400' : 'text-red-600'}>
-                <Icons.Encyclopedia className="w-6 h-6 opacity-90" />
-              </div>
-              <div className="flex flex-col text-left leading-tight">
-                <span className="text-[8px] sm:text-[9px] font-black uppercase tracking-[0.25em] opacity-60">
-                  {t.profileActive}
-                </span>
-                <span className="text-[11px] sm:text-[12px] md:text-[13px] font-bold tracking-tight whitespace-nowrap mt-0.5">
-                  {learningProfile.type} • {learningProfile.label}
-                </span>
-              </div>
-              <div className="flex items-center gap-1.5 ml-2 pl-2 border-l border-current/20">
-                <button onClick={startProfiling} className="text-[9px] sm:text-[10px] font-black uppercase opacity-60 hover:opacity-100 hover:underline px-1" title="Change profile">edit</button>
-                <button onClick={cancelProfile} className="text-[12px] text-red-500 opacity-70 hover:opacity-100 font-bold px-1" title="Clear profile">✕</button>
-              </div>
-            </div>
-          ) : (
-            <button
-              onClick={startProfiling}
-              className={`group relative flex items-center gap-3.5 px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl border-2 transition-all duration-300 backdrop-blur-md shadow-md cursor-pointer ${
-                isRenoir
-                  ? 'bg-amber-950/35 border-amber-900/40 text-amber-200/80 hover:text-amber-100 hover:bg-amber-950/60 hover:border-amber-600/60'
-                  : 'bg-white/60 border-black/15 text-black/70 hover:text-black hover:bg-white/95 hover:border-black/30'
-              }`}
-              title={(t as any).adaptOracleSub || t.learningStyle}
-            >
-              <div className={`transition-all duration-300 group-hover:scale-110 ${
-                isRenoir ? 'text-amber-400 group-hover:text-amber-300' : 'text-black/80 group-hover:text-black'
-              }`}>
-                <Icons.Encyclopedia className="w-6 h-6 sm:w-7 sm:h-7 opacity-80 group-hover:opacity-100 transition-opacity" />
-              </div>
-              <div className="flex flex-col text-left leading-tight">
-                <span className="text-[8px] sm:text-[9px] font-black uppercase tracking-[0.25em] opacity-60 group-hover:opacity-90 transition-opacity">
-                  {(t as any).adaptOracleHeader || "ADAPT ORACLE"}
-                </span>
-                <span className="text-[11px] sm:text-[12px] md:text-[13px] font-bold tracking-tight opacity-90 group-hover:opacity-100 transition-opacity whitespace-nowrap mt-0.5">
-                  {(t as any).adaptOracleSub || "To your style"}
-                </span>
-              </div>
-            </button>
-          )
-        )}
+        <NavButton onClick={() => {
+          if (showHistory) {
+            setShowHistory(false);
+            setActivePage('ORACLE');
+          } else {
+            setShowHistory(true);
+          }
+        }}><Icons.History /></NavButton>
       </div>
     </>
   );
+
+  const LearningStyleTab = activePage === 'ORACLE' ? (
+    <div className="fixed right-0 top-[72px] sm:top-[78px] md:top-[84px] z-20 pointer-events-auto">
+      {learningProfile ? (
+        <div 
+          className={`group flex items-center gap-3 pl-3.5 pr-4.5 py-2 sm:py-2.5 rounded-l-2xl border-y border-l border-r-0 backdrop-blur-2xl shadow-xl cursor-pointer transition-all duration-400 ease-out transform translate-x-[calc(100%-46px)] sm:translate-x-[calc(100%-50px)] hover:translate-x-0 ${
+            isRenoir
+              ? 'bg-[#1a0808]/95 border-amber-800/50 text-amber-100 shadow-amber-950/40 hover:bg-[#250d0d] hover:border-amber-600'
+              : 'bg-white/95 border-black/15 text-black shadow-black/10 hover:bg-white hover:border-black/30'
+          }`}
+          onClick={startProfiling}
+        >
+          <div className={`relative flex items-center justify-center flex-shrink-0 w-8 h-8 rounded-xl transition-all duration-300 group-hover:scale-105 ${
+            isRenoir ? 'bg-amber-950/60 text-amber-300' : 'bg-black/5 text-red-600'
+          }`}>
+            <Icons.Encyclopedia className="w-5 h-5 opacity-90 transition-transform duration-300 group-hover:-rotate-3" />
+            <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+          </div>
+          <div className="flex flex-col text-left leading-tight whitespace-nowrap pl-0.5">
+            <span className="text-[7.5px] sm:text-[8px] font-black uppercase tracking-[0.25em] opacity-55">
+              {t.profileActive}
+            </span>
+            <span className="text-[11px] sm:text-[12px] font-bold tracking-tight mt-0.5">
+              {learningProfile.type} • {learningProfile.label}
+            </span>
+          </div>
+          <div className="flex items-center gap-1 ml-1.5 pl-1.5 border-l border-current/15" onClick={e => e.stopPropagation()}>
+            <button onClick={startProfiling} className="text-[8.5px] sm:text-[9px] font-black uppercase opacity-60 hover:opacity-100 hover:underline px-1 py-0.5" title="Change profile">edit</button>
+            <button onClick={cancelProfile} className="text-[11px] text-red-500 opacity-70 hover:opacity-100 font-bold px-1 py-0.5" title="Clear profile">✕</button>
+          </div>
+        </div>
+      ) : (
+        <button
+          onClick={startProfiling}
+          className={`group relative flex items-center gap-3 pl-3.5 pr-4.5 py-2 sm:py-2.5 rounded-l-2xl border-y border-l border-r-0 backdrop-blur-2xl shadow-xl cursor-pointer transition-all duration-400 ease-out transform translate-x-[calc(100%-46px)] sm:translate-x-[calc(100%-50px)] hover:translate-x-0 ${
+            isRenoir
+              ? 'bg-[#1a0808]/95 border-amber-800/50 text-amber-200 shadow-amber-950/40 hover:bg-[#250d0d] hover:text-amber-100 hover:border-amber-600'
+              : 'bg-white/95 border-black/15 text-black/80 shadow-black/10 hover:bg-white hover:text-black hover:border-black/30'
+          }`}
+          title={(t as any).adaptOracleSub || t.learningStyle}
+        >
+          <div className={`relative flex items-center justify-center flex-shrink-0 w-8 h-8 rounded-xl transition-all duration-300 group-hover:scale-105 ${
+            isRenoir ? 'bg-amber-950/60 text-amber-300 group-hover:text-amber-200' : 'bg-black/5 text-black group-hover:text-red-600'
+          }`}>
+            <Icons.Encyclopedia className="w-5 h-5 opacity-80 group-hover:opacity-100 transition-all duration-300 group-hover:-rotate-3" />
+            <span className={`absolute top-1 right-1 w-1.5 h-1.5 rounded-full ${isRenoir ? 'bg-amber-400' : 'bg-red-500'} animate-pulse`} />
+          </div>
+          <div className="flex flex-col text-left leading-tight whitespace-nowrap pl-0.5">
+            <span className="text-[7.5px] sm:text-[8px] font-black uppercase tracking-[0.25em] opacity-55 group-hover:opacity-90 transition-opacity">
+              {(t as any).adaptOracleHeader || "ADAPT ORACLE"}
+            </span>
+            <span className="text-[11px] sm:text-[12px] font-bold tracking-tight opacity-90 group-hover:opacity-100 transition-opacity mt-0.5">
+              {(t as any).adaptOracleSub || "To your style"}
+            </span>
+          </div>
+        </button>
+      )}
+    </div>
+  ) : null;
 
   const GlassSidebar = (
     <>
@@ -2786,6 +2792,7 @@ export const App: React.FC = () => {
     <div className={`relative ${isRevealed ? 'min-h-screen pt-24 pb-24 px-6 md:px-8 overflow-y-auto' : 'min-h-[100dvh] w-full flex flex-col items-center justify-between p-4 sm:p-6 md:p-8 overflow-y-auto'} ${isRenoir ? 'bg-[#0f0505] text-amber-100 font-serif' : 'bg-white text-black font-sans'}`}>
        <ThemeBackground theme={theme} />
        {GlobalUI}
+       {LearningStyleTab}
        {HistorySidebar}
        {GlassSidebar}
        {JacobMusicPage}
