@@ -820,20 +820,27 @@ export const App: React.FC = () => {
 
       <div 
         className={`fixed left-0 top-0 bottom-0 z-[2000] flex transition-all duration-700 ease-in-out 
-          ${isSideMenuOpen ? 'w-[280px] translate-x-0' : 'w-[280px] -translate-x-full'}`}
+          ${isSideMenuOpen ? 'w-[280px] sm:w-[320px] translate-x-0' : 'w-[280px] sm:w-[320px] -translate-x-full'}`}
       >
-        <div className={`w-full h-full backdrop-blur-[40px] border-r p-8 md:p-10 flex flex-col justify-between shadow-2xl relative
-          ${isRenoir ? 'bg-amber-950/20 border-amber-900/10 text-amber-100/90' : 'bg-white/30 border-black/5 text-black/90'}`}>
+        <div className={`w-full h-full max-h-screen backdrop-blur-[40px] border-r p-6 sm:p-8 md:p-10 flex flex-col justify-between shadow-2xl relative overflow-y-auto overflow-x-hidden scrollbar-thin
+          ${isRenoir ? 'bg-amber-950/25 border-amber-900/20 text-amber-100/90' : 'bg-white/40 border-black/5 text-black/90'}`}>
           
-          <div className="space-y-16 mt-8">
-            <div className="space-y-4">
-               <div className="flex flex-col gap-2">
-                  <span className="text-[9px] font-black uppercase tracking-[0.6em] opacity-30">Selection Portal</span>
-                  <div className={`w-10 h-[1px] ${isRenoir ? 'bg-amber-500' : 'bg-red-600'}`} />
-               </div>
+          <div className="space-y-8 sm:space-y-12 md:space-y-16 mt-4 md:mt-8">
+            <div className="flex items-center justify-between">
+              <div className="space-y-2">
+                 <span className="text-[9px] font-black uppercase tracking-[0.6em] opacity-30">Selection Portal</span>
+                 <div className={`w-10 h-[1px] ${isRenoir ? 'bg-amber-500' : 'bg-red-600'}`} />
+              </div>
+              <button 
+                onClick={() => setIsSideMenuOpen(false)}
+                className="p-1.5 rounded-full hover:bg-current/10 opacity-40 hover:opacity-100 transition-all cursor-pointer"
+                title="Close Menu"
+              >
+                <Icons.Close />
+              </button>
             </div>
             
-            <nav className="flex flex-col gap-10">
+            <nav className="flex flex-col gap-6 sm:gap-8 md:gap-10 pb-6">
               <div className="group space-y-2 transition-all outline-none">
                 <div className="flex items-center gap-3">
                    <span className="text-[10px] font-black uppercase tracking-widest opacity-20 group-hover:opacity-100 transition-opacity">01</span>
@@ -924,7 +931,7 @@ export const App: React.FC = () => {
             </nav>
           </div>
   
-          <div className="space-y-4">
+          <div className="space-y-4 pt-4 shrink-0">
              <div className="text-[8px] font-black uppercase tracking-[0.5em] opacity-10">The Architecture of Chance</div>
           </div>
         </div>

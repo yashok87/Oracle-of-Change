@@ -532,7 +532,7 @@ export const BookReader: React.FC<BookReaderProps> = ({
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
-              <span>{lang === 'ru' ? 'В Оракул' : 'To Oracle'}</span>
+              <span>{lang === 'ru' ? 'К Оракулу' : 'To Oracle'}</span>
             </button>
 
             <div className="hidden md:flex items-center gap-2">
