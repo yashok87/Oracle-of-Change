@@ -34,14 +34,7 @@ export function doc(_db: any, collection: string, id: string): FirestoreDocRef {
 export async function getDoc<T = any>(docRef: FirestoreDocRef): Promise<FirestoreDocSnapshot<T>> {
   try {
     const url = `${BASE_URL}/${docRef.path}?key=${API_KEY}`;
-    const res = await fetch(url, {
-      cache: 'no-store',
-      headers: {
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0'
-      }
-    });
+    const res = await fetch(url);
     if (!res.ok) {
       if (res.status === 404) {
         return {
@@ -100,9 +93,7 @@ export async function setDoc<T = any>(docRef: FirestoreDocRef, data: T): Promise
   const res = await fetch(url, {
     method: 'PATCH',
     headers: {
-      'Content-Type': 'application/json',
-      'Cache-Control': 'no-cache, no-store, must-revalidate',
-      'Pragma': 'no-cache'
+      'Content-Type': 'application/json'
     },
     body: JSON.stringify(payload)
   });

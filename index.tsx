@@ -5,45 +5,21 @@ import './index.css';
 import { App } from './App';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
-// Purge legacy caches and register Service Worker for PWA
-if (typeof window !== 'undefined' && 'caches' in window) {
-  caches.keys().then((keys) => {
-    keys.forEach((key) => {
-      if (key !== 'oracle-v6') {
-        caches.delete(key).catch(() => {});
-      }
-    });
+// Clear legacy caches and unregister service workers to avoid stale cache or extension conflicts
+if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then((registrations) => {
+    for (const registration of registrations) {
+      registration.unregister().catch(() => {});
+    }
   }).catch(() => {});
 }
 
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js')
-      .then(registration => {
-        // Immediately check for updates
-        registration.update().catch(() => {});
-        
-        // Check for updates periodically
-        setInterval(() => {
-          registration.update().catch(() => {});
-        }, 1000 * 60 * 15); // Every 15 minutes
-
-        registration.onupdatefound = () => {
-          const installingWorker = registration.installing;
-          if (installingWorker) {
-            installingWorker.onstatechange = () => {
-              if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                console.log('New content available, refreshing...');
-                window.location.reload();
-              }
-            };
-          }
-        };
-      })
-      .catch(error => {
-        console.log('Oracle SW registration failed:', error);
-      });
-  });
+if (typeof window !== 'undefined' && 'caches' in window) {
+  caches.keys().then((keys) => {
+    keys.forEach((key) => {
+      caches.delete(key).catch(() => {});
+    });
+  }).catch(() => {});
 }
 
 const rootElement = document.getElementById('root');
@@ -59,4 +35,5 @@ root.render(
     </ErrorBoundary>
   </React.StrictMode>
 );
+
 
