@@ -21,8 +21,15 @@ export default defineConfig({
     'process.env.BIGMODEL_API_KEY': JSON.stringify(process.env.BIGMODEL_API_KEY || '')
   },
   server: {
-    host: true,
+    host: '0.0.0.0',
+    port: 3000,
+    strictPort: true,
     hmr: false
+  },
+  preview: {
+    host: '0.0.0.0',
+    port: 3000,
+    strictPort: true
   },
   build: {
     outDir: 'dist',

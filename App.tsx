@@ -571,6 +571,8 @@ export const App: React.FC = () => {
   const [showSaveMenu, setShowSaveMenu] = useState(false);
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [learningProfile, setLearningProfile] = useState<LearningProfile | null>(null);
+  const [isLearningTabExpanded, setIsLearningTabExpanded] = useState(false);
+  const learningTabRef = useRef<HTMLDivElement>(null);
   const [selectedImageModel, setSelectedImageModel] = useState<string>('flux');
   const [activePage, setActivePage] = useState<'ORACLE' | 'MUSIC' | 'ABOUT' | 'BOOK'>('MUSIC');
   const [musicScrollSection, setMusicScrollSection] = useState<'APPS' | 'MUSIC' | 'BOOK'>('APPS');
@@ -685,6 +687,20 @@ export const App: React.FC = () => {
     };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent | TouchEvent) => {
+      if (learningTabRef.current && !learningTabRef.current.contains(e.target as Node)) {
+        setIsLearningTabExpanded(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
   }, []);
 
   useEffect(() => {
@@ -872,16 +888,36 @@ export const App: React.FC = () => {
     </>
   );
 
+  const handleLearningTabAction = (e: React.MouseEvent) => {
+    // If pointer hover is supported (e.g. desktop mouse), hover already popped the tab out, so direct click starts calibration.
+    // On mobile/touch devices (or when the tab is currently collapsed), 1st tap expands the banner in full, 2nd tap starts calibration.
+    const isHoverDevice = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    
+    if (!isHoverDevice && !isLearningTabExpanded) {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsLearningTabExpanded(true);
+      return;
+    }
+    
+    startProfiling();
+    setIsLearningTabExpanded(false);
+  };
+
   const LearningStyleTab = activePage === 'ORACLE' ? (
-    <div className="fixed right-0 top-[72px] sm:top-[78px] md:top-[84px] z-20 pointer-events-auto">
+    <div ref={learningTabRef} className="fixed right-0 top-[72px] sm:top-[78px] md:top-[84px] z-20 pointer-events-auto">
       {learningProfile ? (
         <div 
-          className={`group flex items-center gap-3 pl-3.5 pr-4.5 py-2 sm:py-2.5 rounded-l-2xl border-y border-l border-r-0 backdrop-blur-2xl shadow-xl cursor-pointer transition-all duration-400 ease-out transform translate-x-[calc(100%-46px)] sm:translate-x-[calc(100%-50px)] hover:translate-x-0 ${
+          className={`group flex items-center gap-3 pl-3.5 pr-4.5 py-2 sm:py-2.5 rounded-l-2xl border-y border-l border-r-0 backdrop-blur-2xl shadow-xl cursor-pointer transition-all duration-400 ease-out transform ${
+            isLearningTabExpanded
+              ? 'translate-x-0'
+              : 'translate-x-[calc(100%-46px)] sm:translate-x-[calc(100%-50px)] hover:translate-x-0'
+          } ${
             isRenoir
               ? 'bg-[#1a0808]/95 border-amber-800/50 text-amber-100 shadow-amber-950/40 hover:bg-[#250d0d] hover:border-amber-600'
               : 'bg-white/95 border-black/15 text-black shadow-black/10 hover:bg-white hover:border-black/30'
           }`}
-          onClick={startProfiling}
+          onClick={handleLearningTabAction}
         >
           <div className={`relative flex items-center justify-center flex-shrink-0 w-8 h-8 rounded-xl transition-all duration-300 group-hover:scale-105 ${
             isRenoir ? 'bg-amber-950/60 text-amber-300' : 'bg-black/5 text-red-600'
@@ -898,14 +934,40 @@ export const App: React.FC = () => {
             </span>
           </div>
           <div className="flex items-center gap-1 ml-1.5 pl-1.5 border-l border-current/15" onClick={e => e.stopPropagation()}>
-            <button onClick={startProfiling} className="text-[8.5px] sm:text-[9px] font-black uppercase opacity-60 hover:opacity-100 hover:underline px-1 py-0.5" title="Change profile">edit</button>
-            <button onClick={cancelProfile} className="text-[11px] text-red-500 opacity-70 hover:opacity-100 font-bold px-1 py-0.5" title="Clear profile">✕</button>
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                startProfiling();
+                setIsLearningTabExpanded(false);
+              }} 
+              className="text-[8.5px] sm:text-[9px] font-black uppercase opacity-60 hover:opacity-100 hover:underline px-1 py-0.5" 
+              title="Change profile"
+            >
+              edit
+            </button>
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                cancelProfile();
+                setIsLearningTabExpanded(false);
+              }} 
+              className="text-[11px] text-red-500 opacity-70 hover:opacity-100 font-bold px-1 py-0.5" 
+              title="Clear profile"
+            >
+              ✕
+            </button>
           </div>
         </div>
       ) : (
-        <button
-          onClick={startProfiling}
-          className={`group relative flex items-center gap-3 pl-3.5 pr-4.5 py-2 sm:py-2.5 rounded-l-2xl border-y border-l border-r-0 backdrop-blur-2xl shadow-xl cursor-pointer transition-all duration-400 ease-out transform translate-x-[calc(100%-46px)] sm:translate-x-[calc(100%-50px)] hover:translate-x-0 ${
+        <div
+          onClick={handleLearningTabAction}
+          role="button"
+          tabIndex={0}
+          className={`group relative flex items-center gap-3 pl-3.5 pr-4.5 py-2 sm:py-2.5 rounded-l-2xl border-y border-l border-r-0 backdrop-blur-2xl shadow-xl cursor-pointer transition-all duration-400 ease-out transform ${
+            isLearningTabExpanded
+              ? 'translate-x-0'
+              : 'translate-x-[calc(100%-46px)] sm:translate-x-[calc(100%-50px)] hover:translate-x-0'
+          } ${
             isRenoir
               ? 'bg-[#1a0808]/95 border-amber-800/50 text-amber-200 shadow-amber-950/40 hover:bg-[#250d0d] hover:text-amber-100 hover:border-amber-600'
               : 'bg-white/95 border-black/15 text-black/80 shadow-black/10 hover:bg-white hover:text-black hover:border-black/30'
@@ -926,7 +988,7 @@ export const App: React.FC = () => {
               {(t as any).adaptOracleSub || "To your style"}
             </span>
           </div>
-        </button>
+        </div>
       )}
     </div>
   ) : null;
