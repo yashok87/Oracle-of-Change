@@ -1818,37 +1818,37 @@ export const App: React.FC = () => {
   };
 
   const ProfilingModal = (
-    <div className="fixed inset-0 z-[1100] bg-black/80 backdrop-blur-3xl flex items-center justify-center p-6 cursor-pointer" onClick={() => setShowProfilingModal(false)}>
-      <div className={`w-full max-w-lg p-10 md:p-14 rounded-[50px] border shadow-2xl transition-all duration-500 animate-in zoom-in-95 ${isRenoir ? 'bg-[#1e0a0a] border-amber-900/40 text-amber-100' : 'bg-white border-black/10 text-black'}`} onClick={e => e.stopPropagation()}>
-         <div className="flex justify-between items-center mb-12">
-            <span className="text-[10px] font-black uppercase tracking-[0.6em] opacity-40">{t.learningStyle}</span>
-            <button onClick={() => setShowProfilingModal(false)} className="opacity-40 hover:opacity-100 transition-opacity"><Icons.Close /></button>
+    <div className="fixed inset-0 z-[1100] bg-black/80 backdrop-blur-3xl flex items-center justify-center p-3 sm:p-6 cursor-pointer" onClick={() => setShowProfilingModal(false)}>
+      <div className={`w-full max-w-lg p-5 sm:p-10 md:p-14 rounded-3xl sm:rounded-[44px] md:rounded-[50px] border shadow-2xl transition-all duration-500 animate-in zoom-in-95 ${isRenoir ? 'bg-[#1e0a0a] border-amber-900/40 text-amber-100' : 'bg-white border-black/10 text-black'}`} onClick={e => e.stopPropagation()}>
+         <div className="flex justify-between items-center mb-3 sm:mb-8 md:mb-12">
+            <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.4em] sm:tracking-[0.6em] opacity-40">{t.learningStyle}</span>
+            <button onClick={() => setShowProfilingModal(false)} className="p-1 opacity-40 hover:opacity-100 transition-opacity"><Icons.Close /></button>
          </div>
 
-         <div className="space-y-12">
-            <div className="space-y-4">
-               <div className="flex justify-between items-center mb-2">
-                  <span className="text-[9px] font-black opacity-30">REVELATION {profilingStep + 1} / {activeQuestions.length}</span>
+         <div className="space-y-4 sm:space-y-8 md:space-y-12">
+            <div className="space-y-2 sm:space-y-4">
+               <div className="flex justify-between items-center mb-1 sm:mb-2">
+                  <span className="text-[8.5px] sm:text-[9px] font-black opacity-30">REVELATION {profilingStep + 1} / {activeQuestions.length}</span>
                </div>
                <div className={`w-full h-1 bg-current/10 rounded-full overflow-hidden`}>
                   <div className={`h-full bg-red-600 transition-all duration-500`} style={{ width: `${((profilingStep + 1) / activeQuestions.length) * 100}%` }} />
                </div>
             </div>
 
-            <h3 className="text-xl md:text-2xl font-black uppercase leading-tight tracking-tighter text-center h-24 flex items-center justify-center">
+            <h3 className="text-base sm:text-xl md:text-2xl font-black uppercase leading-snug tracking-tighter text-center min-h-[50px] sm:h-24 flex items-center justify-center px-1">
                {uiLanguage === 'RU' ? activeQuestions[profilingStep]?.q_ru : activeQuestions[profilingStep]?.q}
             </h3>
 
-            <div className="grid grid-cols-1 gap-4">
+            <div className="grid grid-cols-1 gap-2.5 sm:gap-4">
                <button 
                   onClick={() => handleProfilingAnswer(0)}
-                  className={`py-6 px-8 rounded-3xl border-2 font-bold transition-all text-sm uppercase tracking-widest active:scale-95 text-center ${isRenoir ? 'border-amber-900/40 hover:bg-amber-900' : 'border-black/10 bg-white hover:bg-black/5 hover:border-black/30 text-black'}`}
+                  className={`py-3 sm:py-5 md:py-6 px-4 sm:px-8 rounded-2xl sm:rounded-3xl border-2 font-bold transition-all text-xs sm:text-sm uppercase tracking-wider sm:tracking-widest active:scale-95 text-center ${isRenoir ? 'border-amber-900/40 hover:bg-amber-900' : 'border-black/10 bg-white hover:bg-black/5 hover:border-black/30 text-black'}`}
                >
                   {uiLanguage === 'RU' ? activeQuestions[profilingStep]?.a1_ru : activeQuestions[profilingStep]?.a1}
                </button>
                <button 
                   onClick={() => handleProfilingAnswer(1)}
-                  className={`py-6 px-8 rounded-3xl border-2 font-bold transition-all text-sm uppercase tracking-widest active:scale-95 text-center ${isRenoir ? 'border-amber-900/40 hover:bg-amber-900' : 'border-black/10 bg-white hover:bg-black/5 hover:border-black/30 text-black'}`}
+                  className={`py-3 sm:py-5 md:py-6 px-4 sm:px-8 rounded-2xl sm:rounded-3xl border-2 font-bold transition-all text-xs sm:text-sm uppercase tracking-wider sm:tracking-widest active:scale-95 text-center ${isRenoir ? 'border-amber-900/40 hover:bg-amber-900' : 'border-black/10 bg-white hover:bg-black/5 hover:border-black/30 text-black'}`}
                >
                   {uiLanguage === 'RU' ? activeQuestions[profilingStep]?.a2_ru : activeQuestions[profilingStep]?.a2}
                </button>
