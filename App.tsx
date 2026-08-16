@@ -8,6 +8,7 @@ import { RatioIndicator } from './components/RatioIndicator';
 import { LoadingScreen } from './components/LoadingScreen';
 import { ThemeBackground } from './components/ThemeBackground';
 import { BookReader } from './components/BookReader';
+import { PersonalityTypeModal } from './components/PersonalityTypeModal';
 
 type Theme = 'SUPREMATIST' | 'IMPRESSIONIST';
 type Language = 'EN' | 'RU';
@@ -565,6 +566,7 @@ export const App: React.FC = () => {
   const [isVisionActuallyReady, setIsVisionActuallyReady] = useState(false);
   const [isSlowLoading, setIsSlowLoading] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const [showPersonalityModal, setShowPersonalityModal] = useState(false);
   const [showCalibrationPopup, setShowCalibrationPopup] = useState(false);
   const [isManual, setIsManual] = useState(false);
   const [imgCrossOrigin, setImgCrossOrigin] = useState<"anonymous" | undefined>("anonymous");
@@ -572,6 +574,7 @@ export const App: React.FC = () => {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [learningProfile, setLearningProfile] = useState<LearningProfile | null>(null);
   const [isLearningTabExpanded, setIsLearningTabExpanded] = useState(false);
+  const [isConfirmingClearProfile, setIsConfirmingClearProfile] = useState(false);
   const learningTabRef = useRef<HTMLDivElement>(null);
   const [selectedImageModel, setSelectedImageModel] = useState<string>('flux');
   const [activePage, setActivePage] = useState<'ORACLE' | 'MUSIC' | 'ABOUT' | 'BOOK'>('MUSIC');
@@ -669,6 +672,7 @@ export const App: React.FC = () => {
       setLearningProfile(profile);
       localStorage.setItem('oracle_learning_profile', JSON.stringify(profile));
       setShowProfilingModal(false);
+      setShowPersonalityModal(true);
     }
   };
 
@@ -690,16 +694,19 @@ export const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent | TouchEvent) => {
+    const handleClickOutside = (e: MouseEvent | TouchEvent | PointerEvent) => {
       if (learningTabRef.current && !learningTabRef.current.contains(e.target as Node)) {
         setIsLearningTabExpanded(false);
+        setIsConfirmingClearProfile(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
-    document.addEventListener('touchstart', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside, { passive: true });
+    document.addEventListener('pointerdown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('touchstart', handleClickOutside);
+      document.removeEventListener('pointerdown', handleClickOutside);
     };
   }, []);
 
@@ -889,8 +896,8 @@ export const App: React.FC = () => {
   );
 
   const handleLearningTabAction = (e: React.MouseEvent) => {
-    // If pointer hover is supported (e.g. desktop mouse), hover already popped the tab out, so direct click starts calibration.
-    // On mobile/touch devices (or when the tab is currently collapsed), 1st tap expands the banner in full, 2nd tap starts calibration.
+    // If pointer hover is supported (e.g. desktop mouse), hover already popped the tab out.
+    // On mobile/touch devices (or when the tab is currently collapsed), 1st tap expands the banner in full, 2nd tap performs action.
     const isHoverDevice = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
     
     if (!isHoverDevice && !isLearningTabExpanded) {
@@ -900,97 +907,159 @@ export const App: React.FC = () => {
       return;
     }
     
-    startProfiling();
     setIsLearningTabExpanded(false);
+
+    // If profile already exists, open personality insight & description modal
+    if (learningProfile) {
+      setShowPersonalityModal(true);
+    } else {
+      // If profile has not been filled, launch the test
+      startProfiling();
+    }
   };
 
   const LearningStyleTab = activePage === 'ORACLE' ? (
-    <div ref={learningTabRef} className="fixed right-0 top-[72px] sm:top-[78px] md:top-[84px] z-20 pointer-events-auto">
-      {learningProfile ? (
+    <>
+      {/* Mobile backdrop to dismiss expanded banner on tap outside */}
+      {isLearningTabExpanded && (
         <div 
-          className={`group flex items-center gap-3 pl-3.5 pr-4.5 py-2 sm:py-2.5 rounded-l-2xl border-y border-l border-r-0 backdrop-blur-2xl shadow-xl cursor-pointer transition-all duration-400 ease-out transform ${
-            isLearningTabExpanded
-              ? 'translate-x-0'
-              : 'translate-x-[calc(100%-46px)] sm:translate-x-[calc(100%-50px)] hover:translate-x-0'
-          } ${
-            isRenoir
-              ? 'bg-[#1a0808]/95 border-amber-800/50 text-amber-100 shadow-amber-950/40 hover:bg-[#250d0d] hover:border-amber-600'
-              : 'bg-white/95 border-black/15 text-black shadow-black/10 hover:bg-white hover:border-black/30'
-          }`}
-          onClick={handleLearningTabAction}
-        >
-          <div className={`relative flex items-center justify-center flex-shrink-0 w-8 h-8 rounded-xl transition-all duration-300 group-hover:scale-105 ${
-            isRenoir ? 'bg-amber-950/60 text-amber-300' : 'bg-black/5 text-red-600'
-          }`}>
-            <Icons.Encyclopedia className="w-5 h-5 opacity-90 transition-transform duration-300 group-hover:-rotate-3" />
-            <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-          </div>
-          <div className="flex flex-col text-left leading-tight whitespace-nowrap pl-0.5">
-            <span className="text-[7.5px] sm:text-[8px] font-black uppercase tracking-[0.25em] opacity-55">
-              {t.profileActive}
-            </span>
-            <span className="text-[11px] sm:text-[12px] font-bold tracking-tight mt-0.5">
-              {learningProfile.type} • {learningProfile.label}
-            </span>
-          </div>
-          <div className="flex items-center gap-1 ml-1.5 pl-1.5 border-l border-current/15" onClick={e => e.stopPropagation()}>
-            <button 
-              onClick={(e) => {
-                e.stopPropagation();
-                startProfiling();
-                setIsLearningTabExpanded(false);
-              }} 
-              className="text-[8.5px] sm:text-[9px] font-black uppercase opacity-60 hover:opacity-100 hover:underline px-1 py-0.5" 
-              title="Change profile"
-            >
-              edit
-            </button>
-            <button 
-              onClick={(e) => {
-                e.stopPropagation();
-                cancelProfile();
-                setIsLearningTabExpanded(false);
-              }} 
-              className="text-[11px] text-red-500 opacity-70 hover:opacity-100 font-bold px-1 py-0.5" 
-              title="Clear profile"
-            >
-              ✕
-            </button>
-          </div>
-        </div>
-      ) : (
-        <div
-          onClick={handleLearningTabAction}
-          role="button"
-          tabIndex={0}
-          className={`group relative flex items-center gap-3 pl-3.5 pr-4.5 py-2 sm:py-2.5 rounded-l-2xl border-y border-l border-r-0 backdrop-blur-2xl shadow-xl cursor-pointer transition-all duration-400 ease-out transform ${
-            isLearningTabExpanded
-              ? 'translate-x-0'
-              : 'translate-x-[calc(100%-46px)] sm:translate-x-[calc(100%-50px)] hover:translate-x-0'
-          } ${
-            isRenoir
-              ? 'bg-[#1a0808]/95 border-amber-800/50 text-amber-200 shadow-amber-950/40 hover:bg-[#250d0d] hover:text-amber-100 hover:border-amber-600'
-              : 'bg-white/95 border-black/15 text-black/80 shadow-black/10 hover:bg-white hover:text-black hover:border-black/30'
-          }`}
-          title={(t as any).adaptOracleSub || t.learningStyle}
-        >
-          <div className={`relative flex items-center justify-center flex-shrink-0 w-8 h-8 rounded-xl transition-all duration-300 group-hover:scale-105 ${
-            isRenoir ? 'bg-amber-950/60 text-amber-300 group-hover:text-amber-200' : 'bg-black/5 text-black group-hover:text-red-600'
-          }`}>
-            <Icons.Encyclopedia className="w-5 h-5 opacity-80 group-hover:opacity-100 transition-all duration-300 group-hover:-rotate-3" />
-            <span className={`absolute top-1 right-1 w-1.5 h-1.5 rounded-full ${isRenoir ? 'bg-amber-400' : 'bg-red-500'} animate-pulse`} />
-          </div>
-          <div className="flex flex-col text-left leading-tight whitespace-nowrap pl-0.5">
-            <span className="text-[7.5px] sm:text-[8px] font-black uppercase tracking-[0.25em] opacity-55 group-hover:opacity-90 transition-opacity">
-              {(t as any).adaptOracleHeader || "ADAPT ORACLE"}
-            </span>
-            <span className="text-[11px] sm:text-[12px] font-bold tracking-tight opacity-90 group-hover:opacity-100 transition-opacity mt-0.5">
-              {(t as any).adaptOracleSub || "To your style"}
-            </span>
-          </div>
-        </div>
+          className="fixed inset-0 z-10 sm:hidden bg-transparent"
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsLearningTabExpanded(false);
+            setIsConfirmingClearProfile(false);
+          }}
+          onTouchStart={(e) => {
+            e.stopPropagation();
+            setIsLearningTabExpanded(false);
+            setIsConfirmingClearProfile(false);
+          }}
+        />
       )}
-    </div>
+      <div ref={learningTabRef} className="fixed right-0 top-[72px] sm:top-[78px] md:top-[84px] z-20 pointer-events-auto">
+        {learningProfile ? (
+          <div 
+            className={`group flex items-center gap-3 pl-3.5 pr-4.5 py-2 sm:py-2.5 rounded-l-2xl border-y border-l border-r-0 backdrop-blur-2xl shadow-xl cursor-pointer transition-all duration-400 ease-out transform ${
+              isLearningTabExpanded
+                ? 'translate-x-0'
+                : 'translate-x-[calc(100%-46px)] sm:translate-x-[calc(100%-50px)] hover:translate-x-0'
+            } ${
+              isRenoir
+                ? 'bg-[#1a0808]/95 border-amber-800/50 text-amber-100 shadow-amber-950/40 hover:bg-[#250d0d] hover:border-amber-600'
+                : 'bg-white/95 border-black/15 text-black shadow-black/10 hover:bg-white hover:border-black/30'
+            }`}
+            onClick={handleLearningTabAction}
+          >
+            <div className={`relative flex items-center justify-center flex-shrink-0 w-8 h-8 rounded-xl transition-all duration-300 group-hover:scale-105 ${
+              isRenoir ? 'bg-amber-950/60 text-amber-300' : 'bg-black/5 text-red-600'
+            }`}>
+              <Icons.Encyclopedia className="w-5 h-5 opacity-90 transition-transform duration-300 group-hover:-rotate-3" />
+              <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            </div>
+            <div className="flex flex-col text-left leading-tight whitespace-nowrap pl-0.5">
+              <span className="text-[7.5px] sm:text-[8px] font-black uppercase tracking-[0.25em] opacity-55">
+                {t.profileActive}
+              </span>
+              <span className="text-[11px] sm:text-[12px] font-bold tracking-tight mt-0.5">
+                {learningProfile.type} • {learningProfile.label}
+              </span>
+            </div>
+            <div className="flex items-center gap-1 ml-1.5 pl-1.5 border-l border-current/15" onClick={e => e.stopPropagation()}>
+              {isConfirmingClearProfile ? (
+                <div className="flex items-center gap-1.5 animate-in fade-in zoom-in-95">
+                  <span className="text-[8.5px] sm:text-[9px] font-black uppercase tracking-wider text-red-500">
+                    {uiLanguage === 'RU' ? 'Сбросить?' : 'Clear?'}
+                  </span>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      cancelProfile();
+                      setIsConfirmingClearProfile(false);
+                      setIsLearningTabExpanded(false);
+                    }}
+                    className={`px-1.5 py-0.5 rounded text-[8.5px] font-bold uppercase transition-colors ${
+                      isRenoir 
+                        ? 'bg-red-900/70 hover:bg-red-800 text-red-100 border border-red-700/60' 
+                        : 'bg-red-600 hover:bg-red-700 text-white shadow-sm'
+                    }`}
+                    title={uiLanguage === 'RU' ? 'Подтвердить сброс профиля' : 'Confirm clear profile'}
+                  >
+                    {uiLanguage === 'RU' ? 'Да' : 'Yes'}
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsConfirmingClearProfile(false);
+                    }}
+                    className={`px-1.5 py-0.5 rounded text-[8.5px] font-bold uppercase opacity-70 hover:opacity-100 transition-colors ${
+                      isRenoir ? 'bg-amber-950/40 text-amber-200' : 'bg-black/5 hover:bg-black/10 text-black'
+                    }`}
+                    title={uiLanguage === 'RU' ? 'Отмена' : 'Cancel'}
+                  >
+                    {uiLanguage === 'RU' ? 'Нет' : 'No'}
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowPersonalityModal(true);
+                      setIsLearningTabExpanded(false);
+                    }} 
+                    className="text-[8.5px] sm:text-[9px] font-black uppercase opacity-60 hover:opacity-100 hover:underline px-1 py-0.5 whitespace-nowrap" 
+                    title={uiLanguage === 'RU' ? "Описание и выбор типа" : "Personality insight & selection"}
+                  >
+                    edit
+                  </button>
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsConfirmingClearProfile(true);
+                    }} 
+                    className="text-[12px] text-red-500 opacity-70 hover:opacity-100 font-bold px-1.5 py-0.5 transition-all hover:scale-110" 
+                    title={uiLanguage === 'RU' ? "Сбросить профиль" : "Clear profile"}
+                  >
+                    ✕
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div
+            onClick={handleLearningTabAction}
+            role="button"
+            tabIndex={0}
+            className={`group relative flex items-center gap-3 pl-3.5 pr-4.5 py-2 sm:py-2.5 rounded-l-2xl border-y border-l border-r-0 backdrop-blur-2xl shadow-xl cursor-pointer transition-all duration-400 ease-out transform ${
+              isLearningTabExpanded
+                ? 'translate-x-0'
+                : 'translate-x-[calc(100%-46px)] sm:translate-x-[calc(100%-50px)] hover:translate-x-0'
+            } ${
+              isRenoir
+                ? 'bg-[#1a0808]/95 border-amber-800/50 text-amber-200 shadow-amber-950/40 hover:bg-[#250d0d] hover:text-amber-100 hover:border-amber-600'
+                : 'bg-white/95 border-black/15 text-black/80 shadow-black/10 hover:bg-white hover:text-black hover:border-black/30'
+            }`}
+            title={(t as any).adaptOracleSub || t.learningStyle}
+          >
+            <div className={`relative flex items-center justify-center flex-shrink-0 w-8 h-8 rounded-xl transition-all duration-300 group-hover:scale-105 ${
+              isRenoir ? 'bg-amber-950/60 text-amber-300 group-hover:text-amber-200' : 'bg-black/5 text-black group-hover:text-red-600'
+            }`}>
+              <Icons.Encyclopedia className="w-5 h-5 opacity-80 group-hover:opacity-100 transition-all duration-300 group-hover:-rotate-3" />
+              <span className={`absolute top-1 right-1 w-1.5 h-1.5 rounded-full ${isRenoir ? 'bg-amber-400' : 'bg-red-500'} animate-pulse`} />
+            </div>
+            <div className="flex flex-col text-left leading-tight whitespace-nowrap pl-0.5">
+              <span className="text-[7.5px] sm:text-[8px] font-black uppercase tracking-[0.25em] opacity-55 group-hover:opacity-90 transition-opacity">
+                {(t as any).adaptOracleHeader || "ADAPT ORACLE"}
+              </span>
+              <span className="text-[11px] sm:text-[12px] font-bold tracking-tight opacity-90 group-hover:opacity-100 transition-opacity mt-0.5">
+                {(t as any).adaptOracleSub || "To your style"}
+              </span>
+            </div>
+          </div>
+        )}
+      </div>
+    </>
   ) : null;
 
   const GlassSidebar = (
@@ -2872,6 +2941,21 @@ export const App: React.FC = () => {
          </div>
        )}
        {showProfilingModal && ProfilingModal}
+       <PersonalityTypeModal
+         isOpen={showPersonalityModal}
+         onClose={() => setShowPersonalityModal(false)}
+         currentProfile={learningProfile}
+         onSelectType={(newProfile) => {
+           setLearningProfile(newProfile);
+           localStorage.setItem('oracle_learning_profile', JSON.stringify(newProfile));
+         }}
+         onRedoTest={() => {
+           setShowPersonalityModal(false);
+           startProfiling();
+         }}
+         uiLanguage={uiLanguage}
+         isRenoir={isRenoir}
+       />
        {showCalibrationPopup && CalibrationPopup}
        {PerspectivesModal}
        {mainContent}
