@@ -681,6 +681,11 @@ export const App: React.FC = () => {
     localStorage.removeItem('oracle_learning_profile');
   };
 
+  const handleClearProfile = () => {
+    cancelProfile();
+    setShowPersonalityModal(false);
+  };
+
   useEffect(() => {
     // Server health check removed for static site mode
   }, []);
@@ -2951,9 +2956,17 @@ export const App: React.FC = () => {
            setLearningProfile(newProfile);
            localStorage.setItem('oracle_learning_profile', JSON.stringify(newProfile));
          }}
+         onClearProfile={handleClearProfile}
          onRedoTest={() => {
            setShowPersonalityModal(false);
            startProfiling();
+         }}
+         onAskOracle={(queryText) => {
+           setShowPersonalityModal(false);
+           setActivePage('ORACLE');
+           if (inputRef.current) inputRef.current.value = queryText;
+           setInputValue(queryText);
+           runQuery(queryText);
          }}
          uiLanguage={uiLanguage}
          isRenoir={isRenoir}

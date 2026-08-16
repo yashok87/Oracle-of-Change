@@ -13,6 +13,7 @@ interface PersonalityTypeModalProps {
   onRedoTest: () => void;
   uiLanguage: 'EN' | 'RU';
   isRenoir: boolean;
+  onAskOracle?: (query: string) => void;
 }
 
 export const PersonalityTypeModal: React.FC<PersonalityTypeModalProps> = ({
@@ -23,12 +24,14 @@ export const PersonalityTypeModal: React.FC<PersonalityTypeModalProps> = ({
   onClearProfile,
   onRedoTest,
   uiLanguage,
-  isRenoir
+  isRenoir,
+  onAskOracle
 }) => {
   const initialType = currentProfile?.type || 'INTJ';
   const [inspectedType, setInspectedType] = useState<string>(initialType);
   const [appliedNotification, setAppliedNotification] = useState(false);
   const [clearedNotification, setClearedNotification] = useState(false);
+  const [customOracleQuestion, setCustomOracleQuestion] = useState('');
 
   useEffect(() => {
     if (currentProfile?.type) {
@@ -341,27 +344,48 @@ export const PersonalityTypeModal: React.FC<PersonalityTypeModalProps> = ({
               : 'bg-gradient-to-br from-zinc-50 via-zinc-100/50 to-white border-black/10 text-black'
           }`}>
             <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-3 mb-2 sm:mb-3">
-              <span className={`text-[8.5px] sm:text-[10px] font-black uppercase tracking-[0.25em] sm:tracking-[0.3em] px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full border ${
-                isRenoir ? 'border-amber-600/40 text-amber-300 bg-amber-950/60' : 'border-red-600/30 text-red-600 bg-red-50'
-              }`}>
-                {isEn ? data.groupLabel.en : data.groupLabel.ru}
-              </span>
-              <div className="text-[9px] sm:text-[10px] font-mono tracking-widest opacity-60">
-                MBTI ARCHETYPE • {data.type}
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className={`text-[8.5px] sm:text-[10px] font-black uppercase tracking-[0.25em] sm:tracking-[0.3em] px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full border ${
+                  isRenoir ? 'border-amber-600/40 text-amber-300 bg-amber-950/60' : 'border-red-600/30 text-red-600 bg-red-50'
+                }`}>
+                  {isEn ? data.groupLabel.en : data.groupLabel.ru}
+                </span>
+                <span className="text-[9px] sm:text-[10px] font-mono tracking-widest opacity-60">
+                  MBTI • {data.type}
+                </span>
               </div>
+
+              {onAskOracle && (
+                <button
+                  onClick={() => onAskOracle(
+                    isEn
+                      ? `Deliver an exhaustive in-depth psychological and philosophical analysis for archetype ${data.type} (${data.title.en}): explain core cognitive mechanics, unconscious shadow dynamics, interpersonal friction points, and existential destiny.`
+                      : `Предоставь исчерпывающий глубинный психоаналитический и философский анализ архетипа ${data.type} (${data.title.ru}): раскрой структуру бессознательного, теневые компенсации, динамику межличностных отношений и экзистенциальное призвание.`
+                  )}
+                  className={`px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-wider border flex items-center gap-1.5 transition-all duration-200 active:scale-95 shadow-sm ${
+                    isRenoir
+                      ? 'border-amber-600/60 bg-amber-900/40 hover:bg-amber-800/60 text-amber-200'
+                      : 'border-red-600/40 bg-red-50 hover:bg-red-100 text-red-700'
+                  }`}
+                  title={isEn ? "Ask Oracle for in-depth psychological analysis" : "Спросить Оракула для глубинного анализа"}
+                >
+                  <Icons.Sparkle className="w-3 h-3 text-amber-500 animate-spin-slow" />
+                  <span>{isEn ? 'Ask Oracle: Full Portrait' : 'Спросить Оракула: Портрет'}</span>
+                </button>
+              )}
             </div>
 
             <h1 className="text-xl sm:text-3xl md:text-4xl font-black tracking-tight leading-none mb-1.5 sm:mb-2">
               {isEn ? data.title.en : data.title.ru}
             </h1>
-            <p className={`text-xs sm:text-base font-serif italic opacity-85 mb-3 sm:mb-5 ${
+            <p className={`text-xs sm:text-base font-serif italic opacity-85 mb-3 sm:mb-4 ${
               isRenoir ? 'text-amber-200' : 'text-zinc-700'
             }`}>
               "{isEn ? data.motto.en : data.motto.ru}"
             </p>
 
             {/* Psychologist Introduction Card */}
-            <div className={`p-3 sm:p-5 rounded-xl sm:rounded-2xl border ${
+            <div className={`p-3 sm:p-5 rounded-xl sm:rounded-2xl border mb-3 sm:mb-4 ${
               isRenoir ? 'bg-black/30 border-amber-800/30 text-amber-100/90' : 'bg-white border-black/5 text-zinc-800'
             }`}>
               <div className="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
@@ -374,35 +398,163 @@ export const PersonalityTypeModal: React.FC<PersonalityTypeModalProps> = ({
                 {isEn ? data.psychologistIntro.en : data.psychologistIntro.ru}
               </p>
             </div>
+
+            {/* Curated External Reading Links Header */}
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 pt-1">
+              <span className="text-[8.5px] sm:text-[9.5px] font-mono uppercase tracking-wider opacity-60 mr-1 flex items-center gap-1">
+                <span>🔗</span> {isEn ? 'Authoritative References:' : 'Внешние источники и литература:'}
+              </span>
+              <a
+                href={isEn ? `https://www.16personalities.com/${inspectedType.toLowerCase()}-personality` : `https://www.16personalities.com/ru/tip-lichnosti-${inspectedType.toLowerCase()}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[9.5px] sm:text-[10.5px] font-semibold border transition-colors ${
+                  isRenoir ? 'bg-amber-950/50 border-amber-800/50 hover:bg-amber-900/60 text-amber-300' : 'bg-white border-black/10 hover:bg-zinc-100 text-blue-700'
+                }`}
+              >
+                <span>16Personalities</span>
+                <span className="text-[9px] opacity-70">↗</span>
+              </a>
+              <a
+                href={`https://www.truity.com/personality-type/${inspectedType}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[9.5px] sm:text-[10.5px] font-semibold border transition-colors ${
+                  isRenoir ? 'bg-amber-950/50 border-amber-800/50 hover:bg-amber-900/60 text-amber-300' : 'bg-white border-black/10 hover:bg-zinc-100 text-blue-700'
+                }`}
+              >
+                <span>Truity MBTI</span>
+                <span className="text-[9px] opacity-70">↗</span>
+              </a>
+              <a
+                href={isEn ? "https://en.wikipedia.org/wiki/Jungian_cognitive_functions" : "https://ru.wikipedia.org/wiki/%D0%AE%D0%BD%D0%B3%D0%BE%D0%B2%D1%81%D0%BA%D0%B8%D0%B5_%D1%84%D1%83%D0%BD%D0%BA%D1%86%D0%B8%D0%B8"}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[9.5px] sm:text-[10.5px] font-semibold border transition-colors ${
+                  isRenoir ? 'bg-amber-950/50 border-amber-800/50 hover:bg-amber-900/60 text-amber-300' : 'bg-white border-black/10 hover:bg-zinc-100 text-blue-700'
+                }`}
+              >
+                <span>Jungian Functions</span>
+                <span className="text-[9px] opacity-70">↗</span>
+              </a>
+              <a
+                href="https://www.myersbriggs.org/type-description/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[9.5px] sm:text-[10.5px] font-semibold border transition-colors ${
+                  isRenoir ? 'bg-amber-950/50 border-amber-800/50 hover:bg-amber-900/60 text-amber-300' : 'bg-white border-black/10 hover:bg-zinc-100 text-blue-700'
+                }`}
+              >
+                <span>Myers-Briggs Org</span>
+                <span className="text-[9px] opacity-70">↗</span>
+              </a>
+              <a
+                href="https://www.psychologytoday.com/us/basics/personality"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[9.5px] sm:text-[10.5px] font-semibold border transition-colors ${
+                  isRenoir ? 'bg-amber-950/50 border-amber-800/50 hover:bg-amber-900/60 text-amber-300' : 'bg-white border-black/10 hover:bg-zinc-100 text-blue-700'
+                }`}
+              >
+                <span>Psychology Today</span>
+                <span className="text-[9px] opacity-70">↗</span>
+              </a>
+            </div>
           </div>
 
           {/* Deep Psychological Portrait & Learning Style Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-6">
             
             {/* Deep Cognitive Portrait */}
-            <div className={`p-4 sm:p-6 rounded-2xl sm:rounded-3xl border space-y-2 sm:space-y-3 ${
+            <div className={`p-4 sm:p-6 rounded-2xl sm:rounded-3xl border flex flex-col justify-between space-y-3 ${
               isRenoir ? 'bg-amber-950/20 border-amber-900/30' : 'bg-zinc-50 border-black/5'
             }`}>
-              <h3 className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] sm:tracking-[0.25em] opacity-60 flex items-center gap-1.5 sm:gap-2">
-                <Icons.Sparkle className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-500" />
-                {isEn ? 'Cognitive Architecture' : 'Когнитивная структура'}
-              </h3>
-              <p className="text-[11.5px] sm:text-sm leading-relaxed opacity-85">
-                {isEn ? data.deepPortrait.en : data.deepPortrait.ru}
-              </p>
+              <div className="space-y-2 sm:space-y-2.5">
+                <div className="flex items-center justify-between flex-wrap gap-1.5">
+                  <h3 className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] sm:tracking-[0.25em] opacity-60 flex items-center gap-1.5 sm:gap-2">
+                    <Icons.Sparkle className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-500" />
+                    {isEn ? 'Cognitive Architecture' : 'Когнитивная структура'}
+                  </h3>
+                  <a
+                    href={isEn ? "https://en.wikipedia.org/wiki/Psychological_Types" : "https://ru.wikipedia.org/wiki/%D0%9F%D1%81%D0%B8%D1%85%D0%BE%D0%BB%D0%BE%D0%B3%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%B8%D0%B5_%D1%82%D0%B8%D0%BF%D1%8B"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[9px] sm:text-[10px] text-blue-600 hover:underline flex items-center gap-0.5 opacity-80"
+                  >
+                    <span>Jung Types</span>
+                    <span>↗</span>
+                  </a>
+                </div>
+                <p className="text-[11.5px] sm:text-sm leading-relaxed opacity-85">
+                  {isEn ? data.deepPortrait.en : data.deepPortrait.ru}
+                </p>
+              </div>
+
+              {onAskOracle && (
+                <div className="pt-2 border-t border-current/10">
+                  <button
+                    onClick={() => onAskOracle(
+                      isEn
+                        ? `Provide an in-depth breakdown of ${data.type}'s cognitive architecture: Analyze the 8-function stack (Dominant, Auxiliary, Tertiary, Inferior, and 4 Shadow Archetypes) and unconscious processing loops.`
+                        : `Предоставь углубленный анализ когнитивной структуры ${data.type}: разбери 8 юнговских функций (доминантную, вспомогательную, третичную, инфериорную и 4 теневых архетипа) и механизмы обработки информации.`
+                    )}
+                    className={`w-full py-1.5 px-2.5 rounded-xl text-[9px] sm:text-[10px] font-bold tracking-wider uppercase flex items-center justify-center gap-1.5 border transition-all active:scale-98 ${
+                      isRenoir
+                        ? 'border-amber-700/50 bg-amber-950/40 hover:bg-amber-900/50 text-amber-200'
+                        : 'border-black/10 bg-white hover:bg-zinc-100 text-black shadow-sm'
+                    }`}
+                  >
+                    <Icons.Sparkle className="w-3 h-3 text-amber-500" />
+                    <span>{isEn ? 'Ask Oracle: Deep Cognitive Stack' : 'Спросить Оракула: Когнитивный стек'}</span>
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Learning Style & Knowledge Acquisition */}
-            <div className={`p-4 sm:p-6 rounded-2xl sm:rounded-3xl border space-y-2 sm:space-y-3 ${
+            <div className={`p-4 sm:p-6 rounded-2xl sm:rounded-3xl border flex flex-col justify-between space-y-3 ${
               isRenoir ? 'bg-amber-950/20 border-amber-900/30' : 'bg-zinc-50 border-black/5'
             }`}>
-              <h3 className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] sm:tracking-[0.25em] opacity-60 flex items-center gap-1.5 sm:gap-2">
-                <Icons.Encyclopedia className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-red-500" />
-                {isEn ? 'Learning & Inquiry Dynamic' : 'Стиль познания и обучение'}
-              </h3>
-              <p className="text-[11.5px] sm:text-sm leading-relaxed opacity-85">
-                {isEn ? data.learningStyle.en : data.learningStyle.ru}
-              </p>
+              <div className="space-y-2 sm:space-y-2.5">
+                <div className="flex items-center justify-between flex-wrap gap-1.5">
+                  <h3 className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] sm:tracking-[0.25em] opacity-60 flex items-center gap-1.5 sm:gap-2">
+                    <Icons.Encyclopedia className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-red-500" />
+                    {isEn ? 'Learning & Inquiry Dynamic' : 'Стиль познания и обучение'}
+                  </h3>
+                  <a
+                    href="https://openpsychometrics.org/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[9px] sm:text-[10px] text-blue-600 hover:underline flex items-center gap-0.5 opacity-80"
+                  >
+                    <span>Psychometrics</span>
+                    <span>↗</span>
+                  </a>
+                </div>
+                <p className="text-[11.5px] sm:text-sm leading-relaxed opacity-85">
+                  {isEn ? data.learningStyle.en : data.learningStyle.ru}
+                </p>
+              </div>
+
+              {onAskOracle && (
+                <div className="pt-2 border-t border-current/10">
+                  <button
+                    onClick={() => onAskOracle(
+                      isEn
+                        ? `Design an accelerated learning methodology and epistemic roadmap specifically tailored for ${data.type}'s intellectual architecture: mental models, rapid synthesis techniques, and epistemic pitfalls.`
+                        : `Разработай систему ускоренного обучения и эпистемическую методологию специально для интеллекта ${data.type}: ментальные модели, техники скоростного синтеза знаний и методы преодоления когнитивных ловушек.`
+                    )}
+                    className={`w-full py-1.5 px-2.5 rounded-xl text-[9px] sm:text-[10px] font-bold tracking-wider uppercase flex items-center justify-center gap-1.5 border transition-all active:scale-98 ${
+                      isRenoir
+                        ? 'border-amber-700/50 bg-amber-950/40 hover:bg-amber-900/50 text-amber-200'
+                        : 'border-black/10 bg-white hover:bg-zinc-100 text-black shadow-sm'
+                    }`}
+                  >
+                    <Icons.Encyclopedia className="w-3 h-3 text-red-500" />
+                    <span>{isEn ? 'Ask Oracle: Epistemic Roadmap' : 'Спросить Оракула: Стратегия обучения'}</span>
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
@@ -410,57 +562,110 @@ export const PersonalityTypeModal: React.FC<PersonalityTypeModalProps> = ({
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5 sm:gap-6">
             
             {/* Strengths */}
-            <div className="space-y-2 sm:space-y-3">
-              <div className="flex items-center gap-1.5 sm:gap-2 pb-1 border-b border-emerald-500/30">
-                <span className="text-emerald-500 font-bold text-xs sm:text-sm">✦</span>
-                <h3 className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] sm:tracking-[0.25em] text-emerald-600 dark:text-emerald-400">
-                  {isEn ? 'Cognitive Strengths' : 'Сильные стороны мышления'}
-                </h3>
-              </div>
-              <div className="grid grid-cols-1 gap-2 sm:gap-2.5">
-                {data.strengths.map((s, idx) => (
-                  <div 
-                    key={idx}
-                    className={`p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl border transition-colors ${
-                      isRenoir ? 'bg-emerald-950/15 border-emerald-800/30' : 'bg-emerald-50/40 border-emerald-200/50'
-                    }`}
-                  >
-                    <h4 className="text-[11px] sm:text-xs font-bold text-emerald-600 dark:text-emerald-400 mb-0.5">
-                      {isEn ? s.title.en : s.title.ru}
-                    </h4>
-                    <p className="text-[11px] sm:text-xs leading-relaxed opacity-80">
-                      {isEn ? s.desc.en : s.desc.ru}
-                    </p>
+            <div className="space-y-2 sm:space-y-3 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between pb-1 border-b border-emerald-500/30 mb-2">
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    <span className="text-emerald-500 font-bold text-xs sm:text-sm">✦</span>
+                    <h3 className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] sm:tracking-[0.25em] text-emerald-600 dark:text-emerald-400">
+                      {isEn ? 'Cognitive Strengths' : 'Сильные стороны мышления'}
+                    </h3>
                   </div>
-                ))}
+                </div>
+                <div className="grid grid-cols-1 gap-2 sm:gap-2.5">
+                  {data.strengths.map((s, idx) => (
+                    <div 
+                      key={idx}
+                      className={`p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl border transition-colors ${
+                        isRenoir ? 'bg-emerald-950/15 border-emerald-800/30' : 'bg-emerald-50/40 border-emerald-200/50'
+                      }`}
+                    >
+                      <h4 className="text-[11px] sm:text-xs font-bold text-emerald-600 dark:text-emerald-400 mb-0.5">
+                        {isEn ? s.title.en : s.title.ru}
+                      </h4>
+                      <p className="text-[11px] sm:text-xs leading-relaxed opacity-80">
+                        {isEn ? s.desc.en : s.desc.ru}
+                      </p>
+                    </div>
+                  ))}
+                </div>
               </div>
+
+              {onAskOracle && (
+                <button
+                  onClick={() => onAskOracle(
+                    isEn
+                      ? `How can archetype ${data.type} amplify and operationalize their innate cognitive superpowers (${data.strengths.map(s => s.title.en).join(', ')}) to achieve exponential mastery?`
+                      : `Как архетипу ${data.type} максимально раскрыть и масштабировать свои ключевые сильные стороны (${data.strengths.map(s => s.title.ru).join(', ')}) для достижения выдающегося мастерства?`
+                  )}
+                  className={`w-full py-1.5 px-2.5 rounded-xl text-[9px] sm:text-[10px] font-bold tracking-wider uppercase flex items-center justify-center gap-1.5 border transition-all active:scale-98 mt-2 ${
+                    isRenoir
+                      ? 'border-emerald-700/50 bg-emerald-950/30 hover:bg-emerald-900/40 text-emerald-300'
+                      : 'border-emerald-200 bg-emerald-50/60 hover:bg-emerald-100 text-emerald-800'
+                  }`}
+                >
+                  <span>✦</span>
+                  <span>{isEn ? 'Ask Oracle: Superpower Mastery' : 'Спросить Оракула: Развитие суперсил'}</span>
+                </button>
+              )}
             </div>
 
             {/* Weaknesses / Vulnerabilities */}
-            <div className="space-y-2 sm:space-y-3">
-              <div className="flex items-center gap-1.5 sm:gap-2 pb-1 border-b border-red-500/30">
-                <span className="text-red-500 font-bold text-xs sm:text-sm">▲</span>
-                <h3 className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] sm:tracking-[0.25em] text-red-600 dark:text-red-400">
-                  {isEn ? 'Vulnerabilities & Blind Spots' : 'Уязвимости и слепые зоны'}
-                </h3>
-              </div>
-              <div className="grid grid-cols-1 gap-2 sm:gap-2.5">
-                {data.weaknesses.map((w, idx) => (
-                  <div 
-                    key={idx}
-                    className={`p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl border transition-colors ${
-                      isRenoir ? 'bg-red-950/15 border-red-800/30' : 'bg-red-50/40 border-red-200/50'
-                    }`}
-                  >
-                    <h4 className="text-[11px] sm:text-xs font-bold text-red-600 dark:text-red-400 mb-0.5">
-                      {isEn ? w.title.en : w.title.ru}
-                    </h4>
-                    <p className="text-[11px] sm:text-xs leading-relaxed opacity-80">
-                      {isEn ? w.desc.en : w.desc.ru}
-                    </p>
+            <div className="space-y-2 sm:space-y-3 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between pb-1 border-b border-red-500/30 mb-2">
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    <span className="text-red-500 font-bold text-xs sm:text-sm">▲</span>
+                    <h3 className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] sm:tracking-[0.25em] text-red-600 dark:text-red-400">
+                      {isEn ? 'Vulnerabilities & Blind Spots' : 'Уязвимости и слепые зоны'}
+                    </h3>
                   </div>
-                ))}
+                  <a
+                    href="https://en.wikipedia.org/wiki/Shadow_(psychology)"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[9px] sm:text-[10px] text-red-600 hover:underline flex items-center gap-0.5 opacity-80"
+                  >
+                    <span>Jung Shadow</span>
+                    <span>↗</span>
+                  </a>
+                </div>
+                <div className="grid grid-cols-1 gap-2 sm:gap-2.5">
+                  {data.weaknesses.map((w, idx) => (
+                    <div 
+                      key={idx}
+                      className={`p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl border transition-colors ${
+                        isRenoir ? 'bg-red-950/15 border-red-800/30' : 'bg-red-50/40 border-red-200/50'
+                      }`}
+                    >
+                      <h4 className="text-[11px] sm:text-xs font-bold text-red-600 dark:text-red-400 mb-0.5">
+                        {isEn ? w.title.en : w.title.ru}
+                      </h4>
+                      <p className="text-[11px] sm:text-xs leading-relaxed opacity-80">
+                        {isEn ? w.desc.en : w.desc.ru}
+                      </p>
+                    </div>
+                  ))}
+                </div>
               </div>
+
+              {onAskOracle && (
+                <button
+                  onClick={() => onAskOracle(
+                    isEn
+                      ? `Conduct a deep psychoanalytic shadow interrogation for ${data.type}: examine blind spots (${data.weaknesses.map(w => w.title.en).join(', ')}), defense mechanisms, and prescribe concrete shadow integration practices.`
+                      : `Проведи глубокую теневую психоаналитическую сессию для ${data.type}: разбери слепые зоны (${data.weaknesses.map(w => w.title.ru).join(', ')}), защитные механизмы психики и дай точные практики интеграции Тени.`
+                  )}
+                  className={`w-full py-1.5 px-2.5 rounded-xl text-[9px] sm:text-[10px] font-bold tracking-wider uppercase flex items-center justify-center gap-1.5 border transition-all active:scale-98 mt-2 ${
+                    isRenoir
+                      ? 'border-red-700/50 bg-red-950/30 hover:bg-red-900/40 text-red-300'
+                      : 'border-red-200 bg-red-50/60 hover:bg-red-100 text-red-800'
+                  }`}
+                >
+                  <span>▲</span>
+                  <span>{isEn ? 'Ask Oracle: Shadow Integration' : 'Спросить Оракула: Интеграция Тени'}</span>
+                </button>
+              )}
             </div>
           </div>
 
@@ -468,14 +673,31 @@ export const PersonalityTypeModal: React.FC<PersonalityTypeModalProps> = ({
           <div className={`p-4 sm:p-7 rounded-2xl sm:rounded-3xl border space-y-3 sm:space-y-5 ${
             isRenoir ? 'bg-amber-950/20 border-amber-900/30' : 'bg-zinc-50 border-black/5'
           }`}>
-            <div className="flex items-center justify-between border-b pb-2 sm:pb-3 border-current/10">
+            <div className="flex items-center justify-between border-b pb-2 sm:pb-3 border-current/10 flex-wrap gap-2">
               <h3 className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] sm:tracking-[0.25em] flex items-center gap-1.5 sm:gap-2">
                 <Icons.Settings className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-500" />
                 {isEn ? 'Career & Professional Realization' : 'Выбор профессии и карьерная реализация'}
               </h3>
-              <span className="text-[8.5px] sm:text-[9px] font-mono opacity-50 uppercase tracking-widest">
-                Career Fit
-              </span>
+              <div className="flex items-center gap-2">
+                <a
+                  href={`https://www.truity.com/personality-type/${inspectedType}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[9px] sm:text-[10px] text-blue-600 hover:underline flex items-center gap-0.5 opacity-80"
+                >
+                  <span>Truity Careers</span>
+                  <span>↗</span>
+                </a>
+                <a
+                  href="https://www.onetonline.org/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[9px] sm:text-[10px] text-blue-600 hover:underline flex items-center gap-0.5 opacity-80"
+                >
+                  <span>O*NET Index</span>
+                  <span>↗</span>
+                </a>
+              </div>
             </div>
 
             {/* Ideal Roles Chips */}
@@ -523,20 +745,46 @@ export const PersonalityTypeModal: React.FC<PersonalityTypeModalProps> = ({
                 </p>
               </div>
             </div>
+
+            {onAskOracle && (
+              <div className="pt-2 border-t border-current/10">
+                <button
+                  onClick={() => onAskOracle(
+                    isEn
+                      ? `Formulate a comprehensive executive career strategy and niche domination blueprint for archetype ${data.type}: high-leverage domains, leadership style, entrepreneurial ventures, and 10-year trajectory.`
+                      : `Сформулируй стратегический карьерный мастер-план и траекторию лидерства для архетипа ${data.type}: высокодоходные ниши, персональный стиль руководства, стартапы и 10-летний вектор развития.`
+                  )}
+                  className={`w-full py-2 px-3 rounded-xl text-[9px] sm:text-[10px] font-bold tracking-wider uppercase flex items-center justify-center gap-1.5 border transition-all active:scale-98 ${
+                    isRenoir
+                      ? 'border-blue-700/50 bg-blue-950/30 hover:bg-blue-900/40 text-blue-300'
+                      : 'border-blue-200 bg-blue-50/60 hover:bg-blue-100 text-blue-800'
+                  }`}
+                >
+                  <Icons.Settings className="w-3 h-3 text-blue-500" />
+                  <span>{isEn ? 'Ask Oracle: High-Impact Career Roadmap' : 'Спросить Оракула: Карьерная стратегия'}</span>
+                </button>
+              </div>
+            )}
           </div>
 
           {/* SECTION: Relationships & Interpersonal Compatibility */}
           <div className={`p-4 sm:p-7 rounded-2xl sm:rounded-3xl border space-y-3 sm:space-y-5 ${
             isRenoir ? 'bg-amber-950/20 border-amber-900/30' : 'bg-zinc-50 border-black/5'
           }`}>
-            <div className="flex items-center justify-between border-b pb-2 sm:pb-3 border-current/10">
+            <div className="flex items-center justify-between border-b pb-2 sm:pb-3 border-current/10 flex-wrap gap-2">
               <h3 className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] sm:tracking-[0.25em] flex items-center gap-1.5 sm:gap-2">
                 <span className="text-rose-500">♥</span>
                 {isEn ? 'Relationships & Compatibility' : 'Отношения и совместимость'}
               </h3>
-              <span className="text-[8.5px] sm:text-[9px] font-mono opacity-50 uppercase tracking-widest">
-                Interpersonal Dynamics
-              </span>
+              <a
+                href="https://en.wikipedia.org/wiki/Socionics#Intertype_relations"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[9px] sm:text-[10px] text-rose-600 hover:underline flex items-center gap-0.5 opacity-80"
+              >
+                <span>Intertype Synergy</span>
+                <span>↗</span>
+              </a>
             </div>
 
             {/* Communication Style */}
@@ -611,13 +859,44 @@ export const PersonalityTypeModal: React.FC<PersonalityTypeModalProps> = ({
                 </p>
               </div>
             </div>
+
+            {onAskOracle && (
+              <div className="pt-2 border-t border-current/10">
+                <button
+                  onClick={() => onAskOracle(
+                    isEn
+                      ? `Provide an in-depth relational treatise on ${data.type}: communication alchemistry, emotional vulnerability, intimacy patterns, and handling friction with contrasting personalities.`
+                      : `Раскрой глубинную алхимию отношений архетипа ${data.type}: паттерны эмоциональной близости, язык привязанности, преодоление кризисов доверия и ключи к гармонии с противоположными типами.`
+                  )}
+                  className={`w-full py-2 px-3 rounded-xl text-[9px] sm:text-[10px] font-bold tracking-wider uppercase flex items-center justify-center gap-1.5 border transition-all active:scale-98 ${
+                    isRenoir
+                      ? 'border-rose-700/50 bg-rose-950/30 hover:bg-rose-900/40 text-rose-300'
+                      : 'border-rose-200 bg-rose-50/60 hover:bg-rose-100 text-rose-800'
+                  }`}
+                >
+                  <span className="text-rose-500">♥</span>
+                  <span>{isEn ? 'Ask Oracle: Relational Alchemy' : 'Спросить Оракула: Алхимия отношений'}</span>
+                </button>
+              </div>
+            )}
           </div>
 
           {/* SECTION: 4 Cognitive Axes Breakdown */}
           <div className="space-y-2 sm:space-y-3">
-            <h3 className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] sm:tracking-[0.25em] opacity-60">
-              {isEn ? 'Cognitive Axes Tuning' : 'Калибровка когнитивных осей'}
-            </h3>
+            <div className="flex items-center justify-between">
+              <h3 className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] sm:tracking-[0.25em] opacity-60">
+                {isEn ? 'Cognitive Axes Tuning' : 'Калибровка когнитивных осей'}
+              </h3>
+              <a
+                href="https://en.wikipedia.org/wiki/Myers%E2%80%93Briggs_Type_Indicator"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[9px] sm:text-[10px] text-blue-600 hover:underline flex items-center gap-0.5 opacity-80"
+              >
+                <span>Dichotomy Theory</span>
+                <span>↗</span>
+              </a>
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3">
               <div className={`p-3 sm:p-4 rounded-xl sm:rounded-2xl border ${isRenoir ? 'bg-amber-950/20 border-amber-900/30' : 'bg-zinc-50 border-black/5'}`}>
                 <span className="text-[8.5px] sm:text-[9px] font-black uppercase tracking-widest opacity-40 block mb-0.5 sm:mb-1">Energy</span>
@@ -643,37 +922,163 @@ export const PersonalityTypeModal: React.FC<PersonalityTypeModalProps> = ({
                 <p className="text-[10.5px] sm:text-[11px] leading-relaxed opacity-75">{isEn ? data.axes.lifestyle.desc.en : data.axes.lifestyle.desc.ru}</p>
               </div>
             </div>
+
+            {onAskOracle && (
+              <button
+                onClick={() => onAskOracle(
+                  isEn
+                    ? `Explore the dialectical equilibrium between the 4 cognitive polarities for ${data.type} (${data.type[0]} vs ${data.type[0] === 'I' ? 'E' : 'I'}, ${data.type[1]} vs ${data.type[1] === 'N' ? 'S' : 'N'}, ${data.type[2]} vs ${data.type[2] === 'T' ? 'F' : 'T'}, ${data.type[3]} vs ${data.type[3] === 'J' ? 'P' : 'J'}): how to balance these opposing forces.`
+                    : `Исследуй диалектическое равновесие 4 когнитивных полярностей для типа ${data.type}: как гармонизировать противоборствующие векторы восприятия и суждения для целостности личности.`
+                )}
+                className={`w-full py-1.5 px-2.5 rounded-xl text-[9px] sm:text-[10px] font-bold tracking-wider uppercase flex items-center justify-center gap-1.5 border transition-all active:scale-98 mt-1 ${
+                  isRenoir
+                    ? 'border-amber-700/40 bg-amber-950/30 hover:bg-amber-900/40 text-amber-200'
+                    : 'border-black/10 bg-white hover:bg-zinc-100 text-black shadow-sm'
+                }`}
+              >
+                <Icons.Sparkle className="w-3 h-3 text-amber-500" />
+                <span>{isEn ? 'Ask Oracle: Polarities Dialectic' : 'Спросить Оракула: Диалектика полярностей'}</span>
+              </button>
+            )}
           </div>
 
           {/* SECTION: Philosophy, Existential Motive & Oracle Synergy */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 sm:gap-4">
-            <div className={`p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border ${
+            <div className={`p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border flex flex-col justify-between ${
               isRenoir ? 'bg-amber-950/30 border-amber-800/30 text-amber-200' : 'bg-zinc-50 border-black/5 text-zinc-800'
             }`}>
-              <h4 className="text-[10px] sm:text-xs font-black uppercase tracking-[0.15em] sm:tracking-[0.2em] mb-1 sm:mb-1.5 flex items-center gap-1 sm:gap-1.5">
-                <Icons.Mind className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-purple-500" />
-                {isEn ? 'Existential Motive & Philosophy' : 'Экзистенциальный мотив и философия'}
-              </h4>
-              <p className="text-[11px] sm:text-xs leading-relaxed opacity-90 mb-1.5 sm:mb-2">
-                <strong>{isEn ? 'Core Drive:' : 'Движущая сила:'}</strong> {isEn ? deepData.philosophy.existentialMotive.en : deepData.philosophy.existentialMotive.ru}
-              </p>
-              <p className="text-[10.5px] sm:text-[11.5px] leading-relaxed opacity-75">
-                <strong>{isEn ? 'Kinship Thinkers:' : 'Близкие мыслители:'}</strong> {isEn ? deepData.philosophy.idealPhilosophers.en : deepData.philosophy.idealPhilosophers.ru}
-              </p>
+              <div>
+                <div className="flex items-center justify-between mb-1 sm:mb-1.5">
+                  <h4 className="text-[10px] sm:text-xs font-black uppercase tracking-[0.15em] sm:tracking-[0.2em] flex items-center gap-1 sm:gap-1.5">
+                    <Icons.Mind className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-purple-500" />
+                    {isEn ? 'Existential Motive & Philosophy' : 'Экзистенциальный мотив и философия'}
+                  </h4>
+                  <a
+                    href="https://plato.stanford.edu/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[9px] sm:text-[10px] text-purple-600 hover:underline flex items-center gap-0.5 opacity-80"
+                  >
+                    <span>Stanford SEP</span>
+                    <span>↗</span>
+                  </a>
+                </div>
+                <p className="text-[11px] sm:text-xs leading-relaxed opacity-90 mb-1.5 sm:mb-2">
+                  <strong>{isEn ? 'Core Drive:' : 'Движущая сила:'}</strong> {isEn ? deepData.philosophy.existentialMotive.en : deepData.philosophy.existentialMotive.ru}
+                </p>
+                <p className="text-[10.5px] sm:text-[11.5px] leading-relaxed opacity-75">
+                  <strong>{isEn ? 'Kinship Thinkers:' : 'Близкие мыслители:'}</strong> {isEn ? deepData.philosophy.idealPhilosophers.en : deepData.philosophy.idealPhilosophers.ru}
+                </p>
+              </div>
+
+              {onAskOracle && (
+                <button
+                  onClick={() => onAskOracle(
+                    isEn
+                      ? `Synthesize the existential philosophy of ${data.type}: core metaphysical drivers, dialogue with ${deepData.philosophy.idealPhilosophers.en}, and answering the existential crisis of meaning.`
+                      : `Создай глубокий философский синтез экзистенциального пути ${data.type}: диалог с мыслителями (${deepData.philosophy.idealPhilosophers.ru}), преодоление экзистенциального вакуума и обретение высшего смысла.`
+                  )}
+                  className={`w-full mt-3 py-1.5 px-2.5 rounded-xl text-[9px] sm:text-[10px] font-bold tracking-wider uppercase flex items-center justify-center gap-1.5 border transition-all active:scale-98 ${
+                    isRenoir
+                      ? 'border-purple-700/50 bg-purple-950/30 hover:bg-purple-900/40 text-purple-300'
+                      : 'border-purple-200 bg-purple-50/60 hover:bg-purple-100 text-purple-800'
+                  }`}
+                >
+                  <Icons.Mind className="w-3 h-3 text-purple-500" />
+                  <span>{isEn ? 'Ask Oracle: Existential Philosophy' : 'Спросить Оракула: Философия смысла'}</span>
+                </button>
+              )}
             </div>
 
-            <div className={`p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border ${
+            <div className={`p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border flex flex-col justify-between ${
               isRenoir ? 'bg-amber-950/40 border-amber-700/40 text-amber-200' : 'bg-amber-50/70 border-amber-300 text-amber-950'
             }`}>
-              <h4 className="text-[10px] sm:text-xs font-black uppercase tracking-[0.15em] sm:tracking-[0.2em] mb-1 sm:mb-1.5 flex items-center gap-1 sm:gap-1.5 text-amber-600">
-                <Icons.Settings className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-600" />
-                {isEn ? 'Oracle Tuning Strategy' : 'Рекомендация по настройке Оракула'}
-              </h4>
-              <p className="text-[11px] sm:text-xs leading-relaxed opacity-90">
-                {isEn ? data.oracleAdvice.en : data.oracleAdvice.ru}
-              </p>
+              <div>
+                <h4 className="text-[10px] sm:text-xs font-black uppercase tracking-[0.15em] sm:tracking-[0.2em] mb-1 sm:mb-1.5 flex items-center gap-1 sm:gap-1.5 text-amber-600">
+                  <Icons.Settings className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-600" />
+                  {isEn ? 'Oracle Tuning Strategy' : 'Рекомендация по настройке Оракула'}
+                </h4>
+                <p className="text-[11px] sm:text-xs leading-relaxed opacity-90">
+                  {isEn ? data.oracleAdvice.en : data.oracleAdvice.ru}
+                </p>
+              </div>
+
+              {onAskOracle && (
+                <button
+                  onClick={() => onAskOracle(
+                    isEn
+                      ? `How can an ${data.type} mind optimize their queries to the Council of Philosophers to unlock groundbreaking synchronicities and transcendent clarity?`
+                      : `Как человеку с типом мышления ${data.type} формулировать запросы к Совету Философов, чтобы активировать максимальную синергию и глубинные инсайты?`
+                  )}
+                  className={`w-full mt-3 py-1.5 px-2.5 rounded-xl text-[9px] sm:text-[10px] font-bold tracking-wider uppercase flex items-center justify-center gap-1.5 border transition-all active:scale-98 ${
+                    isRenoir
+                      ? 'border-amber-600/50 bg-amber-900/40 hover:bg-amber-800/50 text-amber-200'
+                      : 'border-amber-300 bg-amber-100/60 hover:bg-amber-200 text-amber-900'
+                  }`}
+                >
+                  <Icons.Settings className="w-3 h-3 text-amber-600" />
+                  <span>{isEn ? 'Ask Oracle: Query Optimization' : 'Спросить Оракула: Настройка запросов'}</span>
+                </button>
+              )}
             </div>
           </div>
+
+          {/* Interactive Oracle Deep Inquiry Custom Bar */}
+          {onAskOracle && (
+            <div className={`p-4 sm:p-6 rounded-2xl sm:rounded-3xl border shadow-inner ${
+              isRenoir
+                ? 'bg-gradient-to-r from-[#200b0b] to-[#160606] border-amber-700/50 text-amber-100'
+                : 'bg-gradient-to-r from-zinc-100 via-white to-zinc-50 border-black/15 text-zinc-900'
+            }`}>
+              <div className="flex items-center gap-2 mb-2 sm:mb-3">
+                <Icons.Sparkle className="w-4 h-4 text-amber-500 animate-pulse" />
+                <h4 className="text-[11px] sm:text-xs font-black uppercase tracking-[0.2em]">
+                  {isEn ? 'Custom In-Depth Oracle Consultation' : 'Глубинная консультация с Оракулом'}
+                </h4>
+              </div>
+              <p className="text-[11px] sm:text-xs leading-relaxed opacity-80 mb-3">
+                {isEn 
+                  ? `Ask the 10-Philosopher Council any targeted question tuned to the ${data.type} cognitive archetype.`
+                  : `Задай Совету из 10 мыслителей любой персональный вопрос с учетом когнитивного архетипа ${data.type}.`}
+              </p>
+
+              <form 
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (!customOracleQuestion.trim()) return;
+                  const fullQ = isEn
+                    ? `[Archetype ${data.type} Deep Inquiry]: ${customOracleQuestion.trim()}`
+                    : `[Глубинный запрос архетипа ${data.type}]: ${customOracleQuestion.trim()}`;
+                  onAskOracle(fullQ);
+                }}
+                className="flex flex-col sm:flex-row gap-2"
+              >
+                <input
+                  type="text"
+                  value={customOracleQuestion}
+                  onChange={(e) => setCustomOracleQuestion(e.target.value)}
+                  placeholder={isEn ? `Ask anything regarding ${data.type} mind, life, career, or love...` : `Спроси о мышлении, судьбе, карьере или отношениях ${data.type}...`}
+                  className={`flex-1 px-3.5 py-2 rounded-xl text-xs border outline-none transition-all ${
+                    isRenoir
+                      ? 'bg-black/40 border-amber-800/60 text-amber-100 placeholder-amber-400/40 focus:border-amber-500'
+                      : 'bg-white border-black/20 text-black placeholder-zinc-400 focus:border-black'
+                  }`}
+                />
+                <button
+                  type="submit"
+                  disabled={!customOracleQuestion.trim()}
+                  className={`px-4 py-2 rounded-xl text-[10px] sm:text-[11px] font-black uppercase tracking-wider transition-all duration-200 active:scale-95 disabled:opacity-40 flex items-center justify-center gap-1.5 shrink-0 ${
+                    isRenoir
+                      ? 'bg-amber-500 hover:bg-amber-400 text-amber-950'
+                      : 'bg-black hover:bg-red-600 text-white'
+                  }`}
+                >
+                  <Icons.Sparkle className="w-3.5 h-3.5" />
+                  <span>{isEn ? 'Inquire' : 'Спросить'}</span>
+                </button>
+              </form>
+            </div>
+          )}
 
         </div>
 
