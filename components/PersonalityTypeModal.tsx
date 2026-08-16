@@ -233,7 +233,7 @@ export const PersonalityTypeModal: React.FC<PersonalityTypeModalProps> = ({
 
   return (
     <div 
-      className="fixed inset-0 z-[1200] bg-black/80 backdrop-blur-2xl flex items-center justify-center p-2 sm:p-5 md:p-6 overflow-y-auto cursor-pointer"
+      className="fixed inset-0 z-[3000] bg-black/80 backdrop-blur-2xl flex items-center justify-center p-2 sm:p-5 md:p-6 overflow-y-auto cursor-pointer"
       onClick={onClose}
     >
       <div 

@@ -809,8 +809,10 @@ export const App: React.FC = () => {
     <button onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} onClick={onClick} className={`w-11 h-11 rounded-full border flex items-center justify-center backdrop-blur-3xl transition-all shadow-xl active:scale-95 ${isRenoir ? 'bg-amber-950/40 border-amber-900/40 text-amber-100' : 'bg-white/40 border-black/10 text-black'} ${className}`}>{children}</button>
   );
 
+  const isProfileModalOpen = showPersonalityModal || showProfilingModal;
+
   const CompactMusicPlayer = (
-    <div className="fixed top-6 left-4 z-[2500]">
+    <div className={`fixed top-6 left-4 z-[2500] ${isProfileModalOpen ? 'max-sm:hidden' : ''}`}>
       <div className="flex gap-2 items-start">
         {(state.status !== 'IDLE' || activePage !== 'ORACLE') && (
           <NavButton onClick={() => { 
@@ -876,7 +878,7 @@ export const App: React.FC = () => {
   const GlobalUI = (
     <>
       {CompactMusicPlayer}
-      <div className="fixed top-5 right-4 z-[2500] flex gap-2.5 sm:gap-3 items-center">
+      <div className={`fixed top-5 right-4 z-[2500] flex gap-2.5 sm:gap-3 items-center ${isProfileModalOpen ? 'max-sm:hidden' : ''}`}>
         <div className={`flex p-1 rounded-full border backdrop-blur-xl ${isRenoir ? 'bg-amber-950/40 border-amber-900/20' : 'bg-white/40 border-black/5'}`}>
           <button onClick={() => setUiLanguage(l => l === 'EN' ? 'RU' : 'EN')} className="w-7 h-7 sm:w-8 sm:h-8 rounded-full text-[9px] font-black">{uiLanguage}</button>
           <button onClick={() => setTheme(t => t === 'SUPREMATIST' ? 'IMPRESSIONIST' : 'SUPREMATIST')} className={`px-2.5 sm:px-3 h-7 sm:h-8 rounded-full text-[8px] sm:text-[9px] font-black ${isRenoir ? 'bg-amber-700 text-white' : 'bg-black text-white'}`}>
@@ -936,7 +938,7 @@ export const App: React.FC = () => {
           }}
         />
       )}
-      <div ref={learningTabRef} className="fixed right-0 top-[72px] sm:top-[78px] md:top-[84px] z-20 pointer-events-auto">
+      <div ref={learningTabRef} className={`fixed right-0 top-[72px] sm:top-[78px] md:top-[84px] z-20 pointer-events-auto ${isProfileModalOpen ? 'max-sm:hidden' : ''}`}>
         {learningProfile ? (
           <div 
             className={`group flex items-center gap-3 pl-3.5 pr-4.5 py-2 sm:py-2.5 rounded-l-2xl border-y border-l border-r-0 backdrop-blur-2xl shadow-xl cursor-pointer transition-all duration-400 ease-out transform ${
@@ -1068,7 +1070,7 @@ export const App: React.FC = () => {
       <div 
         onMouseEnter={() => setIsSideMenuOpen(true)}
         onClick={() => setIsSideMenuOpen(true)}
-        className={`fixed left-0 top-0 bottom-0 z-[2000] group cursor-pointer transition-all duration-500 ${!isSideMenuOpen && activePage === 'MUSIC' ? 'w-12 bg-gradient-to-r from-black/5 to-transparent' : 'w-6 md:w-4'}`}
+        className={`fixed left-0 top-0 bottom-0 z-[2000] group cursor-pointer transition-all duration-500 ${isProfileModalOpen ? 'max-sm:hidden' : ''} ${!isSideMenuOpen && activePage === 'MUSIC' ? 'w-12 bg-gradient-to-r from-black/5 to-transparent' : 'w-6 md:w-4'}`}
       >
         {!isSideMenuOpen && (
           <div className={`absolute top-1/2 -translate-y-1/2 flex items-center gap-3 pointer-events-none transition-all duration-700 ${activePage === 'MUSIC' ? 'left-4 opacity-70' : 'left-2 md:left-4 opacity-30 group-hover:opacity-100'}`}>
@@ -1818,7 +1820,7 @@ export const App: React.FC = () => {
   };
 
   const ProfilingModal = (
-    <div className="fixed inset-0 z-[1100] bg-black/80 backdrop-blur-3xl flex items-center justify-center p-3 sm:p-6 cursor-pointer" onClick={() => setShowProfilingModal(false)}>
+    <div className="fixed inset-0 z-[3000] bg-black/80 backdrop-blur-3xl flex items-center justify-center p-3 sm:p-6 cursor-pointer" onClick={() => setShowProfilingModal(false)}>
       <div className={`w-full max-w-lg p-5 sm:p-10 md:p-14 rounded-3xl sm:rounded-[44px] md:rounded-[50px] border shadow-2xl transition-all duration-500 animate-in zoom-in-95 ${isRenoir ? 'bg-[#1e0a0a] border-amber-900/40 text-amber-100' : 'bg-white border-black/10 text-black'}`} onClick={e => e.stopPropagation()}>
          <div className="flex justify-between items-center mb-3 sm:mb-8 md:mb-12">
             <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.4em] sm:tracking-[0.6em] opacity-40">{t.learningStyle}</span>
