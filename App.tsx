@@ -581,7 +581,22 @@ export const App: React.FC = () => {
   const [isConfirmingClearProfile, setIsConfirmingClearProfile] = useState(false);
   const learningTabRef = useRef<HTMLDivElement>(null);
   const [selectedImageModel, setSelectedImageModel] = useState<string>('flux');
-  const [activePage, setActivePage] = useState<'ORACLE' | 'MUSIC' | 'ABOUT' | 'BOOK'>('MUSIC');
+  const [activePage, setActivePage] = useState<'ORACLE' | 'MUSIC' | 'ABOUT' | 'BOOK'>(() => {
+    if (typeof window === 'undefined') return 'MUSIC';
+    const hash = window.location.hash.toLowerCase();
+    const params = new URLSearchParams(window.location.search);
+    const pageParam = params.get('page')?.toLowerCase();
+    if (hash === '#reader' || hash === '#read-book' || hash === '#book-reader' || pageParam === 'book' || pageParam === 'reader') {
+      return 'BOOK';
+    }
+    if (hash === '#oracle' || pageParam === 'oracle') {
+      return 'ORACLE';
+    }
+    if (hash === '#about' || pageParam === 'about') {
+      return 'ABOUT';
+    }
+    return 'MUSIC';
+  });
   const [musicScrollSection, setMusicScrollSection] = useState<'APPS' | 'MUSIC' | 'BOOK'>('APPS');
   const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
   const [isMusicMuted, setIsMusicMuted] = useState(true);
@@ -693,6 +708,72 @@ export const App: React.FC = () => {
   useEffect(() => {
     // Server health check removed for static site mode
   }, []);
+
+  // Handle URL hash changes and deep linking
+  useEffect(() => {
+    const handleHashOrUrl = () => {
+      const hash = window.location.hash.toLowerCase();
+      const params = new URLSearchParams(window.location.search);
+      const pageParam = params.get('page')?.toLowerCase();
+
+      if (hash === '#reader' || hash === '#read-book' || hash === '#book-reader' || pageParam === 'book' || pageParam === 'reader') {
+        setActivePage('BOOK');
+      } else if (hash === '#oracle' || pageParam === 'oracle') {
+        setActivePage('ORACLE');
+      } else if (hash === '#about' || pageParam === 'about') {
+        setActivePage('ABOUT');
+      } else if (hash === '#book' || hash === '#book-section' || hash === '#pilgrimage') {
+        setActivePage('MUSIC');
+        setTimeout(() => {
+          const el = document.getElementById('book-section');
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }, 300);
+      } else if (hash === '#music' || hash === '#music-section') {
+        setActivePage('MUSIC');
+        setTimeout(() => {
+          const el = document.getElementById('music-section');
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }, 300);
+      } else if (hash === '#projects' || hash === '#projects-section' || hash === '#apps') {
+        setActivePage('MUSIC');
+        setTimeout(() => {
+          const el = document.getElementById('projects-section');
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }, 300);
+      }
+    };
+
+    handleHashOrUrl();
+    window.addEventListener('hashchange', handleHashOrUrl);
+    return () => window.removeEventListener('hashchange', handleHashOrUrl);
+  }, []);
+
+  // Synchronize URL hash when active page changes
+  useEffect(() => {
+    if (activePage === 'BOOK') {
+      if (window.location.hash !== '#reader' && window.location.hash !== '#read-book' && window.location.hash !== '#book-reader') {
+        window.history.replaceState(null, '', '#reader');
+      }
+    } else if (activePage === 'ORACLE') {
+      if (window.location.hash !== '#oracle') {
+        window.history.replaceState(null, '', '#oracle');
+      }
+    } else if (activePage === 'ABOUT') {
+      if (window.location.hash !== '#about') {
+        window.history.replaceState(null, '', '#about');
+      }
+    } else if (activePage === 'MUSIC') {
+      if (['#reader', '#read-book', '#book-reader', '#oracle', '#about'].includes(window.location.hash.toLowerCase())) {
+        window.history.replaceState(null, '', window.location.pathname);
+      }
+    }
+  }, [activePage]);
 
   useEffect(() => {
     const handleResize = () => {
