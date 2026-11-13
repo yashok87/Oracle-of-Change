@@ -1233,7 +1233,7 @@ export const App: React.FC = () => {
                 </div>
                 <div className="group-hover:translate-x-3 transition-transform duration-500 space-y-2">
                   <a 
-                    href="https://dreamjung.onrender.com/" 
+                    href="https://dreamjung.ai.studio/" 
                     target="_blank" 
                     rel="noopener noreferrer"
                     onClick={() => setIsSideMenuOpen(false)}
@@ -1389,7 +1389,7 @@ export const App: React.FC = () => {
 
               {/* Dream Oracle / Dream Analysis */}
               <a 
-                href="https://dreamjung.onrender.com/" 
+                href="https://dreamjung.ai.studio/" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className={`group relative flex flex-col items-center justify-center text-center gap-3 p-5 rounded-2xl border overflow-hidden transition-all duration-500 hover:scale-[1.02] active:scale-[0.98] shadow-md hover:shadow-2xl min-h-[140px] ${

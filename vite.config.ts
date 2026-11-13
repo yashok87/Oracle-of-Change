@@ -16,8 +16,6 @@ export default defineConfig({
     // Google Gemini SDK strictly requires 'process.env.API_KEY'
     'process.env.API_KEY': JSON.stringify(process.env.API_KEY || ''),
     'process.env.GEMINI_API_KEY': JSON.stringify(process.env.GEMINI_API_KEY || ''),
-    'process.env.POLL_KEY': JSON.stringify(process.env.POLL_KEY || ''),
-    'process.env.POLLINATIONS_API_KEY': JSON.stringify(process.env.POLLINATIONS_API_KEY || ''),
     'process.env.BIGMODEL_API_KEY': JSON.stringify(process.env.BIGMODEL_API_KEY || '')
   },
   server: {

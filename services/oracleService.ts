@@ -16,12 +16,6 @@ function ensureString(val: any): string {
   return String(val);
 }
 
-function getPollKey(): string {
-  const envKey = (typeof process !== 'undefined' && process.env && (process.env.POLL_KEY || process.env.VITE_POLL_KEY)) ||
-                 (typeof import.meta !== 'undefined' && import.meta.env && (import.meta.env.VITE_POLL_KEY || import.meta.env.POLL_KEY));
-  return (envKey || "pk_jcfg5Q1xs8BU8pgq").trim();
-}
-
 function cleanJsonResponse(raw: string): string {
   if (!raw) return "";
   let cleaned = raw.trim();
@@ -148,16 +142,14 @@ async function generateOracleText(prompt: string, systemInstruction: string, use
 
 async function generatePollinationsText(prompt: string, systemInstruction: string, useJson: boolean = false): Promise<string> {
   const seed = Math.floor(Math.random() * 1000000);
-  const apiKey = getPollKey();
   const headers: Record<string, string> = { "Content-Type": "application/json" };
-  if (apiKey) headers["Authorization"] = `Bearer ${apiKey}`;
 
   let attempts = 0;
   const maxAttempts = 3;
   
   while (attempts < maxAttempts) {
     try {
-      const response = await fetch("https://gen.pollinations.ai/v1/chat/completions", {
+      const response = await fetch("/api/pollinations/chat", {
         method: "POST",
         headers,
         body: JSON.stringify({
@@ -488,7 +480,6 @@ Respond ONLY with JSON. No meta-commentary.`;
     return oracleResponse;
   } catch (err) {
     console.error("Council deliberation failed", err);
-    const apiKey = getPollKey();
     return {
       type: 'KNOWLEDGE',
       isDecision: false,
@@ -498,16 +489,13 @@ Respond ONLY with JSON. No meta-commentary.`;
       reasoning: 'API Error.',
       detailedAnalysis: 'The council has retreated into the silence of the circuits. Recalibrate and seek again.',
       perspectives: {} as any,
-      imageUrl: apiKey
-        ? `https://gen.pollinations.ai/image/abstract-void-chaos?model=cogview-3&nologo=true&key=${apiKey}`
-        : `https://image.pollinations.ai/prompt/abstract-void-chaos?model=cogview-3&nologo=true`
+      imageUrl: `/api/pollinations/image?prompt=abstract-void-chaos&model=cogview-3&nologo=true`
     } as OracleResponse;
   }
 }
 
 export async function regenerateOracleImage(response: OracleResponse, theme: 'SUPREMATIST' | 'IMPRESSIONIST', chaosScore: number, originalQuery?: string, force = false, model = 'flux') {
   const isSuprematist = theme === 'SUPREMATIST';
-  const apiKey = getPollKey();
   
   // Defensive access to title to prevent "undefined (reading title)"
   const titleVal = response?.title || "Decree";
@@ -540,11 +528,9 @@ export async function regenerateOracleImage(response: OracleResponse, theme: 'SU
   
   const divinePrompt = `An evocative and detailed artistic visualization of "${cleanTitle}": ${cleanQuery}. Style: ${style}. High resolution, 8k, masterpiece.`;
 
-  // Pollinations is main API
+  // Pollinations is main API (proxied through backend so secret key stays server-side)
   const seed = Math.floor(Math.random() * 1000000);
-  const pollinationsUrl = apiKey
-    ? `https://gen.pollinations.ai/image/${encodeURIComponent(divinePrompt)}?width=1024&height=1024&nologo=true&seed=${seed}&model=${model}&key=${apiKey}`
-    : `https://image.pollinations.ai/prompt/${encodeURIComponent(divinePrompt)}?width=1024&height=1024&nologo=true&seed=${seed}&model=${model}`;
+  const pollinationsUrl = `/api/pollinations/image?prompt=${encodeURIComponent(divinePrompt)}&width=1024&height=1024&nologo=true&seed=${seed}&model=${encodeURIComponent(model)}`;
   
   // If force is true, we skip Pollinations and go straight to CogView (silent fallback)
   if (force) {
