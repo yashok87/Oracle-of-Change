@@ -138,12 +138,12 @@ const TRANSLATIONS = {
     appsTitle: "He also develops apps and websites",
     faithProject: "Faith",
     glenHansardProject: "In memory of Glen Hansard",
-    humanismProject: "Liberal Basics",
+    marginaliaProject: "Marginalia",
     oracleDesc: "AI-powered engine for knowledge & philosophical council",
     dreamDesc: "Jungian dream analysis & subconscious symbol interpreter",
     faithDesc: "Interactive journey & artistic digital experiment",
     hansardDesc: "Musical tribute & interactive tribute project",
-    humanismDesc: "Investigation into the roots of humanistic ideas and ideals",
+    marginaliaDesc: "Book search engine & literary discovery",
     goToMusic: "Go to Music",
     goToBook: "Go to Book",
     goToInstructions: "Go to instructions",
@@ -201,12 +201,12 @@ const TRANSLATIONS = {
     appsTitle: "Он также разрабатывает приложения и сайты",
     faithProject: "Вера",
     glenHansardProject: "Памяти Глена Хансарда",
-    humanismProject: "Основы гуманизма",
+    marginaliaProject: "Marginalia",
     oracleDesc: "ИИ-поисковик знаний и философского совета",
     dreamDesc: "Юнгианский анализ сновидений и символов подсознания",
     faithDesc: "Интерактивное путешествие и цифровой арт-проект",
     hansardDesc: "Музыкальное посвящение и трибьют-проект",
-    humanismDesc: "Исследование истоков гуманистических идей и идеалов",
+    marginaliaDesc: "Поисковая система по книгам и литературе",
     goToMusic: "Перейти к музыке",
     goToBook: "Перейти к книге",
     goToInstructions: "Инструкции",
@@ -1424,9 +1424,9 @@ export const App: React.FC = () => {
                 </div>
               </a>
 
-              {/* Liberal Basics / Roots of Humanism */}
+              {/* Marginalia / Book Search Engine */}
               <a 
-                href="https://lib-basics.onrender.com/" 
+                href="https://marginaliaa.ai.studio/" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className={`group relative flex flex-col items-center justify-center text-center gap-3 p-5 rounded-2xl border overflow-hidden transition-all duration-500 hover:scale-[1.02] active:scale-[0.98] shadow-md hover:shadow-2xl min-h-[140px] ${
@@ -1451,12 +1451,12 @@ export const App: React.FC = () => {
                   <span className={`text-[10px] md:text-xs font-black uppercase tracking-[0.2em] transition-colors ${
                     isRenoir ? 'text-amber-300 md:text-amber-100 md:group-hover:text-amber-400' : 'text-amber-300 md:text-stone-900 md:group-hover:text-amber-300'
                   }`}>
-                    {t.humanismProject}
+                    {t.marginaliaProject}
                   </span>
                   <p className={`text-[10px] leading-snug opacity-90 md:opacity-0 md:group-hover:opacity-90 transition-all duration-300 transform translate-y-0 md:translate-y-1 md:group-hover:translate-y-0 font-normal max-w-[180px] ${
                     isRenoir ? 'text-stone-300' : 'text-stone-300 md:text-stone-600 md:group-hover:text-stone-300'
                   }`}>
-                    {t.humanismDesc}
+                    {t.marginaliaDesc}
                   </p>
                 </div>
               </a>
