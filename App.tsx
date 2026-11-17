@@ -139,11 +139,13 @@ const TRANSLATIONS = {
     faithProject: "Faith",
     glenHansardProject: "In memory of Glen Hansard",
     marginaliaProject: "Marginalia",
+    humanismProject: "Liberal Foundations",
     oracleDesc: "AI-powered engine for knowledge & philosophical council",
     dreamDesc: "Jungian dream analysis & subconscious symbol interpreter",
     faithDesc: "Interactive journey & artistic digital experiment",
     hansardDesc: "Musical tribute & interactive tribute project",
     marginaliaDesc: "Book search engine & literary discovery",
+    humanismDesc: "Investigation into the roots of humanistic ideas and ideals",
     goToMusic: "Go to Music",
     goToBook: "Go to Book",
     goToInstructions: "Go to instructions",
@@ -202,11 +204,13 @@ const TRANSLATIONS = {
     faithProject: "Вера",
     glenHansardProject: "Памяти Глена Хансарда",
     marginaliaProject: "Marginalia",
+    humanismProject: "Либеральные основы",
     oracleDesc: "ИИ-поисковик знаний и философского совета",
     dreamDesc: "Юнгианский анализ сновидений и символов подсознания",
     faithDesc: "Интерактивное путешествие и цифровой арт-проект",
     hansardDesc: "Музыкальное посвящение и трибьют-проект",
     marginaliaDesc: "Поисковая система по книгам и литературе",
+    humanismDesc: "Исследование истоков гуманистических идей и идеалов",
     goToMusic: "Перейти к музыке",
     goToBook: "Перейти к книге",
     goToInstructions: "Инструкции",
@@ -1233,7 +1237,7 @@ export const App: React.FC = () => {
                 </div>
                 <div className="group-hover:translate-x-3 transition-transform duration-500 space-y-2">
                   <a 
-                    href="https://dreamjung.ai.studio/" 
+                    href="https://dreamjung.cloud.run/" 
                     target="_blank" 
                     rel="noopener noreferrer"
                     onClick={() => setIsSideMenuOpen(false)}
@@ -1351,7 +1355,7 @@ export const App: React.FC = () => {
               <div className={`h-[1px] w-12 mx-auto ${isRenoir ? 'bg-amber-500/30' : 'bg-red-600/30'}`} />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6 pt-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 pt-2">
               {/* Oracle */}
               <button 
                 onClick={() => setActivePage('ORACLE')}
@@ -1389,7 +1393,7 @@ export const App: React.FC = () => {
 
               {/* Dream Oracle / Dream Analysis */}
               <a 
-                href="https://dreamjung.ai.studio/" 
+                href="https://dreamjung.cloud.run/" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className={`group relative flex flex-col items-center justify-center text-center gap-3 p-5 rounded-2xl border overflow-hidden transition-all duration-500 hover:scale-[1.02] active:scale-[0.98] shadow-md hover:shadow-2xl min-h-[140px] ${
@@ -1426,7 +1430,44 @@ export const App: React.FC = () => {
 
               {/* Marginalia / Book Search Engine */}
               <a 
-                href="https://marginaliaa.ai.studio/" 
+                href="https://marginalia.cloud.run/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className={`group relative flex flex-col items-center justify-center text-center gap-3 p-5 rounded-2xl border overflow-hidden transition-all duration-500 hover:scale-[1.02] active:scale-[0.98] shadow-md hover:shadow-2xl min-h-[140px] ${
+                  isRenoir 
+                    ? 'border-amber-800/60 bg-amber-950/75 text-amber-100 md:border-amber-900/40 md:bg-amber-950/30 md:hover:bg-amber-950/80 md:hover:border-amber-500/50 hover:shadow-amber-950/40' 
+                    : 'border-stone-800 bg-stone-900/80 text-stone-100 md:border-stone-800/20 md:bg-stone-900/[0.04] md:text-stone-900 md:hover:bg-stone-900/80 md:hover:border-stone-800 md:hover:text-stone-100'
+                }`}
+              >
+                {/* Background decorative watermark */}
+                <div className="absolute -right-3 -bottom-3 w-20 h-20 opacity-15 md:opacity-[0.06] md:group-hover:opacity-20 pointer-events-none group-hover:scale-125 transition-all duration-700">
+                  <Icons.Search className="w-full h-full" />
+                </div>
+
+                <div className="relative z-10 flex flex-col items-center gap-2.5 md:gap-3">
+                  <div className={`w-10 h-10 rounded-xl border flex items-center justify-center transition-transform duration-500 group-hover:rotate-6 group-hover:scale-110 shadow-inner ${
+                    isRenoir 
+                      ? 'border-amber-500/40 bg-amber-500/15 text-amber-300 md:border-amber-500/30 md:bg-amber-500/10 md:group-hover:border-amber-400 md:group-hover:bg-amber-500/20' 
+                      : 'border-amber-400/60 bg-amber-500/15 text-amber-300 md:border-stone-700/20 md:bg-stone-800/10 md:text-stone-800 md:group-hover:border-amber-400/60 md:group-hover:bg-amber-500/15 md:group-hover:text-amber-300'
+                  }`}>
+                    <Icons.Search className="w-5 h-5" />
+                  </div>
+                  <span className={`text-[10px] md:text-xs font-black uppercase tracking-[0.2em] transition-colors ${
+                    isRenoir ? 'text-amber-300 md:text-amber-100 md:group-hover:text-amber-400' : 'text-amber-300 md:text-stone-900 md:group-hover:text-amber-300'
+                  }`}>
+                    {t.marginaliaProject}
+                  </span>
+                  <p className={`text-[10px] leading-snug opacity-90 md:opacity-0 md:group-hover:opacity-90 transition-all duration-300 transform translate-y-0 md:translate-y-1 md:group-hover:translate-y-0 font-normal max-w-[180px] ${
+                    isRenoir ? 'text-stone-300' : 'text-stone-300 md:text-stone-600 md:group-hover:text-stone-300'
+                  }`}>
+                    {t.marginaliaDesc}
+                  </p>
+                </div>
+              </a>
+
+              {/* Liberal Foundations / Roots of Humanism */}
+              <a 
+                href="https://lib-basics.onrender.com/" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className={`group relative flex flex-col items-center justify-center text-center gap-3 p-5 rounded-2xl border overflow-hidden transition-all duration-500 hover:scale-[1.02] active:scale-[0.98] shadow-md hover:shadow-2xl min-h-[140px] ${
@@ -1451,19 +1492,19 @@ export const App: React.FC = () => {
                   <span className={`text-[10px] md:text-xs font-black uppercase tracking-[0.2em] transition-colors ${
                     isRenoir ? 'text-amber-300 md:text-amber-100 md:group-hover:text-amber-400' : 'text-amber-300 md:text-stone-900 md:group-hover:text-amber-300'
                   }`}>
-                    {t.marginaliaProject}
+                    {t.humanismProject}
                   </span>
                   <p className={`text-[10px] leading-snug opacity-90 md:opacity-0 md:group-hover:opacity-90 transition-all duration-300 transform translate-y-0 md:translate-y-1 md:group-hover:translate-y-0 font-normal max-w-[180px] ${
                     isRenoir ? 'text-stone-300' : 'text-stone-300 md:text-stone-600 md:group-hover:text-stone-300'
                   }`}>
-                    {t.marginaliaDesc}
+                    {t.humanismDesc}
                   </p>
                 </div>
               </a>
 
               {/* Faith */}
               <a 
-                href="https://dramatise.info/" 
+                href="http://post-modern.onrender.com" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className={`group relative flex flex-col items-center justify-center text-center gap-3 p-5 rounded-2xl border overflow-hidden transition-all duration-500 hover:scale-[1.02] active:scale-[0.98] shadow-md hover:shadow-2xl min-h-[140px] ${

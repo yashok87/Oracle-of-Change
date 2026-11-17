@@ -29,6 +29,10 @@ async function startServer() {
   const app = express();
   app.use(express.json({ limit: '2mb' }));
 
+  app.get('/health', (_req: Request, res: Response) => {
+    res.status(200).type('text/plain').send('OK');
+  });
+
   // Proxy chat completions to Pollinations without exposing the secret key to the browser
   app.post('/api/pollinations/chat', async (req: Request, res: Response) => {
     try {
