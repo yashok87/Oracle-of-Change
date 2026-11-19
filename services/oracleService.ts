@@ -205,13 +205,6 @@ async function generatePollinationsText(prompt: string, systemInstruction: strin
   throw new Error("Max retries reached for Pollinations");
 }
 
-async function callOracleVision(divinePrompt: string): Promise<string> {
-  // NOTE: In static mode, we cannot securely call BigModel/CogView as it requires 
-  // a secret key that should not be exposed in the browser bundle.
-  // We will rely on Pollinations as our primary (and only) engine for static sites.
-  throw new Error("Direct Vision API calls are restricted in static mode. Synchronize logic will use Pollinations instead.");
-}
-
 export async function consultOracle(query: string, chaosScore: number, theme: 'SUPREMATIST' | 'IMPRESSIONIST', language: 'EN' | 'RU', learningProfile: LearningProfile | null = null, imageModel: string = 'flux'): Promise<OracleResponse> {
   const isMaterial = isMaterialQuery(query);
   const isComp = isComparisonQuery(query);
@@ -531,17 +524,8 @@ export async function regenerateOracleImage(response: OracleResponse, theme: 'SU
   // Pollinations is main API (proxied through backend so secret key stays server-side)
   const seed = Math.floor(Math.random() * 1000000);
   const pollinationsUrl = `/api/pollinations/image?prompt=${encodeURIComponent(divinePrompt)}&width=1024&height=1024&nologo=true&seed=${seed}&model=${encodeURIComponent(model)}`;
-  
-  // If force is true, we skip Pollinations and go straight to CogView (silent fallback)
-  if (force) {
-    try {
-      const cogViewUrl = await callOracleVision(divinePrompt);
-      return { url: cogViewUrl, label: 'CogView-3-Flash', isFallback: true };
-    } catch (e) {
-      return { url: pollinationsUrl, label: 'Pollinations-Vision', isFallback: false };
-    }
-  }
-  
+
+  void force;
   return { url: pollinationsUrl, label: 'Pollinations-Vision', isFallback: false };
 }
 

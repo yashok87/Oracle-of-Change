@@ -1401,56 +1401,71 @@ export const App: React.FC = () => {
                   href: 'https://hansard.onrender.com',
                 },
               ]).map((project) => {
-                const cardClasses = `group flex items-center gap-3.5 p-3 rounded-xl border text-left transition-colors duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 ${
+                const cardClasses = `group relative overflow-hidden flex items-center gap-3.5 p-3 rounded-xl border text-left transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-[1.035] hover:-translate-y-0.5 active:scale-[0.99] hover:z-10 cursor-pointer focus-visible:outline-none focus-visible:ring-2 ${
                   isRenoir
-                    ? 'border-amber-500/20 bg-[#170907]/90 text-amber-100 hover:border-amber-400/55 hover:bg-[#220e0a] focus-visible:ring-amber-400'
-                    : 'border-black/12 bg-white text-black hover:border-red-600/50 hover:bg-[#faf8f5] focus-visible:ring-red-600'
+                    ? 'border-amber-500/15 bg-[#150806]/80 text-amber-100 hover:border-white/40 hover:bg-[#24100c] hover:shadow-[0_0_28px_-2px_rgba(255,255,255,0.28),0_14px_28px_-8px_rgba(0,0,0,0.65)] focus-visible:ring-white/60'
+                    : 'border-black/10 bg-[#f6f5f2]/85 text-black hover:border-white hover:bg-white hover:shadow-[0_0_28px_rgba(255,255,255,0.95),0_14px_30px_-8px_rgba(0,0,0,0.14)] focus-visible:ring-black/40'
                 }`;
 
                 const inner = (
                   <>
+                    {/* Subtle white ambient illumination overlay on hover */}
+                    <span
+                      aria-hidden="true"
+                      className={`pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${
+                        isRenoir
+                          ? 'bg-gradient-to-br from-white/[0.13] via-white/[0.04] to-transparent'
+                          : 'bg-gradient-to-br from-white via-white/60 to-transparent'
+                      }`}
+                    />
                     <div
-                      className={`w-12 h-12 rounded-lg overflow-hidden border shrink-0 transition-transform duration-200 group-hover:scale-[1.03] ${
-                        isRenoir ? 'border-amber-500/30' : 'border-black/15'
+                      className={`relative z-10 w-12 h-12 rounded-lg overflow-hidden border shrink-0 opacity-80 group-hover:opacity-100 transition-all duration-300 group-hover:scale-[1.03] ${
+                        isRenoir
+                          ? 'border-amber-500/25 group-hover:border-amber-400/45'
+                          : 'border-black/10 group-hover:border-black/20'
                       }`}
                     >
                       <ProjectArtwork id={project.id} isRenoir={isRenoir} />
                     </div>
-                    <div className="min-w-0 flex-1 text-left">
+                    <div className="relative z-10 min-w-0 flex-1 text-left">
                       <div className="flex items-center justify-between gap-2">
                         <span
-                          className={`text-[10px] font-mono tabular-nums tracking-[0.2em] ${
-                            isRenoir ? 'text-amber-400/55' : 'text-black/40'
+                          className={`text-[10px] font-mono tabular-nums tracking-[0.2em] transition-opacity duration-300 ${
+                            isRenoir
+                              ? 'text-amber-300/50 group-hover:text-amber-200/85'
+                              : 'text-black/35 group-hover:text-black/65'
                           }`}
                         >
                           {project.index}
                         </span>
                         {project.onClick ? (
                           <Icons.ArrowLeft
-                            className={`w-3 h-3 rotate-180 shrink-0 opacity-30 group-hover:opacity-90 group-hover:translate-x-0.5 transition-all duration-200 ${
-                              isRenoir ? 'text-amber-300' : 'text-red-600'
+                            className={`w-3 h-3 rotate-180 shrink-0 opacity-30 group-hover:opacity-85 group-hover:translate-x-0.5 transition-all duration-300 ${
+                              isRenoir ? 'text-amber-200' : 'text-black'
                             }`}
                           />
                         ) : (
                           <Icons.External
-                            className={`w-3 h-3 shrink-0 opacity-30 group-hover:opacity-90 transition-opacity duration-200 ${
-                              isRenoir ? 'text-amber-300' : 'text-red-600'
+                            className={`w-3 h-3 shrink-0 opacity-30 group-hover:opacity-85 transition-opacity duration-300 ${
+                              isRenoir ? 'text-amber-200' : 'text-black'
                             }`}
                           />
                         )}
                       </div>
                       <div
-                        className={`text-[11px] font-black uppercase tracking-[0.15em] truncate mt-0.5 transition-colors ${
+                        className={`text-[11px] font-black uppercase tracking-[0.15em] truncate mt-0.5 transition-colors duration-300 ${
                           isRenoir
-                            ? 'text-amber-100 group-hover:text-amber-300'
-                            : 'text-black group-hover:text-red-600'
+                            ? 'text-amber-100/95 group-hover:text-amber-50'
+                            : 'text-black/90 group-hover:text-black'
                         }`}
                       >
                         {project.title}
                       </div>
                       <p
-                        className={`text-[11px] leading-snug line-clamp-2 mt-0.5 ${
-                          isRenoir ? 'text-amber-100/65' : 'text-black/60'
+                        className={`text-[11px] leading-snug line-clamp-2 mt-0.5 transition-colors duration-300 ${
+                          isRenoir
+                            ? 'text-amber-100/60 group-hover:text-amber-100/80'
+                            : 'text-black/55 group-hover:text-black/75'
                         }`}
                       >
                         {project.desc}

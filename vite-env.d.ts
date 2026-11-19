@@ -43,8 +43,6 @@ declare module '*.bmp' {
 }
 
 interface ImportMetaEnv {
-  readonly VITE_POLL_KEY: string;
-  readonly VITE_BIGMODEL_API_KEY: string;
   readonly VITE_GEMINI_API_KEY: string;
 }
 
@@ -57,8 +55,6 @@ interface ImportMeta {
  */
 interface OracleProcessEnv {
   API_KEY: string;
-  POLLINATIONS_API_KEY: string;
-  BIGMODEL_API_KEY: string;
   [key: string]: string | undefined;
 }
 

@@ -15,8 +15,7 @@ export default defineConfig({
     // Safely inject the API keys.
     // Google Gemini SDK strictly requires 'process.env.API_KEY'
     'process.env.API_KEY': JSON.stringify(process.env.API_KEY || ''),
-    'process.env.GEMINI_API_KEY': JSON.stringify(process.env.GEMINI_API_KEY || ''),
-    'process.env.BIGMODEL_API_KEY': JSON.stringify(process.env.BIGMODEL_API_KEY || '')
+    'process.env.GEMINI_API_KEY': JSON.stringify(process.env.GEMINI_API_KEY || '')
   },
   server: {
     host: '0.0.0.0',
