@@ -30,7 +30,10 @@ async function startServer() {
   app.use(express.json({ limit: '2mb' }));
 
   app.get('/health', (_req: Request, res: Response) => {
-    res.status(200).type('text/plain').send('OK');
+    res.status(200).setHeader('Cache-Control', 'no-store').type('text/plain').send('OK');
+  });
+  app.head('/health', (_req: Request, res: Response) => {
+    res.status(200).setHeader('Cache-Control', 'no-store').end();
   });
 
   // Proxy chat completions to Pollinations without exposing the secret key to the browser

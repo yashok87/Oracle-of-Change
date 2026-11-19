@@ -9,6 +9,7 @@ import { LoadingScreen } from './components/LoadingScreen';
 import { ThemeBackground } from './components/ThemeBackground';
 import { BookReader } from './components/BookReader';
 import { PersonalityTypeModal } from './components/PersonalityTypeModal';
+import { ProjectArtwork, ProjectArtId } from './components/ProjectArtwork';
 
 type Theme = 'SUPREMATIST' | 'IMPRESSIONIST';
 type Language = 'EN' | 'RU';
@@ -1347,234 +1348,133 @@ export const App: React.FC = () => {
           </div>
 
           {/* Apps and Websites Section */}
-          <div id="projects-section" className="w-full max-w-5xl mx-auto text-center space-y-6 py-6 border-y border-current/10 animate-in fade-in slide-in-from-bottom duration-1000 scroll-mt-6">
+          <div id="projects-section" className="w-full max-w-2xl mx-auto text-center space-y-5 py-6 border-y border-current/10 animate-in fade-in slide-in-from-bottom duration-700 scroll-mt-6">
             <div className="space-y-2">
-              <h3 className={`text-[11px] md:text-xs font-black uppercase tracking-[0.4em] opacity-70 ${isRenoir ? 'text-amber-400' : 'text-red-600'}`}>
+              <h3 className={`text-[11px] md:text-xs font-black uppercase tracking-[0.35em] opacity-75 ${isRenoir ? 'text-amber-400' : 'text-red-600'}`}>
                 {t.appsTitle}
               </h3>
-              <div className={`h-[1px] w-12 mx-auto ${isRenoir ? 'bg-amber-500/30' : 'bg-red-600/30'}`} />
+              <div className={`h-[1px] w-10 mx-auto ${isRenoir ? 'bg-amber-500/30' : 'bg-red-600/30'}`} />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 pt-2">
-              {/* Oracle */}
-              <button 
-                onClick={() => setActivePage('ORACLE')}
-                className={`group relative flex flex-col items-center justify-center text-center gap-3 p-5 rounded-2xl border overflow-hidden transition-all duration-500 hover:scale-[1.02] active:scale-[0.98] shadow-md hover:shadow-2xl min-h-[140px] ${
-                  isRenoir 
-                    ? 'border-amber-800/60 bg-amber-950/75 text-amber-100 md:border-amber-900/40 md:bg-amber-950/30 md:hover:bg-amber-950/80 md:hover:border-amber-500/50 hover:shadow-amber-950/40' 
-                    : 'border-stone-800 bg-stone-900/80 text-stone-100 md:border-stone-800/20 md:bg-stone-900/[0.04] md:text-stone-900 md:hover:bg-stone-900/80 md:hover:border-stone-800 md:hover:text-stone-100'
-                }`}
-              >
-                {/* Background decorative watermark */}
-                <div className="absolute -right-3 -bottom-3 w-20 h-20 opacity-15 md:opacity-[0.06] md:group-hover:opacity-20 pointer-events-none group-hover:scale-125 transition-all duration-700">
-                  <Icons.Sparkle className="w-full h-full" />
-                </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1 text-left">
+              {([
+                {
+                  id: 'oracle' as ProjectArtId,
+                  index: '01',
+                  title: t.oracle,
+                  desc: t.oracleDesc,
+                  onClick: () => setActivePage('ORACLE'),
+                },
+                {
+                  id: 'dream' as ProjectArtId,
+                  index: '02',
+                  title: t.dreamAnalysis,
+                  desc: t.dreamDesc,
+                  href: 'https://dreamjung.cloud.run/',
+                },
+                {
+                  id: 'marginalia' as ProjectArtId,
+                  index: '03',
+                  title: t.marginaliaProject,
+                  desc: t.marginaliaDesc,
+                  href: 'https://marginalia.cloud.run/',
+                },
+                {
+                  id: 'humanism' as ProjectArtId,
+                  index: '04',
+                  title: t.humanismProject,
+                  desc: t.humanismDesc,
+                  href: 'https://lib-basics.onrender.com/',
+                },
+                {
+                  id: 'faith' as ProjectArtId,
+                  index: '05',
+                  title: t.faithProject,
+                  desc: t.faithDesc,
+                  href: 'http://post-modern.onrender.com',
+                },
+                {
+                  id: 'hansard' as ProjectArtId,
+                  index: '06',
+                  title: t.glenHansardProject,
+                  desc: t.hansardDesc,
+                  href: 'https://hansard.onrender.com',
+                },
+              ]).map((project) => {
+                const cardClasses = `group flex items-center gap-3.5 p-3 rounded-xl border text-left transition-colors duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 ${
+                  isRenoir
+                    ? 'border-amber-500/20 bg-[#170907]/90 text-amber-100 hover:border-amber-400/55 hover:bg-[#220e0a] focus-visible:ring-amber-400'
+                    : 'border-black/12 bg-white text-black hover:border-red-600/50 hover:bg-[#faf8f5] focus-visible:ring-red-600'
+                }`;
 
-                <div className="relative z-10 flex flex-col items-center gap-2.5 md:gap-3">
-                  <div className={`w-10 h-10 rounded-xl border flex items-center justify-center transition-transform duration-500 group-hover:rotate-6 group-hover:scale-110 shadow-inner ${
-                    isRenoir 
-                      ? 'border-amber-500/40 bg-amber-500/15 text-amber-300 md:border-amber-500/30 md:bg-amber-500/10 md:group-hover:border-amber-400 md:group-hover:bg-amber-500/20' 
-                      : 'border-amber-400/60 bg-amber-500/15 text-amber-300 md:border-stone-700/20 md:bg-stone-800/10 md:text-stone-800 md:group-hover:border-amber-400/60 md:group-hover:bg-amber-500/15 md:group-hover:text-amber-300'
-                  }`}>
-                    <Icons.Sparkle className="w-5 h-5" />
-                  </div>
-                  <span className={`text-[10px] md:text-xs font-black uppercase tracking-[0.2em] transition-colors ${
-                    isRenoir ? 'text-amber-300 md:text-amber-100 md:group-hover:text-amber-400' : 'text-amber-300 md:text-stone-900 md:group-hover:text-amber-300'
-                  }`}>
-                    {t.oracle}
-                  </span>
-                  <p className={`text-[10px] leading-snug opacity-90 md:opacity-0 md:group-hover:opacity-90 transition-all duration-300 transform translate-y-0 md:translate-y-1 md:group-hover:translate-y-0 font-normal max-w-[180px] ${
-                    isRenoir ? 'text-stone-300' : 'text-stone-300 md:text-stone-600 md:group-hover:text-stone-300'
-                  }`}>
-                    {t.oracleDesc}
-                  </p>
-                </div>
-              </button>
+                const inner = (
+                  <>
+                    <div
+                      className={`w-12 h-12 rounded-lg overflow-hidden border shrink-0 transition-transform duration-200 group-hover:scale-[1.03] ${
+                        isRenoir ? 'border-amber-500/30' : 'border-black/15'
+                      }`}
+                    >
+                      <ProjectArtwork id={project.id} isRenoir={isRenoir} />
+                    </div>
+                    <div className="min-w-0 flex-1 text-left">
+                      <div className="flex items-center justify-between gap-2">
+                        <span
+                          className={`text-[10px] font-mono tabular-nums tracking-[0.2em] ${
+                            isRenoir ? 'text-amber-400/55' : 'text-black/40'
+                          }`}
+                        >
+                          {project.index}
+                        </span>
+                        {project.onClick ? (
+                          <Icons.ArrowLeft
+                            className={`w-3 h-3 rotate-180 shrink-0 opacity-30 group-hover:opacity-90 group-hover:translate-x-0.5 transition-all duration-200 ${
+                              isRenoir ? 'text-amber-300' : 'text-red-600'
+                            }`}
+                          />
+                        ) : (
+                          <Icons.External
+                            className={`w-3 h-3 shrink-0 opacity-30 group-hover:opacity-90 transition-opacity duration-200 ${
+                              isRenoir ? 'text-amber-300' : 'text-red-600'
+                            }`}
+                          />
+                        )}
+                      </div>
+                      <div
+                        className={`text-[11px] font-black uppercase tracking-[0.15em] truncate mt-0.5 transition-colors ${
+                          isRenoir
+                            ? 'text-amber-100 group-hover:text-amber-300'
+                            : 'text-black group-hover:text-red-600'
+                        }`}
+                      >
+                        {project.title}
+                      </div>
+                      <p
+                        className={`text-[11px] leading-snug line-clamp-2 mt-0.5 ${
+                          isRenoir ? 'text-amber-100/65' : 'text-black/60'
+                        }`}
+                      >
+                        {project.desc}
+                      </p>
+                    </div>
+                  </>
+                );
 
-              {/* Dream Oracle / Dream Analysis */}
-              <a 
-                href="https://dreamjung.cloud.run/" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className={`group relative flex flex-col items-center justify-center text-center gap-3 p-5 rounded-2xl border overflow-hidden transition-all duration-500 hover:scale-[1.02] active:scale-[0.98] shadow-md hover:shadow-2xl min-h-[140px] ${
-                  isRenoir 
-                    ? 'border-amber-800/60 bg-amber-950/75 text-amber-100 md:border-amber-900/40 md:bg-amber-950/30 md:hover:bg-amber-950/80 md:hover:border-amber-500/50 hover:shadow-amber-950/40' 
-                    : 'border-stone-800 bg-stone-900/80 text-stone-100 md:border-stone-800/20 md:bg-stone-900/[0.04] md:text-stone-900 md:hover:bg-stone-900/80 md:hover:border-stone-800 md:hover:text-stone-100'
-                }`}
-              >
-                {/* Background decorative watermark */}
-                <div className="absolute -right-3 -bottom-3 w-20 h-20 opacity-15 md:opacity-[0.06] md:group-hover:opacity-20 pointer-events-none group-hover:scale-125 transition-all duration-700">
-                  <Icons.Mind className="w-full h-full" />
-                </div>
-
-                <div className="relative z-10 flex flex-col items-center gap-2.5 md:gap-3">
-                  <div className={`w-10 h-10 rounded-xl border flex items-center justify-center transition-transform duration-500 group-hover:rotate-6 group-hover:scale-110 shadow-inner ${
-                    isRenoir 
-                      ? 'border-amber-500/40 bg-amber-500/15 text-amber-300 md:border-amber-500/30 md:bg-amber-500/10 md:group-hover:border-amber-400 md:group-hover:bg-amber-500/20' 
-                      : 'border-amber-400/60 bg-amber-500/15 text-amber-300 md:border-stone-700/20 md:bg-stone-800/10 md:text-stone-800 md:group-hover:border-amber-400/60 md:group-hover:bg-amber-500/15 md:group-hover:text-amber-300'
-                  }`}>
-                    <Icons.Mind className="w-5 h-5" />
-                  </div>
-                  <span className={`text-[10px] md:text-xs font-black uppercase tracking-[0.2em] transition-colors ${
-                    isRenoir ? 'text-amber-300 md:text-amber-100 md:group-hover:text-amber-400' : 'text-amber-300 md:text-stone-900 md:group-hover:text-amber-300'
-                  }`}>
-                    {t.dreamAnalysis}
-                  </span>
-                  <p className={`text-[10px] leading-snug opacity-90 md:opacity-0 md:group-hover:opacity-90 transition-all duration-300 transform translate-y-0 md:translate-y-1 md:group-hover:translate-y-0 font-normal max-w-[180px] ${
-                    isRenoir ? 'text-stone-300' : 'text-stone-300 md:text-stone-600 md:group-hover:text-stone-300'
-                  }`}>
-                    {t.dreamDesc}
-                  </p>
-                </div>
-              </a>
-
-              {/* Marginalia / Book Search Engine */}
-              <a 
-                href="https://marginalia.cloud.run/" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className={`group relative flex flex-col items-center justify-center text-center gap-3 p-5 rounded-2xl border overflow-hidden transition-all duration-500 hover:scale-[1.02] active:scale-[0.98] shadow-md hover:shadow-2xl min-h-[140px] ${
-                  isRenoir 
-                    ? 'border-amber-800/60 bg-amber-950/75 text-amber-100 md:border-amber-900/40 md:bg-amber-950/30 md:hover:bg-amber-950/80 md:hover:border-amber-500/50 hover:shadow-amber-950/40' 
-                    : 'border-stone-800 bg-stone-900/80 text-stone-100 md:border-stone-800/20 md:bg-stone-900/[0.04] md:text-stone-900 md:hover:bg-stone-900/80 md:hover:border-stone-800 md:hover:text-stone-100'
-                }`}
-              >
-                {/* Background decorative watermark */}
-                <div className="absolute -right-3 -bottom-3 w-20 h-20 opacity-15 md:opacity-[0.06] md:group-hover:opacity-20 pointer-events-none group-hover:scale-125 transition-all duration-700">
-                  <Icons.Search className="w-full h-full" />
-                </div>
-
-                <div className="relative z-10 flex flex-col items-center gap-2.5 md:gap-3">
-                  <div className={`w-10 h-10 rounded-xl border flex items-center justify-center transition-transform duration-500 group-hover:rotate-6 group-hover:scale-110 shadow-inner ${
-                    isRenoir 
-                      ? 'border-amber-500/40 bg-amber-500/15 text-amber-300 md:border-amber-500/30 md:bg-amber-500/10 md:group-hover:border-amber-400 md:group-hover:bg-amber-500/20' 
-                      : 'border-amber-400/60 bg-amber-500/15 text-amber-300 md:border-stone-700/20 md:bg-stone-800/10 md:text-stone-800 md:group-hover:border-amber-400/60 md:group-hover:bg-amber-500/15 md:group-hover:text-amber-300'
-                  }`}>
-                    <Icons.Search className="w-5 h-5" />
-                  </div>
-                  <span className={`text-[10px] md:text-xs font-black uppercase tracking-[0.2em] transition-colors ${
-                    isRenoir ? 'text-amber-300 md:text-amber-100 md:group-hover:text-amber-400' : 'text-amber-300 md:text-stone-900 md:group-hover:text-amber-300'
-                  }`}>
-                    {t.marginaliaProject}
-                  </span>
-                  <p className={`text-[10px] leading-snug opacity-90 md:opacity-0 md:group-hover:opacity-90 transition-all duration-300 transform translate-y-0 md:translate-y-1 md:group-hover:translate-y-0 font-normal max-w-[180px] ${
-                    isRenoir ? 'text-stone-300' : 'text-stone-300 md:text-stone-600 md:group-hover:text-stone-300'
-                  }`}>
-                    {t.marginaliaDesc}
-                  </p>
-                </div>
-              </a>
-
-              {/* Liberal Foundations / Roots of Humanism */}
-              <a 
-                href="https://lib-basics.onrender.com/" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className={`group relative flex flex-col items-center justify-center text-center gap-3 p-5 rounded-2xl border overflow-hidden transition-all duration-500 hover:scale-[1.02] active:scale-[0.98] shadow-md hover:shadow-2xl min-h-[140px] ${
-                  isRenoir 
-                    ? 'border-amber-800/60 bg-amber-950/75 text-amber-100 md:border-amber-900/40 md:bg-amber-950/30 md:hover:bg-amber-950/80 md:hover:border-amber-500/50 hover:shadow-amber-950/40' 
-                    : 'border-stone-800 bg-stone-900/80 text-stone-100 md:border-stone-800/20 md:bg-stone-900/[0.04] md:text-stone-900 md:hover:bg-stone-900/80 md:hover:border-stone-800 md:hover:text-stone-100'
-                }`}
-              >
-                {/* Background decorative watermark */}
-                <div className="absolute -right-3 -bottom-3 w-20 h-20 opacity-15 md:opacity-[0.06] md:group-hover:opacity-20 pointer-events-none group-hover:scale-125 transition-all duration-700">
-                  <Icons.Encyclopedia className="w-full h-full" />
-                </div>
-
-                <div className="relative z-10 flex flex-col items-center gap-2.5 md:gap-3">
-                  <div className={`w-10 h-10 rounded-xl border flex items-center justify-center transition-transform duration-500 group-hover:rotate-6 group-hover:scale-110 shadow-inner ${
-                    isRenoir 
-                      ? 'border-amber-500/40 bg-amber-500/15 text-amber-300 md:border-amber-500/30 md:bg-amber-500/10 md:group-hover:border-amber-400 md:group-hover:bg-amber-500/20' 
-                      : 'border-amber-400/60 bg-amber-500/15 text-amber-300 md:border-stone-700/20 md:bg-stone-800/10 md:text-stone-800 md:group-hover:border-amber-400/60 md:group-hover:bg-amber-500/15 md:group-hover:text-amber-300'
-                  }`}>
-                    <Icons.Encyclopedia className="w-5 h-5" />
-                  </div>
-                  <span className={`text-[10px] md:text-xs font-black uppercase tracking-[0.2em] transition-colors ${
-                    isRenoir ? 'text-amber-300 md:text-amber-100 md:group-hover:text-amber-400' : 'text-amber-300 md:text-stone-900 md:group-hover:text-amber-300'
-                  }`}>
-                    {t.humanismProject}
-                  </span>
-                  <p className={`text-[10px] leading-snug opacity-90 md:opacity-0 md:group-hover:opacity-90 transition-all duration-300 transform translate-y-0 md:translate-y-1 md:group-hover:translate-y-0 font-normal max-w-[180px] ${
-                    isRenoir ? 'text-stone-300' : 'text-stone-300 md:text-stone-600 md:group-hover:text-stone-300'
-                  }`}>
-                    {t.humanismDesc}
-                  </p>
-                </div>
-              </a>
-
-              {/* Faith */}
-              <a 
-                href="http://post-modern.onrender.com" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className={`group relative flex flex-col items-center justify-center text-center gap-3 p-5 rounded-2xl border overflow-hidden transition-all duration-500 hover:scale-[1.02] active:scale-[0.98] shadow-md hover:shadow-2xl min-h-[140px] ${
-                  isRenoir 
-                    ? 'border-amber-800/60 bg-amber-950/75 text-amber-100 md:border-amber-900/40 md:bg-amber-950/30 md:hover:bg-amber-950/80 md:hover:border-amber-500/50 hover:shadow-amber-950/40' 
-                    : 'border-stone-800 bg-stone-900/80 text-stone-100 md:border-stone-800/20 md:bg-stone-900/[0.04] md:text-stone-900 md:hover:bg-stone-900/80 md:hover:border-stone-800 md:hover:text-stone-100'
-                }`}
-              >
-                {/* Background decorative watermark */}
-                <div className="absolute -right-3 -bottom-3 w-20 h-20 opacity-15 md:opacity-[0.06] md:group-hover:opacity-20 pointer-events-none group-hover:scale-125 transition-all duration-700">
-                  <Icons.External className="w-full h-full" />
-                </div>
-
-                <div className="relative z-10 flex flex-col items-center gap-2.5 md:gap-3">
-                  <div className={`w-10 h-10 rounded-xl border flex items-center justify-center transition-transform duration-500 group-hover:rotate-6 group-hover:scale-110 shadow-inner ${
-                    isRenoir 
-                      ? 'border-amber-500/40 bg-amber-500/15 text-amber-300 md:border-amber-500/30 md:bg-amber-500/10 md:group-hover:border-amber-400 md:group-hover:bg-amber-500/20' 
-                      : 'border-amber-400/60 bg-amber-500/15 text-amber-300 md:border-stone-700/20 md:bg-stone-800/10 md:text-stone-800 md:group-hover:border-amber-400/60 md:group-hover:bg-amber-500/15 md:group-hover:text-amber-300'
-                  }`}>
-                    <Icons.External className="w-5 h-5" />
-                  </div>
-                  <span className={`text-[10px] md:text-xs font-black uppercase tracking-[0.2em] transition-colors ${
-                    isRenoir ? 'text-amber-300 md:text-amber-100 md:group-hover:text-amber-400' : 'text-amber-300 md:text-stone-900 md:group-hover:text-amber-300'
-                  }`}>
-                    {t.faithProject}
-                  </span>
-                  <p className={`text-[10px] leading-snug opacity-90 md:opacity-0 md:group-hover:opacity-90 transition-all duration-300 transform translate-y-0 md:translate-y-1 md:group-hover:translate-y-0 font-normal max-w-[180px] ${
-                    isRenoir ? 'text-stone-300' : 'text-stone-300 md:text-stone-600 md:group-hover:text-stone-300'
-                  }`}>
-                    {t.faithDesc}
-                  </p>
-                </div>
-              </a>
-
-              {/* In memory of Glen Hansard */}
-              <a 
-                href="https://hansard.onrender.com" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className={`group relative flex flex-col items-center justify-center text-center gap-3 p-5 rounded-2xl border overflow-hidden transition-all duration-500 hover:scale-[1.02] active:scale-[0.98] shadow-md hover:shadow-2xl min-h-[140px] ${
-                  isRenoir 
-                    ? 'border-amber-800/60 bg-amber-950/75 text-amber-100 md:border-amber-900/40 md:bg-amber-950/30 md:hover:bg-amber-950/80 md:hover:border-amber-500/50 hover:shadow-amber-950/40' 
-                    : 'border-stone-800 bg-stone-900/80 text-stone-100 md:border-stone-800/20 md:bg-stone-900/[0.04] md:text-stone-900 md:hover:bg-stone-900/80 md:hover:border-stone-800 md:hover:text-stone-100'
-                }`}
-              >
-                {/* Background decorative watermark */}
-                <div className="absolute -right-3 -bottom-3 w-20 h-20 opacity-15 md:opacity-[0.06] md:group-hover:opacity-20 pointer-events-none group-hover:scale-125 transition-all duration-700">
-                  <Icons.Speaker muted={false} loading={false} className="w-full h-full" />
-                </div>
-
-                <div className="relative z-10 flex flex-col items-center gap-2.5 md:gap-3">
-                  <div className={`w-10 h-10 rounded-xl border flex items-center justify-center transition-transform duration-500 group-hover:rotate-6 group-hover:scale-110 shadow-inner ${
-                    isRenoir 
-                      ? 'border-amber-500/40 bg-amber-500/15 text-amber-300 md:border-amber-500/30 md:bg-amber-500/10 md:group-hover:border-amber-400 md:group-hover:bg-amber-500/20' 
-                      : 'border-amber-400/60 bg-amber-500/15 text-amber-300 md:border-stone-700/20 md:bg-stone-800/10 md:text-stone-800 md:group-hover:border-amber-400/60 md:group-hover:bg-amber-500/15 md:group-hover:text-amber-300'
-                  }`}>
-                    <Icons.Speaker muted={false} loading={false} className="w-5 h-5" />
-                  </div>
-                  <span className={`text-[10px] md:text-xs font-black uppercase tracking-[0.2em] transition-colors ${
-                    isRenoir ? 'text-amber-300 md:text-amber-100 md:group-hover:text-amber-400' : 'text-amber-300 md:text-stone-900 md:group-hover:text-amber-300'
-                  }`}>
-                    {t.glenHansardProject}
-                  </span>
-                  <p className={`text-[10px] leading-snug opacity-90 md:opacity-0 md:group-hover:opacity-90 transition-all duration-300 transform translate-y-0 md:translate-y-1 md:group-hover:translate-y-0 font-normal max-w-[180px] ${
-                    isRenoir ? 'text-stone-300' : 'text-stone-300 md:text-stone-600 md:group-hover:text-stone-300'
-                  }`}>
-                    {t.hansardDesc}
-                  </p>
-                </div>
-              </a>
+                return project.onClick ? (
+                  <button key={project.id} onClick={project.onClick} className={cardClasses}>
+                    {inner}
+                  </button>
+                ) : (
+                  <a
+                    key={project.id}
+                    href={project.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={cardClasses}
+                  >
+                    {inner}
+                  </a>
+                );
+              })}
             </div>
           </div>
 
